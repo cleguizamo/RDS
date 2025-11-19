@@ -1,0 +1,70 @@
+<div class="admin-management">
+  <div class="header">
+    <h2>Crear Nuevo Administrador</h2>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  <div class="form-card">
+    <form (ngSubmit)="createAdmin()">
+      <div class="form-row">
+        <div class="form-group">
+          <label>Nombre *</label>
+          <input type="text" [(ngModel)]="adminForm.name" name="name" required />
+        </div>
+        <div class="form-group">
+          <label>Apellido *</label>
+          <input type="text" [(ngModel)]="adminForm.lastName" name="lastName" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Tipo de Documento *</label>
+          <select [(ngModel)]="adminForm.documentType" name="documentType" required>
+            @for (type of documentTypes; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Número de Documento *</label>
+          <input type="text" [(ngModel)]="adminForm.documentNumber" name="documentNumber" required />
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label>Email *</label>
+          <input type="email" [(ngModel)]="adminForm.email" name="email" required />
+        </div>
+        <div class="form-group">
+          <label>Teléfono *</label>
+          <input type="text" [(ngModel)]="adminForm.phone" name="phone" pattern="[0-9]{10}" required />
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label>Contraseña *</label>
+        <input type="password" [(ngModel)]="adminForm.password" name="password" minlength="6" required />
+        <small>Mínimo 6 caracteres, debe incluir letras y números</small>
+      </div>
+
+      <div class="form-actions">
+        <button type="submit" class="btn-save" [disabled]="loading()">
+          {{ loading() ? 'Creando...' : 'Crear Administrador' }}
+        </button>
+        <button type="button" class="btn-cancel" (click)="resetForm()" [disabled]="loading()">
+          Limpiar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+

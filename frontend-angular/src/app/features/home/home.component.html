@@ -1,0 +1,106 @@
+<div class="home-container">
+  <!-- Hero Section -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">{{ barInfo.name }}</h1>
+      <p class="hero-slogan">{{ barInfo.slogan }}</p>
+      <div class="hero-buttons">
+        <a [routerLink]="['/menu']" class="btn-primary">Ver Menú</a>
+        <a [routerLink]="['/reservations']" class="btn-secondary">Reservar Mesa</a>
+      </div>
+    </div>
+    <div class="hero-overlay"></div>
+  </section>
+
+  <!-- About Section -->
+  <section class="about-section">
+    <div class="container">
+      <h2 class="section-title">Sobre Nosotros</h2>
+      <p class="section-description">{{ barInfo.description }}</p>
+    </div>
+  </section>
+
+  <!-- Menu Preview Section -->
+  <section class="menu-section">
+    <div class="container">
+      <h2 class="section-title">Nuestro Menú</h2>
+      <div class="menu-categories">
+        <div class="category-card">
+          <div class="category-icon">🍺</div>
+          <h3>Bebidas</h3>
+          <p>Cervezas artesanales, cocteles exclusivos y licores premium</p>
+          <a [routerLink]="['/menu']" class="category-link">Ver más →</a>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🍕</div>
+          <h3>Comida</h3>
+          <p>Platos exquisitos para acompañar tus bebidas favoritas</p>
+          <a [routerLink]="['/menu']" class="category-link">Ver más →</a>
+        </div>
+        <div class="category-card">
+          <div class="category-icon">🍰</div>
+          <h3>Postres</h3>
+          <p>Dulces tentaciones para endulzar tu noche</p>
+          <a [routerLink]="['/menu']" class="category-link">Ver más →</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Location Section -->
+  <section class="location-section">
+    <div class="container">
+      <div class="location-content">
+        <div class="location-info">
+          <h2 class="section-title">Visítanos</h2>
+          <div class="info-item">
+            <span class="info-icon">📍</span>
+            <div>
+              <strong>Dirección</strong>
+              <p>{{ barInfo.address }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">📞</span>
+            <div>
+              <strong>Teléfono</strong>
+              <p>{{ barInfo.phone }}</p>
+            </div>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">🕒</span>
+            <div>
+              <strong>Horarios</strong>
+              <p>{{ barInfo.hours.weekdays }}</p>
+              <p>{{ barInfo.hours.weekend }}</p>
+            </div>
+          </div>
+          <div class="location-actions">
+            <a [routerLink]="['/reservations']" class="btn-primary">Hacer Reserva</a>
+            <a [routerLink]="['/login']" class="btn-outline">Mi Cuenta</a>
+          </div>
+        </div>
+        <div class="location-map">
+          <div class="map-placeholder">
+            <span class="map-icon">🗺️</span>
+            <p>Mapa interactivo</p>
+            <small>Aquí irá la integración con Google Maps</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <h2>¿Listo para una noche increíble?</h2>
+      <p>Únete a nuestra comunidad y disfruta de beneficios exclusivos</p>
+      <div class="cta-buttons">
+        <a [routerLink]="['/signup']" class="btn-primary btn-large">Crear Cuenta</a>
+        <a [routerLink]="['/login']" class="btn-secondary btn-large">Iniciar Sesión</a>
+      </div>
+    </div>
+  </section>
+</div>
+

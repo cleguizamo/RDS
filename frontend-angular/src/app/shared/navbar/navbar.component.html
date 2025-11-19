@@ -1,0 +1,44 @@
+<nav class="navbar">
+  <div class="navbar-container">
+    <div class="navbar-brand">
+      <a [routerLink]="['/']" class="brand-link">
+        <span class="brand-icon">🍺</span>
+        <span class="brand-name">El Buen Sabor</span>
+      </a>
+    </div>
+
+    <button class="menu-toggle" (click)="toggleMenu()" [class.active]="isMenuOpen()">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+
+    <div class="navbar-menu" [class.active]="isMenuOpen()">
+      <a [routerLink]="['/']" routerLinkActive="active" [routerLinkActiveOptions]="{exact: true}" class="nav-link">Inicio</a>
+      <a [routerLink]="['/menu']" routerLinkActive="active" class="nav-link">Menú</a>
+      <a [routerLink]="['/reservations']" routerLinkActive="active" class="nav-link">Reservas</a>
+
+      @if (!authService.isAuthenticated()) {
+        <a [routerLink]="['/login']" class="nav-link nav-btn">Iniciar Sesión</a>
+        <a [routerLink]="['/signup']" class="nav-link nav-btn-primary">Registrarse</a>
+      } @else {
+        <div class="user-menu">
+          <span class="user-name">{{ authService.currentUser()?.name }}</span>
+          <div class="user-dropdown">
+            @if (authService.currentUser()?.role === 'ADMIN') {
+              <a [routerLink]="['/admin']" class="dropdown-link">Panel Admin</a>
+            }
+            @if (authService.currentUser()?.role === 'EMPLOYEE') {
+              <a [routerLink]="['/employee']" class="dropdown-link">Panel Empleado</a>
+            }
+            @if (authService.currentUser()?.role === 'CLIENT') {
+              <a [routerLink]="['/dashboard']" class="dropdown-link">Mi Cuenta</a>
+            }
+            <button (click)="logout()" class="dropdown-link">Cerrar Sesión</button>
+          </div>
+        </div>
+      }
+    </div>
+  </div>
+</nav>
+

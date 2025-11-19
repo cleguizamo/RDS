@@ -1,0 +1,154 @@
+<div class="reservation-management">
+  <div class="header">
+    <h2>Gestión de Reservas</h2>
+    <button (click)="loadReservations()" class="btn-refresh" [disabled]="loading()">Actualizar</button>
+  </div>
+
+  <div class="filters">
+    <button 
+      [class.active]="filterStatus() === 'all'"
+      (click)="setFilter('all')"
+      class="filter-btn">
+      Todas
+    </button>
+    <button 
+      [class.active]="filterStatus() === 'pending'"
+      (click)="setFilter('pending')"
+      class="filter-btn">
+      Pendientes
+    </button>
+    <button 
+      [class.active]="filterStatus() === 'confirmed'"
+      (click)="setFilter('confirmed')"
+      class="filter-btn">
+      Confirmadas
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading() && reservations().length === 0) {
+    <div class="loading">Cargando reservas...</div>
+  } @else {
+    <div class="reservations-list">
+      @for (reservation of filteredReservations(); track reservation.id) {
+        <div class="reservation-card" [class.confirmed]="reservation.status" [class.pending]="!reservation.status">
+          <div class="reservation-header">
+            <div class="reservation-id">Reserva #{{ reservation.id }}</div>
+            <div class="status-badge" [class.confirmed]="reservation.status">
+              {{ reservation.status ? 'Confirmada' : 'Pendiente' }}
+            </div>
+          </div>
+          <div class="reservation-body">
+            <div class="info-row">
+              <strong>Cliente:</strong> {{ reservation.userName }} ({{ reservation.userEmail }})
+            </div>
+            <div class="info-row">
+              <strong>Fecha:</strong> {{ formatDate(reservation.date) }}
+            </div>
+            <div class="info-row">
+              <strong>Hora:</strong> {{ formatTime(reservation.time) }}
+            </div>
+            <div class="info-row">
+              <strong>Personas:</strong> {{ reservation.numberOfPeople }}
+            </div>
+            @if (reservation.notes) {
+              <div class="info-row">
+                <strong>Notas:</strong> {{ reservation.notes }}
+              </div>
+            }
+          </div>
+          <div class="reservation-actions">
+            @if (!reservation.status) {
+              <button 
+                class="btn-confirm" 
+                (click)="confirmReservation(reservation)">
+                Confirmar Reserva
+              </button>
+            }
+            @if (reservation.status) {
+              <button 
+                class="btn-open-order" 
+                (click)="openOrderForm(reservation)">
+                Abrir Pedido
+              </button>
+            }
+          </div>
+        </div>
+      }
+
+      @if (filteredReservations().length === 0) {
+        <div class="no-reservations">
+          <p>No hay reservas {{ filterStatus() === 'all' ? '' : filterStatus() === 'pending' ? 'pendientes' : 'confirmadas' }}</p>
+        </div>
+      }
+    </div>
+  }
+
+  @if (showOrderForm() && selectedReservation()) {
+    <div class="order-modal-overlay" (click)="cancelOrderForm()">
+      <div class="order-modal" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Crear Pedido desde Reserva #{{ selectedReservation()!.id }}</h3>
+          <button (click)="cancelOrderForm()" class="btn-close">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="reservation-info-summary">
+            <p><strong>Cliente:</strong> {{ selectedReservation()!.userName }}</p>
+            <p><strong>Personas:</strong> {{ selectedReservation()!.numberOfPeople }}</p>
+            <p><strong>Fecha:</strong> {{ formatDate(selectedReservation()!.date) }}</p>
+          </div>
+
+          @if (successMessage()) {
+            <div class="alert alert-success">{{ successMessage() }}</div>
+          }
+
+          @if (errorMessage()) {
+            <div class="alert alert-error">{{ errorMessage() }}</div>
+          }
+
+          <div class="form-group">
+            <label for="tableNumber">Número de Mesa *</label>
+            <input 
+              type="number" 
+              id="tableNumber" 
+              [(ngModel)]="tableNumber"
+              min="1"
+              placeholder="Ingrese el número de mesa"
+              class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label for="totalPrice">Precio Total *</label>
+            <input 
+              type="number" 
+              id="totalPrice" 
+              [(ngModel)]="totalPrice"
+              step="0.01"
+              min="0.01"
+              placeholder="0.00"
+              class="form-input">
+          </div>
+        </div>
+
+        <div class="modal-actions">
+          <button (click)="cancelOrderForm()" class="btn-cancel">Cancelar</button>
+          <button 
+            (click)="createOrderFromReservation()" 
+            class="btn-submit"
+            [disabled]="!isValidForm()">
+            @if (loading()) {
+              Creando...
+            } @else {
+              Crear Pedido
+            }
+          </button>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

@@ -1,0 +1,77 @@
+<div class="dashboard-container">
+  <div class="dashboard-header">
+    <h1>Mi Cuenta</h1>
+    <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Cargando información...</div>
+  } @else if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  } @else if (userInfo()) {
+    <div class="user-info-card">
+      <div class="info-section">
+        <h2>Información Personal</h2>
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Nombre Completo</label>
+            <p>{{ userInfo()!.name }} {{ userInfo()!.lastName }}</p>
+          </div>
+          <div class="info-item">
+            <label>Email</label>
+            <p>{{ userInfo()!.email }}</p>
+          </div>
+          <div class="info-item">
+            <label>Teléfono</label>
+            <p>{{ userInfo()!.phone }}</p>
+          </div>
+          <div class="info-item">
+            <label>Tipo de Documento</label>
+            <p>{{ userInfo()!.documentType }}</p>
+          </div>
+          <div class="info-item">
+            <label>Número de Documento</label>
+            <p>{{ userInfo()!.documentNumber }}</p>
+          </div>
+          <div class="info-item">
+            <label>Fecha de Nacimiento</label>
+            <p>{{ userInfo()!.dateOfBirth | date:'mediumDate' }}</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="stats-section">
+        <h2>Estadísticas</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value">{{ userInfo()!.points }}</div>
+            <div class="stat-label">Puntos Acumulados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ userInfo()!.numberOfOrders }}</div>
+            <div class="stat-label">Pedidos Realizados</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">${{ userInfo()!.totalSpent | number:'1.2-2' }}</div>
+            <div class="stat-label">Total Gastado</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value">{{ userInfo()!.numberOfReservations }}</div>
+            <div class="stat-label">Reservaciones</div>
+          </div>
+        </div>
+        @if (userInfo()!.lastOrderDate) {
+          <div class="last-order">
+            <p><strong>Último pedido:</strong> {{ userInfo()!.lastOrderDate | date:'mediumDate' }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="actions-section">
+        <a [routerLink]="['/']" class="btn-primary">Ver Menú</a>
+        <a [routerLink]="['/reservations']" class="btn-secondary">Hacer Reserva</a>
+      </div>
+    </div>
+  }
+</div>
+

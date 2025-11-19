@@ -1,0 +1,151 @@
+<div class="reservations-container">
+  <div class="reservations-header">
+    <h1>Hacer una Reserva</h1>
+    <p class="subtitle">Reserva tu mesa en nuestro bar</p>
+  </div>
+
+  @if (!authService.isAuthenticated()) {
+    <div class="auth-required">
+      <div class="auth-message">
+        <h2>Inicia sesión para hacer una reserva</h2>
+        <p>Necesitas tener una cuenta para reservar una mesa en nuestro bar.</p>
+        <div class="auth-actions">
+          <a [routerLink]="['/login']" class="btn-primary">Iniciar Sesión</a>
+          <a [routerLink]="['/signup']" class="btn-secondary">Crear Cuenta</a>
+        </div>
+      </div>
+    </div>
+  } @else {
+    <!-- Formulario de reserva -->
+    @if (showForm()) {
+      <div class="reservation-form-container">
+        <form [formGroup]="reservationForm" (ngSubmit)="onSubmit()" class="reservation-form">
+          <h2>Nueva Reserva</h2>
+
+          @if (successMessage()) {
+            <div class="alert alert-success">
+              {{ successMessage() }}
+            </div>
+          }
+
+          @if (errorMessage()) {
+            <div class="alert alert-error">
+              {{ errorMessage() }}
+            </div>
+          }
+
+          <div class="form-group">
+            <label for="date">Fecha *</label>
+            <input 
+              type="date" 
+              id="date" 
+              formControlName="date"
+              [class.invalid]="reservationForm.get('date')?.invalid && reservationForm.get('date')?.touched">
+            @if (reservationForm.get('date')?.invalid && reservationForm.get('date')?.touched) {
+              <span class="error-message">{{ getErrorMessage('date') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="time">Hora *</label>
+            <input 
+              type="time" 
+              id="time" 
+              formControlName="time"
+              [class.invalid]="reservationForm.get('time')?.invalid && reservationForm.get('time')?.touched">
+            @if (reservationForm.get('time')?.invalid && reservationForm.get('time')?.touched) {
+              <span class="error-message">{{ getErrorMessage('time') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="numberOfPeople">Número de Personas *</label>
+            <input 
+              type="number" 
+              id="numberOfPeople" 
+              formControlName="numberOfPeople"
+              min="1" 
+              max="20"
+              [class.invalid]="reservationForm.get('numberOfPeople')?.invalid && reservationForm.get('numberOfPeople')?.touched">
+            @if (reservationForm.get('numberOfPeople')?.invalid && reservationForm.get('numberOfPeople')?.touched) {
+              <span class="error-message">{{ getErrorMessage('numberOfPeople') }}</span>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="notes">Notas adicionales (opcional)</label>
+            <textarea 
+              id="notes" 
+              formControlName="notes"
+              rows="4"
+              placeholder="Especificaciones especiales, ocasión, etc."></textarea>
+          </div>
+
+          <div class="form-actions">
+            <button 
+              type="submit" 
+              class="btn-primary"
+              [disabled]="submitting() || reservationForm.invalid">
+              @if (submitting()) {
+                Creando reserva...
+              } @else {
+                Hacer Reserva
+              }
+            </button>
+          </div>
+        </form>
+      </div>
+    }
+
+    <!-- Mis reservas -->
+    <div class="my-reservations">
+      <div class="section-header">
+        <h2>Mis Reservas</h2>
+        @if (showForm()) {
+          <button (click)="toggleForm()" class="btn-toggle">Ocultar formulario</button>
+        } @else {
+          <button (click)="toggleForm()" class="btn-toggle">Nueva Reserva</button>
+        }
+      </div>
+
+      @if (loading()) {
+        <div class="loading">Cargando reservas...</div>
+      } @else if (reservations().length === 0) {
+        <div class="no-reservations">
+          <p>No tienes reservas aún.</p>
+        </div>
+      } @else {
+        <div class="reservations-list">
+          @for (reservation of reservations(); track reservation.id) {
+            <div class="reservation-card" [class.confirmed]="reservation.status" [class.pending]="!reservation.status">
+              <div class="reservation-header">
+                <div class="reservation-id">Reserva #{{ reservation.id }}</div>
+                <div class="status-badge" [class.confirmed]="reservation.status">
+                  {{ reservation.status ? 'Confirmada' : 'Pendiente' }}
+                </div>
+              </div>
+              <div class="reservation-body">
+                <div class="reservation-info">
+                  <p><strong>Fecha:</strong> {{ formatDate(reservation.date) }}</p>
+                  <p><strong>Hora:</strong> {{ formatTime(reservation.time) }}</p>
+                  <p><strong>Personas:</strong> {{ reservation.numberOfPeople }}</p>
+                  @if (reservation.notes) {
+                    <p><strong>Notas:</strong> {{ reservation.notes }}</p>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+
+  <div class="actions">
+    <a [routerLink]="['/']" class="btn-secondary">Volver al inicio</a>
+    @if (authService.isAuthenticated()) {
+      <a [routerLink]="['/dashboard']" class="btn-outline">Mi Cuenta</a>
+    }
+  </div>
+</div>
+

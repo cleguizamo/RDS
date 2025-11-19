@@ -1,0 +1,179 @@
+.order-management {
+  padding: 2rem;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.header h2 {
+  margin: 0;
+  color: var(--bar-dark);
+}
+
+.btn-refresh {
+  padding: 0.75rem 1.5rem;
+  background: var(--bar-gold);
+  color: var(--bar-dark);
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: #e5c449;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.alert {
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1rem;
+}
+
+.alert-error {
+  background: #fee;
+  color: #c33;
+  border: 1px solid #fcc;
+}
+
+.filters {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.filter-btn {
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: var(--bar-dark);
+  border: 2px solid var(--bar-gold);
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.filter-btn:hover {
+  background: #f5f5f5;
+}
+
+.filter-btn.active {
+  background: var(--bar-gold);
+  color: var(--bar-dark);
+}
+
+.loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--bar-dark);
+}
+
+.orders-table {
+  overflow-x: auto;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+thead {
+  background: var(--bar-dark);
+  color: white;
+}
+
+th, td {
+  padding: 1rem;
+  text-align: left;
+}
+
+tbody tr {
+  border-bottom: 1px solid #eee;
+}
+
+tbody tr:hover {
+  background: #f5f5f5;
+}
+
+tbody tr.pending {
+  background: #fffbf0;
+}
+
+tbody tr.completed {
+  background: #f0f9f4;
+}
+
+.type-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: #ecf0f1;
+  color: #7f8c8d;
+}
+
+.type-badge.en-mesa {
+  background: #e8f4f8;
+  color: #2980b9;
+}
+
+.type-badge.domicilio {
+  background: #fff3e0;
+  color: #f57c00;
+}
+
+.status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-badge.completed {
+  background: #d4edda;
+  color: #155724;
+}
+
+.price {
+  font-weight: 700;
+  color: var(--bar-gold);
+  font-size: 1.1rem;
+}
+
+.details-cell {
+  font-size: 0.875rem;
+  color: #666;
+  max-width: 200px;
+}
+
+.details-cell div {
+  margin-bottom: 0.25rem;
+}
+
+.no-data {
+  text-align: center;
+  padding: 2rem;
+  color: #666;
+}
+
+@media (max-width: 768px) {
+  .orders-table {
+    overflow-x: scroll;
+  }
+}
+

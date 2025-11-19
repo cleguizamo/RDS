@@ -1,0 +1,340 @@
+<div class="order-management">
+  <div class="header">
+    <h2>Gestión de Pedidos</h2>
+    <div class="header-actions">
+      <button (click)="toggleForm()" class="btn-new-order">
+        {{ showForm() ? 'Cancelar' : 'Nuevo Pedido' }}
+      </button>
+      <button (click)="loadOrders()" class="btn-refresh" [disabled]="loading()">Actualizar</button>
+    </div>
+  </div>
+
+  @if (showForm()) {
+    <div class="order-form-container">
+      <form [formGroup]="orderForm" (ngSubmit)="onSubmit()" class="order-form">
+        <h3>Crear Nuevo Pedido</h3>
+
+        @if (successMessage()) {
+          <div class="alert alert-success">{{ successMessage() }}</div>
+        }
+
+        @if (errorMessage()) {
+          <div class="alert alert-error">{{ errorMessage() }}</div>
+        }
+
+        <div class="form-group">
+          <label for="userId">Cliente *</label>
+          <select 
+            id="userId" 
+            formControlName="userId"
+            [class.invalid]="orderForm.get('userId')?.invalid && orderForm.get('userId')?.touched">
+            <option value="">Seleccione un cliente</option>
+            @for (user of users(); track user.id) {
+              <option [value]="user.id">{{ user.name }} {{ user.lastName }} ({{ user.email }})</option>
+            }
+          </select>
+          @if (orderForm.get('userId')?.invalid && orderForm.get('userId')?.touched) {
+            <span class="error-message">{{ getErrorMessage('userId') }}</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="orderType">Tipo de Pedido *</label>
+          <select 
+            id="orderType" 
+            formControlName="orderType"
+            [class.invalid]="orderForm.get('orderType')?.invalid && orderForm.get('orderType')?.touched">
+            <option [value]="OrderType.EN_MESA">En Mesa</option>
+            <option [value]="OrderType.DOMICILIO">Domicilio</option>
+          </select>
+        </div>
+
+        @if (orderForm.get('orderType')?.value === OrderType.EN_MESA) {
+          <div class="form-group">
+            <label for="tableNumber">Número de Mesa *</label>
+            <input 
+              type="number" 
+              id="tableNumber" 
+              formControlName="tableNumber"
+              min="1"
+              [class.invalid]="orderForm.get('tableNumber')?.invalid && orderForm.get('tableNumber')?.touched">
+            @if (orderForm.get('tableNumber')?.invalid && orderForm.get('tableNumber')?.touched) {
+              <span class="error-message">{{ getErrorMessage('tableNumber') }}</span>
+            }
+          </div>
+        }
+
+        @if (orderForm.get('orderType')?.value === OrderType.DOMICILIO) {
+          <div class="form-row">
+            <div class="form-group">
+              <label for="deliveryAddress">Dirección de Entrega *</label>
+              <input 
+                type="text" 
+                id="deliveryAddress" 
+                formControlName="deliveryAddress"
+                placeholder="Calle, número, barrio..."
+                [class.invalid]="orderForm.get('deliveryAddress')?.invalid && orderForm.get('deliveryAddress')?.touched">
+              @if (orderForm.get('deliveryAddress')?.invalid && orderForm.get('deliveryAddress')?.touched) {
+                <span class="error-message">{{ getErrorMessage('deliveryAddress') }}</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="deliveryPhone">Teléfono de Entrega *</label>
+              <input 
+                type="tel" 
+                id="deliveryPhone" 
+                formControlName="deliveryPhone"
+                placeholder="3001234567"
+                [class.invalid]="orderForm.get('deliveryPhone')?.invalid && orderForm.get('deliveryPhone')?.touched">
+              @if (orderForm.get('deliveryPhone')?.invalid && orderForm.get('deliveryPhone')?.touched) {
+                <span class="error-message">{{ getErrorMessage('deliveryPhone') }}</span>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Sección de Productos -->
+        <div class="products-section">
+          <h4>Productos Disponibles</h4>
+          
+          <!-- Filtro de categorías -->
+          <div class="category-filters">
+            <button
+              [class.active]="selectedCategory() === 'all'"
+              (click)="selectedCategory.set('all')"
+              class="category-btn">
+              Todas
+            </button>
+            @for (category of categories(); track category) {
+              <button
+                [class.active]="selectedCategory() === category"
+                (click)="selectedCategory.set(category)"
+                class="category-btn">
+                {{ category }}
+              </button>
+            }
+          </div>
+
+          <!-- Lista de productos -->
+          @if (loadingProducts()) {
+            <div class="loading">Cargando productos...</div>
+          } @else {
+            <div class="products-grid">
+              @for (product of getFilteredProducts(); track product.id) {
+                <div class="product-card" [class.out-of-stock]="product.stock === 0">
+                  <div class="product-image">
+                    <img [src]="product.imageUrl" [alt]="product.name" />
+                  </div>
+                  <div class="product-info">
+                    <h5>{{ product.name }}</h5>
+                    <p class="product-description">{{ product.description }}</p>
+                    <div class="product-footer">
+                      <span class="product-price">${{ product.price | number:'1.2-2' }}</span>
+                      <span class="product-stock">Stock: {{ product.stock }}</span>
+                    </div>
+                    <div class="product-actions">
+                      @if (product.stock > 0) {
+                        <div class="quantity-controls">
+                          <button 
+                            type="button"
+                            (click)="addToCart(product, 1)"
+                            [disabled]="getCartItemQuantity(product.id!) >= product.stock"
+                            class="btn-quantity">
+                            +
+                          </button>
+                          <span class="quantity-display">{{ getCartItemQuantity(product.id!) }}</span>
+                          @if (getCartItemQuantity(product.id!) > 0) {
+                            <button 
+                              type="button"
+                              (click)="updateCartItemQuantity(product.id!, getCartItemQuantity(product.id!) - 1)"
+                              class="btn-quantity">
+                              -
+                            </button>
+                          }
+                        </div>
+                      } @else {
+                        <span class="out-of-stock-label">Sin Stock</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Carrito -->
+        @if (cart().length > 0) {
+          <div class="cart-section">
+            <h4>Carrito (Total: ${{ calculateTotal() | number:'1.2-2' }})</h4>
+            <div class="cart-items">
+              @for (item of cart(); track item.product.id) {
+                <div class="cart-item">
+                  <div class="cart-item-info">
+                    <span class="cart-item-name">{{ item.product.name }}</span>
+                    <span class="cart-item-price">${{ item.product.price | number:'1.2-2' }} x {{ item.quantity }} = ${{ (item.product.price * item.quantity) | number:'1.2-2' }}</span>
+                  </div>
+                  <div class="cart-item-actions">
+                    <button 
+                      type="button"
+                      (click)="updateCartItemQuantity(item.product.id!, item.quantity - 1)"
+                      class="btn-quantity-small">-</button>
+                    <span class="cart-quantity">{{ item.quantity }}</span>
+                    <button 
+                      type="button"
+                      (click)="updateCartItemQuantity(item.product.id!, item.quantity + 1)"
+                      [disabled]="item.quantity >= item.product.stock"
+                      class="btn-quantity-small">+</button>
+                    <button 
+                      type="button"
+                      (click)="removeFromCart(item.product.id!)"
+                      class="btn-remove">×</button>
+                  </div>
+                </div>
+              }
+            </div>
+            <div class="cart-total">
+              <strong>Total: ${{ calculateTotal() | number:'1.2-2' }}</strong>
+            </div>
+          </div>
+        }
+
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="btn-submit"
+            [disabled]="loading() || orderForm.invalid || cart().length === 0">
+            @if (loading()) {
+              Creando...
+            } @else {
+              Crear Pedido
+            }
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Filtros de pedidos -->
+  <div class="filters">
+    <div class="filter-group">
+      <label>Filtrar por Tipo:</label>
+      <button
+        [class.active]="filterType() === 'all'"
+        (click)="setTypeFilter('all')"
+        class="filter-btn">
+        Todos
+      </button>
+      <button
+        [class.active]="filterType() === OrderType.EN_MESA"
+        (click)="setTypeFilter(OrderType.EN_MESA)"
+        class="filter-btn">
+        En Mesa
+      </button>
+      <button
+        [class.active]="filterType() === OrderType.DOMICILIO"
+        (click)="setTypeFilter(OrderType.DOMICILIO)"
+        class="filter-btn">
+        Domicilio
+      </button>
+    </div>
+    <div class="filter-group">
+      <label>Filtrar por Estado:</label>
+      <button
+        [class.active]="filterStatus() === 'all'"
+        (click)="setFilter('all')"
+        class="filter-btn">
+        Todos
+      </button>
+      <button
+        [class.active]="filterStatus() === 'pending'"
+        (click)="setFilter('pending')"
+        class="filter-btn">
+        Pendientes
+      </button>
+      <button
+        [class.active]="filterStatus() === 'completed'"
+        (click)="setFilter('completed')"
+        class="filter-btn">
+        Completados
+      </button>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading() && orders().length === 0) {
+    <div class="loading">Cargando pedidos...</div>
+  } @else if (!loading() && !errorMessage()) {
+    <div class="orders-list">
+      @if (filteredOrders().length > 0) {
+        @for (order of filteredOrders(); track order.id) {
+          <div class="order-card" [class.completed]="order.status" [class.pending]="!order.status">
+            <div class="order-header">
+              <div class="order-id">Pedido #{{ order.id }}</div>
+              <div class="order-type-badge" [class.en-mesa]="order.type === OrderType.EN_MESA" [class.domicilio]="order.type === OrderType.DOMICILIO">
+                {{ getOrderTypeLabel(order.type) }}
+              </div>
+              <div class="status-badge" [class.completed]="order.status">
+                {{ order.status ? 'Completado' : 'Pendiente' }}
+              </div>
+            </div>
+            <div class="order-body">
+              <div class="order-info">
+                <p><strong>Cliente:</strong> {{ order.userName }} ({{ order.userEmail }})</p>
+                <p><strong>Fecha:</strong> {{ formatDate(order.date) }} a las {{ formatTime(order.time) }}</p>
+                <p><strong>Total:</strong> ${{ order.totalPrice | number:'1.2-2' }}</p>
+                
+                @if (order.type === OrderType.EN_MESA && order.tableNumber) {
+                  <p><strong>Mesa:</strong> #{{ order.tableNumber }}</p>
+                }
+                
+                @if (order.type === OrderType.DOMICILIO) {
+                  <p><strong>Dirección:</strong> {{ order.deliveryAddress }}</p>
+                  @if (order.deliveryPhone) {
+                    <p><strong>Teléfono:</strong> {{ order.deliveryPhone }}</p>
+                  }
+                }
+
+                @if (order.items && order.items.length > 0) {
+                  <div class="order-items">
+                    <strong>Productos:</strong>
+                    <ul>
+                      @for (item of order.items; track item.id) {
+                        <li>{{ item.productName }} x{{ item.quantity }} - ${{ item.subtotal | number:'1.2-2' }}</li>
+                      }
+                    </ul>
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="order-actions">
+              @if (!order.status) {
+                <button 
+                  class="btn-complete" 
+                  (click)="updateOrderStatus(order, true)">
+                  ✓ Marcar como Completado
+                </button>
+              } @else {
+                <button 
+                  class="btn-pending" 
+                  (click)="updateOrderStatus(order, false)">
+                  ↻ Marcar como Pendiente
+                </button>
+              }
+            </div>
+          </div>
+        }
+      } @else {
+        <div class="no-orders">
+          <p>No hay pedidos {{ filterStatus() === 'all' ? '' : filterStatus() === 'pending' ? 'pendientes' : 'completados' }}.</p>
+          <p class="hint">Usa el botón "Nuevo Pedido" para crear uno.</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+

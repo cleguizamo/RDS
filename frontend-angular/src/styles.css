@@ -1,0 +1,56 @@
+/* Estilos globales para el bar - Colores que incentivan el consumo */
+:root {
+  --bar-red: #c41e3a;
+  --bar-dark-red: #8b1538;
+  --bar-gold: #d4af37;
+  --bar-dark: #1a1a1a;
+  --bar-warm: #2d1810;
+  --bar-light: #f5e6d3;
+  --bar-white: #ffffff;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  line-height: 1.6;
+  color: #333;
+  background: var(--bar-light);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+/* Scrollbar personalizada */
+::-webkit-scrollbar {
+  width: 10px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--bar-dark);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bar-gold);
+  border-radius: 5px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #e5c449;
+}

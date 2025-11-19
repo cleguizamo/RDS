@@ -1,0 +1,40 @@
+<div class="employee-panel">
+  <div class="employee-header">
+    <div class="header-content">
+      <h1>Panel de Empleado</h1>
+      <div class="user-info">
+        <span>Bienvenido, {{ authService.currentUser()?.name }} {{ authService.currentUser()?.lastName }}</span>
+        <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="employee-tabs">
+    <button 
+      [class.active]="activeTab() === 'pedidos'"
+      (click)="setTab('pedidos')"
+      class="tab-btn"
+    >
+      Pedidos
+    </button>
+    <button 
+      [class.active]="activeTab() === 'reservas'"
+      (click)="setTab('reservas')"
+      class="tab-btn"
+    >
+      Reservas
+    </button>
+  </div>
+
+  <div class="employee-content">
+    @switch (activeTab()) {
+      @case ('pedidos') {
+        <app-order-management></app-order-management>
+      }
+      @case ('reservas') {
+        <app-employee-reservation-management></app-employee-reservation-management>
+      }
+    }
+  </div>
+</div>
+

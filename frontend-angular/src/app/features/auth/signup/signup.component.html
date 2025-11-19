@@ -1,0 +1,198 @@
+<div class="signup-container">
+  <div class="signup-card">
+    <h1>Crear Cuenta</h1>
+    
+    @if (errorMessage()) {
+      <div class="error-message">
+        {{ errorMessage() }}
+      </div>
+    }
+
+    @if (successMessage()) {
+      <div class="success-message">
+        {{ successMessage() }}
+      </div>
+    }
+
+    <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="name">Nombre</label>
+          <input
+            id="name"
+            type="text"
+            formControlName="name"
+            class="form-control"
+            [class.invalid]="name?.invalid && name?.touched"
+            placeholder="Juan"
+          />
+          @if (name?.invalid && name?.touched) {
+            <span class="error-text">El nombre es obligatorio</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="lastName">Apellido</label>
+          <input
+            id="lastName"
+            type="text"
+            formControlName="lastName"
+            class="form-control"
+            [class.invalid]="lastName?.invalid && lastName?.touched"
+            placeholder="Pérez"
+          />
+          @if (lastName?.invalid && lastName?.touched) {
+            <span class="error-text">El apellido es obligatorio</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label for="documentType">Tipo de Documento</label>
+          <select
+            id="documentType"
+            formControlName="documentType"
+            class="form-control"
+            [class.invalid]="documentType?.invalid && documentType?.touched"
+          >
+            <option value="">Seleccione...</option>
+            @for (type of documentTypes; track type) {
+              <option [value]="type">{{ type }}</option>
+            }
+          </select>
+          @if (documentType?.invalid && documentType?.touched) {
+            <span class="error-text">El tipo de documento es obligatorio</span>
+          }
+        </div>
+
+        <div class="form-group">
+          <label for="documentNumber">Número de Documento</label>
+          <input
+            id="documentNumber"
+            type="text"
+            formControlName="documentNumber"
+            class="form-control"
+            [class.invalid]="documentNumber?.invalid && documentNumber?.touched"
+            placeholder="1234567890"
+          />
+          @if (documentNumber?.invalid && documentNumber?.touched) {
+            <span class="error-text">El número de documento es obligatorio</span>
+          }
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label for="phone">Teléfono</label>
+        <input
+          id="phone"
+          type="tel"
+          formControlName="phone"
+          class="form-control"
+          [class.invalid]="phone?.invalid && phone?.touched"
+          placeholder="3001234567"
+        />
+        @if (phone?.invalid && phone?.touched) {
+          <span class="error-text">
+            @if (phone?.errors?.['required']) {
+              El teléfono es obligatorio
+            } @else if (phone?.errors?.['pattern']) {
+              El teléfono debe tener 10 dígitos
+            }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="email">Email</label>
+        <input
+          id="email"
+          type="email"
+          formControlName="email"
+          class="form-control"
+          [class.invalid]="email?.invalid && email?.touched"
+          placeholder="usuario@example.com"
+        />
+        @if (email?.invalid && email?.touched) {
+          <span class="error-text">
+            @if (email?.errors?.['required']) {
+              El email es obligatorio
+            } @else if (email?.errors?.['email']) {
+              Ingresa un email válido
+            }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="dateOfBirth">Fecha de Nacimiento</label>
+        <input
+          id="dateOfBirth"
+          type="date"
+          formControlName="dateOfBirth"
+          class="form-control"
+          [class.invalid]="dateOfBirth?.invalid && dateOfBirth?.touched"
+        />
+        @if (dateOfBirth?.invalid && dateOfBirth?.touched) {
+          <span class="error-text">La fecha de nacimiento es obligatoria</span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <input
+          id="password"
+          type="password"
+          formControlName="password"
+          class="form-control"
+          [class.invalid]="password?.invalid && password?.touched"
+          placeholder="••••••••"
+        />
+        @if (password?.invalid && password?.touched) {
+          <span class="error-text">
+            @if (password?.errors?.['required']) {
+              La contraseña es obligatoria
+            } @else if (password?.errors?.['pattern']) {
+              La contraseña debe tener al menos 6 caracteres, una letra y un número
+            }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="confirmPassword">Confirmar Contraseña</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          class="form-control"
+          [class.invalid]="(confirmPassword?.invalid || signupForm.errors?.['passwordMismatch']) && confirmPassword?.touched"
+          placeholder="••••••••"
+        />
+        @if (confirmPassword?.invalid && confirmPassword?.touched) {
+          <span class="error-text">Confirma tu contraseña</span>
+        }
+        @if (signupForm.errors?.['passwordMismatch'] && confirmPassword?.touched) {
+          <span class="error-text">Las contraseñas no coinciden</span>
+        }
+      </div>
+
+      <button
+        type="submit"
+        class="btn-primary"
+        [disabled]="loading() || signupForm.invalid"
+      >
+        @if (loading()) {
+          Registrando...
+        } @else {
+          Registrarse
+        }
+      </button>
+    </form>
+
+    <div class="login-link">
+      <p>¿Ya tienes una cuenta? <a [routerLink]="['/login']">Inicia sesión</a></p>
+    </div>
+  </div>
+</div>
+

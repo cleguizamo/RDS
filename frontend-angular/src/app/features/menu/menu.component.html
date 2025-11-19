@@ -1,0 +1,129 @@
+<div class="menu-container">
+  <div class="menu-header">
+    <h1>Nuestro Menú</h1>
+    <p class="menu-subtitle">Descubre nuestras especialidades</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando menú...</p>
+    </div>
+  } @else if (errorMessage()) {
+    <div class="error-container">
+      <div class="alert alert-error">{{ errorMessage() }}</div>
+      <button (click)="loadProducts()" class="btn-primary">Intentar nuevamente</button>
+    </div>
+  } @else if (products().length === 0) {
+    <div class="empty-container">
+      <p>No hay productos disponibles en este momento.</p>
+    </div>
+  } @else {
+    <!-- Filtros por categoría -->
+    <div class="category-filters">
+      <button 
+        [class.active]="selectedCategory() === 'all'"
+        (click)="filterByCategory('all')"
+        class="filter-btn">
+        Todos
+      </button>
+      @for (category of categories(); track category) {
+        <button 
+          [class.active]="selectedCategory() === category"
+          (click)="filterByCategory(category)"
+          class="filter-btn">
+          {{ category }}
+        </button>
+      }
+    </div>
+
+    <!-- Productos filtrados -->
+    @if (selectedCategory() === 'all') {
+      @for (category of categories(); track category) {
+        <div class="category-section">
+          <h2 class="category-title">{{ category }}</h2>
+          <div class="products-grid">
+            @for (product of getProductsByCategory(category); track product.id) {
+              <div class="product-card">
+                <div class="product-image-container">
+                  @if (product.imageUrl) {
+                    <img [src]="product.imageUrl" [alt]="product.name" class="product-image">
+                  } @else {
+                    <div class="product-image-placeholder">
+                      <span>📷</span>
+                    </div>
+                  }
+                  @if (product.stock <= 0) {
+                    <div class="out-of-stock-badge">Agotado</div>
+                  }
+                </div>
+                <div class="product-info">
+                  <h3 class="product-name">{{ product.name }}</h3>
+                  <p class="product-description">{{ product.description }}</p>
+                  <div class="product-footer">
+                    <span class="product-price">${{ product.price | number:'1.0-0' }}</span>
+                    @if (product.stock > 0) {
+                      <span class="product-stock">{{ product.stock }} disponibles</span>
+                    } @else {
+                      <span class="product-stock out-of-stock">Sin stock</span>
+                    }
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    } @else {
+      <div class="category-section">
+        <h2 class="category-title">{{ selectedCategory() }}</h2>
+        <div class="products-grid">
+          @for (product of filteredProducts(); track product.id) {
+            <div class="product-card">
+              <div class="product-image-container">
+                @if (product.imageUrl) {
+                  <img [src]="product.imageUrl" [alt]="product.name" class="product-image">
+                } @else {
+                  <div class="product-image-placeholder">
+                    <span>📷</span>
+                  </div>
+                }
+                @if (product.stock <= 0) {
+                  <div class="out-of-stock-badge">Agotado</div>
+                }
+              </div>
+              <div class="product-info">
+                <h3 class="product-name">{{ product.name }}</h3>
+                <p class="product-description">{{ product.description }}</p>
+                <div class="product-footer">
+                  <span class="product-price">${{ product.price | number:'1.0-0' }}</span>
+                  @if (product.stock > 0) {
+                    <span class="product-stock">{{ product.stock }} disponibles</span>
+                  } @else {
+                    <span class="product-stock out-of-stock">Sin stock</span>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (filteredProducts().length === 0) {
+      <div class="empty-filter">
+        <p>No hay productos en esta categoría.</p>
+      </div>
+    }
+  }
+
+  <div class="menu-actions">
+    <a [routerLink]="['/']" class="btn-secondary">Volver al inicio</a>
+    @if (authService.isAuthenticated()) {
+      <a [routerLink]="['/dashboard']" class="btn-primary">Mi Cuenta</a>
+    } @else {
+      <a [routerLink]="['/login']" class="btn-primary">Iniciar Sesión</a>
+    }
+  </div>
+</div>
+

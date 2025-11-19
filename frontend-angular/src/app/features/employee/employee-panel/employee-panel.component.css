@@ -1,0 +1,125 @@
+:host {
+  --bar-red: #c41e3a;
+  --bar-dark-red: #8b1538;
+  --bar-gold: #d4af37;
+  --bar-dark: #1a1a1a;
+  --bar-warm: #2d1810;
+  --bar-light: #f5e6d3;
+  --bar-white: #ffffff;
+}
+
+.employee-panel {
+  min-height: 100vh;
+  background: var(--bar-light);
+}
+
+.employee-header {
+  background: var(--bar-dark);
+  color: white;
+  padding: 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.header-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.employee-header h1 {
+  margin: 0;
+  font-size: 2rem;
+  color: var(--bar-gold);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.user-info span {
+  font-size: 1rem;
+}
+
+.btn-logout {
+  padding: 0.75rem 1.5rem;
+  background: var(--bar-red);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+}
+
+.btn-logout:hover {
+  background: var(--bar-dark-red);
+}
+
+.employee-tabs {
+  background: white;
+  border-bottom: 2px solid var(--bar-gold);
+  display: flex;
+  gap: 0;
+  padding: 0 2rem;
+  overflow-x: auto;
+}
+
+.tab-btn {
+  padding: 1rem 2rem;
+  background: transparent;
+  color: var(--bar-dark);
+  border: none;
+  border-bottom: 3px solid transparent;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  white-space: nowrap;
+}
+
+.tab-btn:hover {
+  background: #f5f5f5;
+  color: var(--bar-gold);
+}
+
+.tab-btn.active {
+  color: var(--bar-gold);
+  border-bottom-color: var(--bar-gold);
+  background: #fafafa;
+}
+
+.employee-content {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+
+  .user-info {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .employee-tabs {
+    padding: 0 1rem;
+  }
+
+  .tab-btn {
+    padding: 1rem 1.5rem;
+  }
+
+  .employee-content {
+    padding: 1rem;
+  }
+}
+

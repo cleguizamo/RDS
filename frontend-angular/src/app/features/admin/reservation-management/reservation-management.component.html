@@ -1,0 +1,76 @@
+<div class="reservation-management">
+  <div class="header">
+    <h2>Gestión de Reservas</h2>
+    <button (click)="loadReservations()" class="btn-refresh" [disabled]="loading()">Actualizar</button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  <div class="filters">
+    <button 
+      [class.active]="filterStatus() === 'all'"
+      (click)="filterStatus.set('all')"
+      class="filter-btn"
+    >
+      Todas
+    </button>
+    <button 
+      [class.active]="filterStatus() === 'pending'"
+      (click)="filterStatus.set('pending')"
+      class="filter-btn"
+    >
+      Pendientes
+    </button>
+    <button 
+      [class.active]="filterStatus() === 'confirmed'"
+      (click)="filterStatus.set('confirmed')"
+      class="filter-btn"
+    >
+      Confirmadas
+    </button>
+  </div>
+
+  @if (loading() && reservations().length === 0) {
+    <div class="loading">Cargando reservas...</div>
+  } @else {
+    <div class="reservations-list">
+      @for (reservation of getFilteredReservations(); track reservation.id) {
+        <div class="reservation-card" [class.confirmed]="reservation.status" [class.pending]="!reservation.status">
+          <div class="reservation-header">
+            <div class="reservation-id">#{{ reservation.id }}</div>
+            <div class="status-badge" [class.confirmed]="reservation.status">
+              {{ reservation.status ? 'Confirmada' : 'Pendiente' }}
+            </div>
+          </div>
+          <div class="reservation-body">
+            <div class="info-row">
+              <strong>Cliente:</strong> {{ reservation.userName }} ({{ reservation.userEmail }})
+            </div>
+            <div class="info-row">
+              <strong>Fecha:</strong> {{ formatDate(reservation.date) }} a las {{ formatTime(reservation.time) }}
+            </div>
+            <div class="info-row">
+              <strong>Personas:</strong> {{ reservation.numberOfPeople }}
+            </div>
+            @if (reservation.notes) {
+              <div class="info-row">
+                <strong>Notas:</strong> {{ reservation.notes }}
+              </div>
+            }
+          </div>
+          <div class="reservation-actions">
+            <button class="btn-delete" (click)="deleteReservation(reservation.id)">Eliminar</button>
+          </div>
+        </div>
+      }
+      @if (getFilteredReservations().length === 0) {
+        <div class="no-reservations">
+          <p>No hay reservas {{ filterStatus() === 'all' ? '' : filterStatus() === 'pending' ? 'pendientes' : 'confirmadas' }}</p>
+        </div>
+      }
+    </div>
+  }
+</div>
+

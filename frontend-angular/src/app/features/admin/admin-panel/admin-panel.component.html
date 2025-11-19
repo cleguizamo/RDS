@@ -1,0 +1,94 @@
+<div class="admin-panel">
+  <div class="admin-header">
+    <div class="header-content">
+      <h1>Panel de Administración</h1>
+      <div class="user-info">
+        <span>Bienvenido, {{ authService.currentUser()?.name }} {{ authService.currentUser()?.lastName }}</span>
+        <button (click)="logout()" class="btn-logout">Cerrar Sesión</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="admin-tabs">
+    <button 
+      [class.active]="activeTab() === 'usuarios'"
+      (click)="setTab('usuarios')"
+      class="tab-btn"
+    >
+      Usuarios
+    </button>
+    <button 
+      [class.active]="activeTab() === 'productos'"
+      (click)="setTab('productos')"
+      class="tab-btn"
+    >
+      Productos/Menú
+    </button>
+    <button 
+      [class.active]="activeTab() === 'agregar-producto'"
+      (click)="setTab('agregar-producto')"
+      class="tab-btn"
+    >
+      {{ editingProduct() ? 'Editar Producto' : 'Agregar Producto' }}
+    </button>
+    <button 
+      [class.active]="activeTab() === 'reservas'"
+      (click)="setTab('reservas')"
+      class="tab-btn"
+    >
+      Reservas
+    </button>
+    <button 
+      [class.active]="activeTab() === 'pedidos'"
+      (click)="setTab('pedidos')"
+      class="tab-btn"
+    >
+      Pedidos
+    </button>
+    <button 
+      [class.active]="activeTab() === 'empleados'"
+      (click)="setTab('empleados')"
+      class="tab-btn"
+    >
+      Empleados
+    </button>
+    <button 
+      [class.active]="activeTab() === 'admins'"
+      (click)="setTab('admins')"
+      class="tab-btn"
+    >
+      Administradores
+    </button>
+  </div>
+
+  <div class="admin-content">
+    @switch (activeTab()) {
+      @case ('usuarios') {
+        <app-user-management></app-user-management>
+      }
+      @case ('productos') {
+        <app-product-management (editProduct)="onProductEdit($event)"></app-product-management>
+      }
+      @case ('agregar-producto') {
+        <app-product-form 
+          [product]="editingProduct()"
+          (save)="onProductSaved($event)"
+          (cancel)="onCancel()"
+        ></app-product-form>
+      }
+      @case ('reservas') {
+        <app-reservation-management></app-reservation-management>
+      }
+      @case ('pedidos') {
+        <app-order-management></app-order-management>
+      }
+      @case ('empleados') {
+        <app-employee-management></app-employee-management>
+      }
+      @case ('admins') {
+        <app-admin-management></app-admin-management>
+      }
+    }
+  </div>
+</div>
+
