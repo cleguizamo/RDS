@@ -1,6 +1,5 @@
 package com.rds.app_restaurante.dto;
 
-import com.rds.app_restaurante.model.Product;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,7 +15,10 @@ public class ProductResponse {
     private String description;
     private String imageUrl;
     private Double price;
-    private String category;
+    private Long categoryId;
+    private String categoryName;
+    private Long subCategoryId;
+    private String subCategoryName;
     private Integer stock;
 }
 

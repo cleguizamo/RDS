@@ -32,10 +32,14 @@ public class PublicProductController {
         }
     }
 
-    @GetMapping("/category/{category}")
-    public ResponseEntity<List<ProductResponse>> getProductsByCategory(@PathVariable String category) {
-        List<ProductResponse> products = productService.getProductsByCategory(category);
-        return ResponseEntity.ok(products);
+    @GetMapping("/category/{categoryId}")
+    public ResponseEntity<?> getProductsByCategory(@PathVariable Long categoryId) {
+        try {
+            List<ProductResponse> products = productService.getProductsByCategory(categoryId);
+            return ResponseEntity.ok(products);
+        } catch (RuntimeException e) {
+            return ResponseEntity.notFound().build();
+        }
     }
 }
 

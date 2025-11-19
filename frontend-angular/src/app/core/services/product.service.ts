@@ -22,8 +22,8 @@ export class ProductService {
     return this.http.get<ProductResponse>(`${this.publicApiUrl}/${id}`);
   }
 
-  getPublicProductsByCategory(category: string): Observable<ProductResponse[]> {
-    return this.http.get<ProductResponse[]>(`${this.publicApiUrl}/category/${category}`);
+  getPublicProductsByCategory(categoryId: number): Observable<ProductResponse[]> {
+    return this.http.get<ProductResponse[]>(`${this.publicApiUrl}/category/${categoryId}`);
   }
 
   // Métodos privados (requieren autenticación ADMIN)
@@ -35,8 +35,8 @@ export class ProductService {
     return this.http.get<ProductResponse>(`${this.apiUrl}/${id}`);
   }
 
-  getProductsByCategory(category: string): Observable<ProductResponse[]> {
-    return this.http.get<ProductResponse[]>(`${this.apiUrl}/category/${category}`);
+  getProductsByCategory(categoryId: number): Observable<ProductResponse[]> {
+    return this.http.get<ProductResponse[]>(`${this.apiUrl}/category/${categoryId}`);
   }
 
   createProduct(product: ProductRequest): Observable<ProductResponse> {

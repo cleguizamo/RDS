@@ -52,7 +52,7 @@
             <div class="stat-label">Pedidos Realizados</div>
           </div>
           <div class="stat-card">
-            <div class="stat-value">${{ userInfo()!.totalSpent | number:'1.2-2' }}</div>
+            <div class="stat-value">{{ userInfo()!.totalSpent | formatCurrency }}</div>
             <div class="stat-label">Total Gastado</div>
           </div>
           <div class="stat-card">
@@ -63,6 +63,60 @@
         @if (userInfo()!.lastOrderDate) {
           <div class="last-order">
             <p><strong>Último pedido:</strong> {{ userInfo()!.lastOrderDate | date:'mediumDate' }}</p>
+          </div>
+        }
+      </div>
+
+      <div class="rewards-section">
+        <h2>Canjear Puntos</h2>
+        @if (successMessage()) {
+          <div class="alert alert-success">{{ successMessage() }}</div>
+        }
+        @if (errorMessage()) {
+          <div class="alert alert-error">{{ errorMessage() }}</div>
+        }
+        
+        @if (loadingRewards()) {
+          <div class="loading">Cargando recompensas...</div>
+        } @else if (rewardProducts().length === 0) {
+          <div class="empty-rewards">
+            <p>No hay recompensas disponibles en este momento.</p>
+          </div>
+        } @else {
+          <div class="rewards-grid">
+            @for (reward of rewardProducts(); track reward.id) {
+              <div class="reward-card" [class.available]="canRedeem(reward)" [class.unavailable]="!canRedeem(reward)">
+                @if (reward.imageUrl) {
+                  <div class="reward-image">
+                    <img [src]="reward.imageUrl" [alt]="reward.name" />
+                  </div>
+                }
+                <div class="reward-info">
+                  <h3>{{ reward.name }}</h3>
+                  @if (reward.description) {
+                    <p class="reward-description">{{ reward.description }}</p>
+                  }
+                  <div class="reward-details">
+                    <div class="points-required">
+                      <span class="points-label">Puntos:</span>
+                      <span class="points-value">{{ reward.pointsRequired }}</span>
+                    </div>
+                    @if (reward.stock > 0) {
+                      <div class="stock">Stock: {{ reward.stock }}</div>
+                    } @else {
+                      <div class="stock out-of-stock">Sin stock</div>
+                    }
+                  </div>
+                  <button 
+                    class="btn-redeem"
+                    (click)="redeemReward(reward)"
+                    [disabled]="!canRedeem(reward)"
+                    [title]="!canRedeem(reward) ? (userInfo()!.points < reward.pointsRequired ? 'No tienes suficientes puntos' : 'No disponible') : 'Canjear recompensa'">
+                    {{ canRedeem(reward) ? 'Canjear' : 'No disponible' }}
+                  </button>
+                </div>
+              </div>
+            }
           </div>
         }
       </div>

@@ -4,7 +4,10 @@ export interface Product {
   description: string;
   imageUrl: string;
   price: number;
-  category: string;
+  categoryId: number;
+  categoryName: string;
+  subCategoryId?: number;
+  subCategoryName?: string;
   stock: number;
 }
 
@@ -13,7 +16,8 @@ export interface ProductRequest {
   description: string;
   imageUrl: string;
   price: number;
-  category: string;
+  categoryId: number;
+  subCategoryId?: number;
   stock: number;
 }
 
@@ -23,7 +27,10 @@ export interface ProductResponse {
   description: string;
   imageUrl: string;
   price: number;
-  category: string;
+  categoryId: number;
+  categoryName: string;
+  subCategoryId?: number;
+  subCategoryName?: string;
   stock: number;
 }
 

@@ -2,7 +2,11 @@ import { Component, OnInit, OnChanges, SimpleChanges, signal, Input, Output, Eve
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ProductService } from '../../../core/services/product.service';
+import { CategoryService } from '../../../core/services/category.service';
+import { SubCategoryService } from '../../../core/services/subcategory.service';
 import { ProductRequest, ProductResponse } from '../../../core/models/product.model';
+import { CategoryResponse } from '../../../core/models/category.model';
+import { SubCategoryResponse } from '../../../core/models/subcategory.model';
 
 @Component({
   selector: 'app-product-form',
@@ -21,7 +25,8 @@ export class ProductFormComponent implements OnInit, OnChanges {
     description: '',
     imageUrl: '',
     price: 0,
-    category: '',
+    categoryId: 0,
+    subCategoryId: undefined,
     stock: 0
   });
 
@@ -29,14 +34,22 @@ export class ProductFormComponent implements OnInit, OnChanges {
   imagePreview = signal<string | null>(null);
   uploading = signal<boolean>(false);
   loading = signal<boolean>(false);
+  loadingCategories = signal<boolean>(false);
+  loadingSubCategories = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
 
-  categories = ['Bebidas', 'Comida', 'Postres', 'Entradas', 'Platos Principales'];
+  categories = signal<CategoryResponse[]>([]);
+  subCategories = signal<SubCategoryResponse[]>([]);
 
-  constructor(private productService: ProductService) {}
+  constructor(
+    private productService: ProductService,
+    private categoryService: CategoryService,
+    private subCategoryService: SubCategoryService
+  ) {}
 
   ngOnInit(): void {
+    this.loadCategories();
     this.loadProductData();
   }
 
@@ -46,6 +59,21 @@ export class ProductFormComponent implements OnInit, OnChanges {
     }
   }
 
+  loadCategories(): void {
+    this.loadingCategories.set(true);
+    this.categoryService.getAllCategories().subscribe({
+      next: (categories) => {
+        this.categories.set(categories);
+        this.loadingCategories.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading categories:', error);
+        this.errorMessage.set('Error al cargar las categorías. Por favor, intenta nuevamente.');
+        this.loadingCategories.set(false);
+      }
+    });
+  }
+
   private loadProductData(): void {
     if (this.product) {
       this.formData.set({
@@ -53,13 +81,54 @@ export class ProductFormComponent implements OnInit, OnChanges {
         description: this.product.description,
         imageUrl: this.product.imageUrl,
         price: this.product.price,
-        category: this.product.category,
+        categoryId: this.product.categoryId,
+        subCategoryId: this.product.subCategoryId,
         stock: this.product.stock
       });
       this.imagePreview.set(this.product.imageUrl);
+      
+      // Cargar subcategorías de la categoría del producto
+      if (this.product.categoryId) {
+        this.loadSubCategories(this.product.categoryId);
+      }
     } else {
       this.resetForm();
     }
+  }
+
+  onCategoryChange(categoryId: number): void {
+    const currentFormData = this.formData();
+    this.formData.set({
+      ...currentFormData,
+      categoryId: categoryId,
+      subCategoryId: undefined // Limpiar subcategoría cuando cambia la categoría
+    });
+    
+    if (categoryId > 0) {
+      this.loadSubCategories(categoryId);
+    } else {
+      this.subCategories.set([]);
+    }
+  }
+
+  loadSubCategories(categoryId: number): void {
+    if (!categoryId || categoryId === 0) {
+      this.subCategories.set([]);
+      return;
+    }
+
+    this.loadingSubCategories.set(true);
+    this.subCategoryService.getSubCategoriesByCategory(categoryId).subscribe({
+      next: (subCategories) => {
+        this.subCategories.set(subCategories);
+        this.loadingSubCategories.set(false);
+      },
+      error: (error) => {
+        console.error('Error loading subcategories:', error);
+        this.subCategories.set([]);
+        this.loadingSubCategories.set(false);
+      }
+    });
   }
 
   onFileSelected(event: Event): void {
@@ -235,6 +304,13 @@ export class ProductFormComponent implements OnInit, OnChanges {
         return;
       }
 
+      // Validar que se haya seleccionado una categoría
+      if (!this.formData().categoryId || this.formData().categoryId === 0) {
+        this.errorMessage.set('Debes seleccionar una categoría');
+        this.loading.set(false);
+        return;
+      }
+
       const productData: ProductRequest = {
         ...this.formData(),
         imageUrl: imageUrl
@@ -288,11 +364,13 @@ export class ProductFormComponent implements OnInit, OnChanges {
       description: '',
       imageUrl: '',
       price: 0,
-      category: '',
+      categoryId: 0,
+      subCategoryId: undefined,
       stock: 0
     });
     this.selectedFile.set(null);
     this.imagePreview.set(null);
+    this.subCategories.set([]);
   }
 
   onCancel(): void {

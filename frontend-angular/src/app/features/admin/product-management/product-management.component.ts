@@ -64,7 +64,7 @@ export class ProductManagementComponent implements OnInit {
     }
 
     if (this.selectedCategory()) {
-      filtered = filtered.filter(p => p.category === this.selectedCategory());
+      filtered = filtered.filter(p => p.categoryName === this.selectedCategory());
     }
 
     this.filteredProducts.set(filtered);
@@ -90,7 +90,7 @@ export class ProductManagementComponent implements OnInit {
   }
 
   getCategories(): string[] {
-    const categories = new Set(this.products().map(p => p.category));
+    const categories = new Set(this.products().map(p => p.categoryName));
     return Array.from(categories);
   }
 

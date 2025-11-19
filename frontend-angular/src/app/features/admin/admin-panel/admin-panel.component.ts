@@ -8,9 +8,14 @@ import { EmployeeManagementComponent } from '../employee-management/employee-man
 import { ReservationManagementComponent } from '../reservation-management/reservation-management.component';
 import { OrderManagementComponent } from '../order-management/order-management.component';
 import { AdminManagementComponent } from '../admin-management/admin-management.component';
+import { CategoryManagementComponent } from '../category-management/category-management.component';
+import { SubCategoryManagementComponent } from '../subcategory-management/subcategory-management.component';
+import { RewardManagementComponent } from '../reward-management/reward-management.component';
+import { ExpenseManagementComponent } from '../expense-management/expense-management.component';
+import { FinancialDashboardComponent } from '../financial-dashboard/financial-dashboard.component';
 import { ProductResponse } from '../../../core/models/product.model';
 
-type TabType = 'usuarios' | 'productos' | 'agregar-producto' | 'reservas' | 'pedidos' | 'empleados' | 'admins';
+type TabType = 'usuarios' | 'productos' | 'agregar-producto' | 'categorias' | 'subcategorias' | 'recompensas' | 'estadisticas' | 'gastos' | 'reservas' | 'pedidos' | 'empleados' | 'admins';
 
 @Component({
   selector: 'app-admin-panel',
@@ -20,6 +25,11 @@ type TabType = 'usuarios' | 'productos' | 'agregar-producto' | 'reservas' | 'ped
     UserManagementComponent,
     ProductManagementComponent,
     ProductFormComponent,
+    CategoryManagementComponent,
+    SubCategoryManagementComponent,
+    RewardManagementComponent,
+    ExpenseManagementComponent,
+    FinancialDashboardComponent,
     EmployeeManagementComponent,
     ReservationManagementComponent,
     OrderManagementComponent,

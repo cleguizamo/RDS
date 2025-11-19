@@ -1,0 +1,267 @@
+<div class="expense-management">
+  <div class="header">
+    <h2>Gestión de Gastos</h2>
+    <button 
+      class="btn-add" 
+      (click)="toggleForm()"
+      [disabled]="loading() || showForm()"
+    >
+      + Registrar Gasto
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  <!-- Formulario de gasto -->
+  @if (showForm()) {
+    <div class="expense-form">
+      <h3>{{ editingExpense() ? 'Editar Gasto' : 'Registrar Nuevo Gasto' }}</h3>
+      
+      <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="description">Descripción *</label>
+            <input 
+              type="text" 
+              id="description" 
+              formControlName="description"
+              [class.error]="expenseForm.get('description')?.invalid && expenseForm.get('description')?.touched"
+              [disabled]="loading()"
+            />
+            @if (expenseForm.get('description')?.invalid && expenseForm.get('description')?.touched) {
+              <small class="error-text">{{ getErrorMessage('description') }}</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="category">Categoría *</label>
+            <select 
+              id="category" 
+              formControlName="category"
+              [class.error]="expenseForm.get('category')?.invalid && expenseForm.get('category')?.touched"
+              [disabled]="loading()"
+            >
+              <option value="">Selecciona una categoría</option>
+              @for (cat of categories; track cat) {
+                <option [value]="cat">{{ cat }}</option>
+              }
+            </select>
+            @if (expenseForm.get('category')?.invalid && expenseForm.get('category')?.touched) {
+              <small class="error-text">{{ getErrorMessage('category') }}</small>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="amount">Monto *</label>
+            <input 
+              type="number" 
+              id="amount" 
+              formControlName="amount"
+              min="0.01"
+              step="0.01"
+              [class.error]="expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched"
+              [disabled]="loading()"
+            />
+            @if (expenseForm.get('amount')?.invalid && expenseForm.get('amount')?.touched) {
+              <small class="error-text">{{ getErrorMessage('amount') }}</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="expenseDate">Fecha *</label>
+            <input 
+              type="date" 
+              id="expenseDate" 
+              formControlName="expenseDate"
+              [class.error]="expenseForm.get('expenseDate')?.invalid && expenseForm.get('expenseDate')?.touched"
+              [disabled]="loading()"
+            />
+            @if (expenseForm.get('expenseDate')?.invalid && expenseForm.get('expenseDate')?.touched) {
+              <small class="error-text">{{ getErrorMessage('expenseDate') }}</small>
+            }
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="paymentMethod">Método de Pago</label>
+            <select 
+              id="paymentMethod" 
+              formControlName="paymentMethod"
+              [disabled]="loading()"
+            >
+              <option value="">Selecciona un método</option>
+              @for (method of paymentMethods; track method) {
+                <option [value]="method">{{ method }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="notes">Notas</label>
+          <textarea 
+            id="notes" 
+            formControlName="notes"
+            rows="3"
+            [disabled]="loading()"
+          ></textarea>
+        </div>
+
+        <div class="form-group">
+          <label for="receiptUrl">URL del Comprobante</label>
+          <input 
+            type="url" 
+            id="receiptUrl" 
+            formControlName="receiptUrl"
+            placeholder="https://ejemplo.com/comprobante.pdf"
+            [disabled]="loading()"
+          />
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="btn-save"
+            [disabled]="loading() || expenseForm.invalid"
+          >
+            {{ loading() ? 'Guardando...' : (editingExpense() ? 'Actualizar' : 'Registrar') }}
+          </button>
+          <button 
+            type="button" 
+            class="btn-cancel" 
+            (click)="toggleForm()"
+            [disabled]="loading()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Filtros y búsqueda -->
+  <div class="filters-section">
+    <div class="search-bar">
+      <input 
+        type="text" 
+        placeholder="Buscar gastos..." 
+        [(ngModel)]="searchTerm"
+        (input)="onSearchChange(searchTerm())"
+        [disabled]="loading()"
+      />
+    </div>
+    <div class="filters-row">
+      <div class="filter-group">
+        <label for="categoryFilter">Categoría:</label>
+        <select 
+          id="categoryFilter"
+          [(ngModel)]="selectedCategory"
+          (change)="onCategoryChange(selectedCategory())"
+          [disabled]="loading()"
+        >
+          <option value="">Todas</option>
+          @for (cat of categories; track cat) {
+            <option [value]="cat">{{ cat }}</option>
+          }
+        </select>
+      </div>
+      <div class="filter-group">
+        <label for="startDate">Desde:</label>
+        <input 
+          type="date" 
+          id="startDate"
+          [(ngModel)]="startDate"
+          (change)="onDateRangeChange()"
+          [disabled]="loading()"
+        />
+      </div>
+      <div class="filter-group">
+        <label for="endDate">Hasta:</label>
+        <input 
+          type="date" 
+          id="endDate"
+          [(ngModel)]="endDate"
+          (change)="onDateRangeChange()"
+          [disabled]="loading()"
+        />
+      </div>
+      @if (startDate() || endDate()) {
+        <button 
+          class="btn-clear-filters"
+          (click)="startDate.set(''); endDate.set(''); loadExpenses()"
+          [disabled]="loading()"
+        >
+          Limpiar Filtros
+        </button>
+      }
+    </div>
+    <div class="total-expenses">
+      <strong>Total Gastos: {{ getTotalExpenses() | formatCurrency }}</strong>
+    </div>
+  </div>
+
+  <!-- Lista de gastos -->
+  @if (loading() && expenses().length === 0) {
+    <div class="loading">Cargando gastos...</div>
+  } @else if (!loading() && filteredExpenses().length === 0) {
+    <div class="empty-state">
+      @if (searchTerm() || selectedCategory()) {
+        <p>No se encontraron gastos que coincidan con los filtros.</p>
+      } @else {
+        <p>No hay gastos registrados. Registra tu primer gasto para comenzar.</p>
+      }
+    </div>
+  } @else {
+    <div class="expenses-list">
+      <table class="expenses-table">
+        <thead>
+          <tr>
+            <th>Fecha</th>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th>Monto</th>
+            <th>Método de Pago</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (expense of filteredExpenses(); track expense.id) {
+            <tr>
+              <td>{{ expense.expenseDate | date:'shortDate' }}</td>
+              <td>{{ expense.description }}</td>
+              <td><span class="category-badge">{{ expense.category }}</span></td>
+              <td class="amount">{{ expense.amount | formatCurrency }}</td>
+              <td>{{ expense.paymentMethod || '-' }}</td>
+              <td class="actions">
+                <button 
+                  class="btn-edit"
+                  (click)="toggleForm(expense)"
+                  [disabled]="loading()"
+                >
+                  Editar
+                </button>
+                <button 
+                  class="btn-delete"
+                  (click)="deleteExpense(expense.id)"
+                  [disabled]="loading()"
+                >
+                  Eliminar
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>
+

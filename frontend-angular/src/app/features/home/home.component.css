@@ -292,30 +292,24 @@
   background: var(--bar-warm);
   border-radius: 15px;
   min-height: 400px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
   border: 2px solid var(--bar-gold);
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  position: relative;
 }
 
-.map-placeholder {
-  text-align: center;
-  color: #888;
-}
-
-.map-icon {
-  font-size: 4rem;
+google-map {
   display: block;
-  margin-bottom: 1rem;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
 }
 
-.map-placeholder p {
-  font-size: 1.2rem;
-  margin-bottom: 0.5rem;
-}
-
-.map-placeholder small {
-  color: #666;
+/* Responsive para móviles */
+@media (max-width: 768px) {
+  .location-map {
+    min-height: 300px;
+  }
 }
 
 /* CTA Section */

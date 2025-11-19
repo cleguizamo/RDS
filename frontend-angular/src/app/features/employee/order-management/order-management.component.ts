@@ -108,7 +108,7 @@ export class OrderManagementComponent implements OnInit {
     this.productService.getAllPublicProducts().subscribe({
       next: (products) => {
         this.products.set(products);
-        const uniqueCategories = [...new Set(products.map(p => p.category))];
+        const uniqueCategories = [...new Set(products.map(p => p.categoryName))];
         this.categories.set(uniqueCategories);
         this.loadingProducts.set(false);
       },
@@ -125,7 +125,7 @@ export class OrderManagementComponent implements OnInit {
     if (category === 'all') {
       return this.products();
     }
-    return this.products().filter(p => p.category === category);
+    return this.products().filter(p => p.categoryName === category);
   }
 
   getProductStock(productId: number): number {

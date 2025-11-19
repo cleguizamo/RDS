@@ -37,7 +37,7 @@
                 <td>{{ user.email }}</td>
                 <td>{{ user.phone }}</td>
                 <td>{{ user.numberOfOrders }}</td>
-                <td>${{ user.totalSpent | number:'1.2-2' }}</td>
+                <td>{{ user.totalSpent | formatCurrency }}</td>
                 <td>
                   <button class="btn-edit" (click)="selectUser(user); $event.stopPropagation()">Editar</button>
                   <button class="btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()">Eliminar</button>

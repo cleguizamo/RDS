@@ -114,6 +114,8 @@ public class OrderService {
         user.setNumberOfOrders(user.getNumberOfOrders() + 1);
         user.setTotalSpent(user.getTotalSpent() + totalPrice);
         user.setLastOrderDate(LocalDate.now());
+        // Calcular puntos: por cada 1000 pesos gastados = 1 punto
+        user.setPoints((long) Math.floor(user.getTotalSpent() / 1000.0));
         userRepository.save(user);
 
         return mapToResponse(savedOrder);

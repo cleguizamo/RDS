@@ -1,0 +1,249 @@
+<div class="financial-dashboard">
+  <div class="dashboard-header">
+    <h2>Dashboard Financiero</h2>
+    <div class="date-filters">
+      <div class="quick-filters">
+        <button (click)="setDateRange(7)" class="btn-filter">7 días</button>
+        <button (click)="setDateRange(30)" class="btn-filter">30 días</button>
+        <button (click)="setDateRange(90)" class="btn-filter">90 días</button>
+      </div>
+      <div class="date-range">
+        <label for="startDate">Desde:</label>
+        <input 
+          type="date" 
+          id="startDate"
+          [(ngModel)]="startDate"
+          (change)="onDateRangeChange()"
+          [disabled]="loading()"
+        />
+        <label for="endDate">Hasta:</label>
+        <input 
+          type="date" 
+          id="endDate"
+          [(ngModel)]="endDate"
+          (change)="onDateRangeChange()"
+          [disabled]="loading()"
+        />
+      </div>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (loading()) {
+    <div class="loading">Cargando estadísticas...</div>
+  } @else if (financialStats() && businessStats()) {
+    <!-- Tarjetas de resumen financiero -->
+    <div class="stats-cards">
+      <div class="stat-card revenue">
+        <div class="stat-icon">💰</div>
+        <div class="stat-content">
+          <div class="stat-label">Ingresos Totales</div>
+          <div class="stat-value">{{ financialStats()!.totalRevenue | formatCurrency }}</div>
+          <div class="stat-detail">
+            <span>Mesa: {{ financialStats()!.ordersRevenue | formatCurrency }}</span>
+            <span>Domicilio: {{ financialStats()!.deliveriesRevenue | formatCurrency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="stat-card expenses">
+        <div class="stat-icon">💸</div>
+        <div class="stat-content">
+          <div class="stat-label">Gastos Totales</div>
+          <div class="stat-value">{{ financialStats()!.totalExpenses | formatCurrency }}</div>
+        </div>
+      </div>
+
+      <div class="stat-card profit" [class.positive]="financialStats()!.netProfit >= 0" [class.negative]="financialStats()!.netProfit < 0">
+        <div class="stat-icon">{{ financialStats()!.netProfit >= 0 ? '📈' : '📉' }}</div>
+        <div class="stat-content">
+          <div class="stat-label">Ganancia Neta</div>
+          <div class="stat-value">{{ financialStats()!.netProfit | formatCurrency }}</div>
+          <div class="stat-detail">
+            Margen: {{ getProfitMargin(financialStats()!.totalRevenue, financialStats()!.totalExpenses).toFixed(1) }}%
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas generales del negocio -->
+    <div class="business-stats">
+      <h3>Resumen del Negocio</h3>
+      <div class="business-cards">
+        <div class="business-card">
+          <div class="business-label">Pedidos Totales</div>
+          <div class="business-value">{{ businessStats()!.totalOrders }}</div>
+        </div>
+        <div class="business-card">
+          <div class="business-label">Entregas Totales</div>
+          <div class="business-value">{{ businessStats()!.totalDeliveries }}</div>
+        </div>
+        <div class="business-card">
+          <div class="business-label">Reservas Totales</div>
+          <div class="business-value">{{ businessStats()!.totalReservations }}</div>
+        </div>
+        <div class="business-card">
+          <div class="business-label">Clientes</div>
+          <div class="business-value">{{ businessStats()!.totalCustomers }}</div>
+        </div>
+        <div class="business-card">
+          <div class="business-label">Productos</div>
+          <div class="business-value">{{ businessStats()!.totalProducts }}</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Estadísticas de hoy y del mes -->
+    <div class="time-stats">
+      <div class="today-stats">
+        <h4>Hoy</h4>
+        <div class="time-stat-grid">
+          <div class="time-stat-item">
+            <span class="time-stat-label">Ingresos:</span>
+            <span class="time-stat-value">{{ businessStats()!.todayStats.revenue | formatCurrency }}</span>
+          </div>
+          <div class="time-stat-item">
+            <span class="time-stat-label">Gastos:</span>
+            <span class="time-stat-value">{{ businessStats()!.todayStats.expenses | formatCurrency }}</span>
+          </div>
+          <div class="time-stat-item">
+            <span class="time-stat-label">Ganancia:</span>
+            <span class="time-stat-value" [class.positive]="businessStats()!.todayStats.profit >= 0" [class.negative]="businessStats()!.todayStats.profit < 0">
+              {{ businessStats()!.todayStats.profit | formatCurrency }}
+            </span>
+          </div>
+          <div class="time-stat-item">
+            <span class="time-stat-label">Pedidos:</span>
+            <span class="time-stat-value">{{ businessStats()!.todayStats.ordersCount }}</span>
+          </div>
+          <div class="time-stat-item">
+            <span class="time-stat-label">Entregas:</span>
+            <span class="time-stat-value">{{ businessStats()!.todayStats.deliveriesCount }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="monthly-stats">
+        <h4>Este Mes</h4>
+        <div class="time-stat-grid">
+          <div class="time-stat-item">
+            <span class="time-stat-label">Ingresos:</span>
+            <span class="time-stat-value">{{ businessStats()!.monthlyStats.revenue | formatCurrency }}</span>
+          </div>
+          <div class="time-stat-item">
+            <span class="time-stat-label">Gastos:</span>
+            <span class="time-stat-value">{{ businessStats()!.monthlyStats.expenses | formatCurrency }}</span>
+          </div>
+          <div class="time-stat-item">
+            <span class="time-stat-label">Ganancia:</span>
+            <span class="time-stat-value" [class.positive]="businessStats()!.monthlyStats.profit >= 0" [class.negative]="businessStats()!.monthlyStats.profit < 0">
+              {{ businessStats()!.monthlyStats.profit | formatCurrency }}
+            </span>
+          </div>
+          <div class="time-stat-item">
+            <span class="time-stat-label">Pedidos:</span>
+            <span class="time-stat-value">{{ businessStats()!.monthlyStats.ordersCount }}</span>
+          </div>
+          <div class="time-stat-item">
+            <span class="time-stat-label">Entregas:</span>
+            <span class="time-stat-value">{{ businessStats()!.monthlyStats.deliveriesCount }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Gastos por categoría -->
+    @if (financialStats()!.expensesByCategory.length > 0) {
+      <div class="expenses-by-category">
+        <h3>Gastos por Categoría</h3>
+        <div class="category-list">
+          @for (category of financialStats()!.expensesByCategory; track category.category) {
+            <div class="category-item">
+              <div class="category-info">
+                <div class="category-name">{{ category.category }}</div>
+                <div class="category-amount">{{ category.totalAmount | formatCurrency }}</div>
+              </div>
+              <div class="category-bar">
+                <div 
+                  class="category-bar-fill" 
+                  [style.width.%]="(category.totalAmount / financialStats()!.totalExpenses) * 100"
+                  [style.background-color]="getCategoryColor($index)"
+                ></div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Productos más vendidos -->
+    @if (businessStats()!.topProducts.length > 0) {
+      <div class="top-products">
+        <h3>Productos Más Vendidos (Últimos 30 días)</h3>
+        <div class="products-list">
+          @for (product of businessStats()!.topProducts; track product.productId) {
+            <div class="product-item">
+              <div class="product-rank">#{{ $index + 1 }}</div>
+              <div class="product-info">
+                <div class="product-name">{{ product.productName }}</div>
+                <div class="product-stats">
+                  <span>Cantidad: {{ product.totalQuantity }}</span>
+                  <span>Ingresos: {{ product.totalRevenue | formatCurrency }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Clientes más frecuentes -->
+    @if (businessStats()!.topCustomers.length > 0) {
+      <div class="top-customers">
+        <h3>Clientes Más Frecuentes</h3>
+        <div class="customers-list">
+          @for (customer of businessStats()!.topCustomers; track customer.userId) {
+            <div class="customer-item">
+              <div class="customer-rank">#{{ $index + 1 }}</div>
+              <div class="customer-info">
+                <div class="customer-name">{{ customer.name }} {{ customer.lastName }}</div>
+                <div class="customer-stats">
+                  <span>{{ customer.totalOrders }} pedidos</span>
+                  <span>Total: {{ customer.totalSpent | formatCurrency }}</span>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- Gráfico simple de estadísticas diarias -->
+    @if (getDisplayedDailyStats().length > 0) {
+      <div class="daily-chart">
+        <h3>Evolución Diaria (Últimos 14 días)</h3>
+        <div class="chart-container">
+          <div class="chart-bars">
+            @for (day of getDisplayedDailyStats(); track day.date) {
+              <div class="chart-bar-group">
+                <div class="chart-bar-label">{{ day.date | date:'dd/MM' }}</div>
+                <div class="chart-bars-wrapper">
+                  <div class="chart-bar revenue-bar" [style.height.%]="(day.revenue / getMaxDisplayedValue()) * 100" title="Ingresos: {{ day.revenue | formatCurrency }}"></div>
+                  <div class="chart-bar expense-bar" [style.height.%]="(day.expenses / getMaxDisplayedValue()) * 100" title="Gastos: {{ day.expenses | formatCurrency }}"></div>
+                </div>
+              </div>
+            }
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-color revenue"></span> Ingresos</span>
+            <span class="legend-item"><span class="legend-color expense"></span> Gastos</span>
+          </div>
+        </div>
+      </div>
+    }
+  }
+</div>
+

@@ -1,0 +1,245 @@
+<div class="reward-management">
+  <div class="header">
+    <h2>Gestión de Recompensas</h2>
+    <button 
+      class="btn-add" 
+      (click)="toggleForm()"
+      [disabled]="loading() || showForm()"
+    >
+      + Agregar Recompensa
+    </button>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  <!-- Formulario de recompensa -->
+  @if (showForm()) {
+    <div class="reward-form">
+      <h3>{{ editingReward() ? 'Editar Recompensa' : 'Agregar Nueva Recompensa' }}</h3>
+      
+      <form [formGroup]="rewardForm" (ngSubmit)="onSubmit()">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="name">Nombre *</label>
+            <input 
+              type="text" 
+              id="name" 
+              formControlName="name"
+              [class.error]="rewardForm.get('name')?.invalid && rewardForm.get('name')?.touched"
+              [disabled]="loading()"
+            />
+            @if (rewardForm.get('name')?.invalid && rewardForm.get('name')?.touched) {
+              <small class="error-text">{{ getErrorMessage('name') }}</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="pointsRequired">Puntos Requeridos *</label>
+            <input 
+              type="number" 
+              id="pointsRequired" 
+              formControlName="pointsRequired"
+              min="1"
+              [class.error]="rewardForm.get('pointsRequired')?.invalid && rewardForm.get('pointsRequired')?.touched"
+              [disabled]="loading()"
+            />
+            @if (rewardForm.get('pointsRequired')?.invalid && rewardForm.get('pointsRequired')?.touched) {
+              <small class="error-text">{{ getErrorMessage('pointsRequired') }}</small>
+            }
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="description">Descripción</label>
+          <textarea 
+            id="description" 
+            formControlName="description"
+            rows="3"
+            [disabled]="loading()"
+          ></textarea>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="stock">Stock *</label>
+            <input 
+              type="number" 
+              id="stock" 
+              formControlName="stock"
+              min="0"
+              [class.error]="rewardForm.get('stock')?.invalid && rewardForm.get('stock')?.touched"
+              [disabled]="loading()"
+            />
+            @if (rewardForm.get('stock')?.invalid && rewardForm.get('stock')?.touched) {
+              <small class="error-text">{{ getErrorMessage('stock') }}</small>
+            }
+          </div>
+
+          <div class="form-group">
+            <label for="isActive">Estado</label>
+            <select 
+              id="isActive" 
+              formControlName="isActive"
+              [disabled]="loading()"
+            >
+              <option [value]="true">Activo</option>
+              <option [value]="false">Inactivo</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Imagen</label>
+          <div class="image-upload">
+            <div class="image-preview">
+              @if (imagePreview()) {
+                <img [src]="imagePreview()" alt="Preview" />
+              } @else {
+                <div class="no-image">
+                  <span>No hay imagen</span>
+                </div>
+              }
+            </div>
+            <div class="upload-controls">
+              <input 
+                type="file" 
+                id="imageFile" 
+                accept="image/*" 
+                (change)="onFileSelected($event)"
+                [disabled]="loading() || loadingImage()"
+                style="display: none"
+                #fileInput
+              />
+              <button 
+                type="button" 
+                class="btn-upload" 
+                (click)="fileInput.click()"
+                [disabled]="loading() || loadingImage()"
+              >
+                {{ loadingImage() ? 'Subiendo...' : 'Seleccionar Imagen' }}
+              </button>
+              @if (selectedFile() && !loadingImage()) {
+                <button 
+                  type="button" 
+                  class="btn-upload-now" 
+                  (click)="uploadImageNow()"
+                  [disabled]="loading() || loadingImage()"
+                >
+                  Subir Imagen
+                </button>
+              }
+              <div class="url-input">
+                <label for="imageUrl">O ingresa una URL:</label>
+                <input 
+                  type="url" 
+                  id="imageUrl" 
+                  formControlName="imageUrl"
+                  placeholder="https://ejemplo.com/imagen.jpg"
+                  (change)="imagePreview.set(rewardForm.get('imageUrl')?.value)"
+                  [disabled]="loading() || loadingImage()"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-actions">
+          <button 
+            type="submit" 
+            class="btn-save"
+            [disabled]="loading() || rewardForm.invalid"
+          >
+            {{ loading() ? 'Guardando...' : (editingReward() ? 'Actualizar' : 'Crear') }}
+          </button>
+          <button 
+            type="button" 
+            class="btn-cancel" 
+            (click)="toggleForm()"
+            [disabled]="loading()"
+          >
+            Cancelar
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+
+  <!-- Buscador -->
+  <div class="search-bar">
+    <input 
+      type="text" 
+      placeholder="Buscar recompensas..." 
+      [(ngModel)]="searchTerm"
+      (input)="onSearchChange(searchTerm())"
+      [disabled]="loading()"
+    />
+  </div>
+
+  <!-- Lista de recompensas -->
+  @if (loading() && rewardProducts().length === 0) {
+    <div class="loading">Cargando recompensas...</div>
+  } @else if (!loading() && filteredRewards().length === 0) {
+    <div class="empty-state">
+      @if (searchTerm()) {
+        <p>No se encontraron recompensas que coincidan con la búsqueda.</p>
+      } @else {
+        <p>No hay recompensas registradas. Crea tu primera recompensa para comenzar.</p>
+      }
+    </div>
+  } @else {
+    <div class="rewards-list">
+      @for (reward of filteredRewards(); track reward.id) {
+        <div class="reward-card" [class.inactive]="!reward.isActive">
+          <div class="reward-image">
+            @if (reward.imageUrl) {
+              <img [src]="reward.imageUrl" [alt]="reward.name" />
+            } @else {
+              <div class="no-image">Sin imagen</div>
+            }
+          </div>
+          <div class="reward-info">
+            <h3>{{ reward.name }}</h3>
+            @if (reward.description) {
+              <p>{{ reward.description }}</p>
+            }
+            <div class="reward-details">
+              <div class="points-badge">
+                <span class="points-icon">⭐</span>
+                <span class="points-value">{{ reward.pointsRequired }} puntos</span>
+              </div>
+              <div class="stock-badge" [class.out-of-stock]="reward.stock === 0">
+                Stock: {{ reward.stock }}
+              </div>
+              <div class="status-badge" [class.active]="reward.isActive" [class.inactive]="!reward.isActive">
+                {{ reward.isActive ? 'Activo' : 'Inactivo' }}
+              </div>
+            </div>
+          </div>
+          <div class="reward-actions">
+            <button 
+              class="btn-edit"
+              (click)="toggleForm(reward)"
+              [disabled]="loading()"
+            >
+              Editar
+            </button>
+            <button 
+              class="btn-delete"
+              (click)="deleteReward(reward.id)"
+              [disabled]="loading()"
+            >
+              Eliminar
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
+

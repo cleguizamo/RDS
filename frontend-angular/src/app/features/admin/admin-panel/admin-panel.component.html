@@ -32,6 +32,41 @@
       {{ editingProduct() ? 'Editar Producto' : 'Agregar Producto' }}
     </button>
     <button 
+      [class.active]="activeTab() === 'categorias'"
+      (click)="setTab('categorias')"
+      class="tab-btn"
+    >
+      Categorías
+    </button>
+    <button 
+      [class.active]="activeTab() === 'subcategorias'"
+      (click)="setTab('subcategorias')"
+      class="tab-btn"
+    >
+      Subcategorías
+    </button>
+    <button 
+      [class.active]="activeTab() === 'recompensas'"
+      (click)="setTab('recompensas')"
+      class="tab-btn"
+    >
+      Recompensas
+    </button>
+    <button 
+      [class.active]="activeTab() === 'estadisticas'"
+      (click)="setTab('estadisticas')"
+      class="tab-btn"
+    >
+      Estadísticas
+    </button>
+    <button 
+      [class.active]="activeTab() === 'gastos'"
+      (click)="setTab('gastos')"
+      class="tab-btn"
+    >
+      Gastos
+    </button>
+    <button 
       [class.active]="activeTab() === 'reservas'"
       (click)="setTab('reservas')"
       class="tab-btn"
@@ -75,6 +110,21 @@
           (save)="onProductSaved($event)"
           (cancel)="onCancel()"
         ></app-product-form>
+      }
+      @case ('categorias') {
+        <app-category-management></app-category-management>
+      }
+      @case ('subcategorias') {
+        <app-subcategory-management></app-subcategory-management>
+      }
+      @case ('recompensas') {
+        <app-reward-management></app-reward-management>
+      }
+      @case ('estadisticas') {
+        <app-financial-dashboard></app-financial-dashboard>
+      }
+      @case ('gastos') {
+        <app-expense-management></app-expense-management>
       }
       @case ('reservas') {
         <app-reservation-management></app-reservation-management>

@@ -26,10 +26,25 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
         
+        final String requestPath = request.getRequestURI();
+        
+        // Rutas públicas que no requieren autenticación
+        if (requestPath.startsWith("/api/public/") || 
+            requestPath.startsWith("/api/auth/") ||
+            requestPath.startsWith("/actuator/") ||
+            requestPath.startsWith("/v3/api-docs/") ||
+            requestPath.startsWith("/swagger-ui")) {
+            System.out.println("JWT Filter: Public path detected: " + requestPath + " - skipping JWT validation");
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
         final String authHeader = request.getHeader("Authorization");
         
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("JWT Filter: No Authorization header found for: " + request.getRequestURI());
+            System.out.println("JWT Filter: No Authorization header found for: " + requestPath);
+            // NO limpiar SecurityContext aquí para rutas que podrían ser públicas
+            // Dejar que Spring Security evalúe los requestMatchers
             filterChain.doFilter(request, response);
             return;
         }

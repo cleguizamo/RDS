@@ -39,7 +39,7 @@ export class MenuComponent implements OnInit {
         this.filteredProducts.set(products);
         
         // Obtener categorías únicas
-        const uniqueCategories = [...new Set(products.map(p => p.category))];
+        const uniqueCategories = [...new Set(products.map(p => p.categoryName))];
         this.categories.set(uniqueCategories);
         
         this.loading.set(false);
@@ -57,13 +57,13 @@ export class MenuComponent implements OnInit {
     if (category === 'all') {
       this.filteredProducts.set(this.products());
     } else {
-      const filtered = this.products().filter(p => p.category === category);
+      const filtered = this.products().filter(p => p.categoryName === category);
       this.filteredProducts.set(filtered);
     }
   }
 
   getProductsByCategory(category: string): ProductResponse[] {
-    return this.filteredProducts().filter(p => p.category === category);
+    return this.filteredProducts().filter(p => p.categoryName === category);
   }
 }
 

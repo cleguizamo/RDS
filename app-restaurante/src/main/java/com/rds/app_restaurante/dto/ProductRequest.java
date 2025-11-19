@@ -20,8 +20,10 @@ public class ProductRequest {
     @Min(value = 0, message = "El precio debe ser mayor o igual a 0")
     private Double price;
 
-    @NotBlank(message = "La categoría es obligatoria")
-    private String category;
+    @NotNull(message = "El ID de la categoría es obligatorio")
+    private Long categoryId;
+
+    private Long subCategoryId;
 
     @NotNull(message = "El stock es obligatorio")
     @Min(value = 0, message = "El stock debe ser mayor o igual a 0")

@@ -3,11 +3,12 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { AdminUserService } from '../../../core/services/admin-user.service';
 import { UserResponse, UserUpdateRequest, DocumentType } from '../../../core/models/user.model';
+import { FormatCurrencyPipe } from '../../../shared/pipes/format-currency.pipe';
 
 @Component({
   selector: 'app-user-management',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule, FormsModule, FormatCurrencyPipe],
   templateUrl: './user-management.component.html',
   styleUrl: './user-management.component.css'
 })

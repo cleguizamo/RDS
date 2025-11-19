@@ -81,11 +81,18 @@
           </div>
         </div>
         <div class="location-map">
-          <div class="map-placeholder">
-            <span class="map-icon">🗺️</span>
-            <p>Mapa interactivo</p>
-            <small>Aquí irá la integración con Google Maps</small>
-          </div>
+          <google-map
+            height="400px"
+            width="100%"
+            [center]="center"
+            [zoom]="zoom"
+            [options]="mapOptions">
+            <map-marker
+              [position]="markerPosition"
+              [options]="markerOptions"
+              [title]="barInfo.name">
+            </map-marker>
+          </google-map>
         </div>
       </div>
     </div>

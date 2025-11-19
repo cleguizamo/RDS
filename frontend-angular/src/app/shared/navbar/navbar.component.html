@@ -3,7 +3,7 @@
     <div class="navbar-brand">
       <a [routerLink]="['/']" class="brand-link">
         <span class="brand-icon">🍺</span>
-        <span class="brand-name">El Buen Sabor</span>
+        <span class="brand-name">El Rincón del Sabor</span>
       </a>
     </div>
 
@@ -22,9 +22,16 @@
         <a [routerLink]="['/login']" class="nav-link nav-btn">Iniciar Sesión</a>
         <a [routerLink]="['/signup']" class="nav-link nav-btn-primary">Registrarse</a>
       } @else {
-        <div class="user-menu">
+        <div 
+          class="user-menu"
+          (mouseenter)="openDropdown()"
+          (mouseleave)="closeDropdown()">
           <span class="user-name">{{ authService.currentUser()?.name }}</span>
-          <div class="user-dropdown">
+          <div 
+            class="user-dropdown"
+            [class.open]="isDropdownOpen()"
+            (mouseenter)="keepDropdownOpen()"
+            (mouseleave)="closeDropdown()">
             @if (authService.currentUser()?.role === 'ADMIN') {
               <a [routerLink]="['/admin']" class="dropdown-link">Panel Admin</a>
             }
