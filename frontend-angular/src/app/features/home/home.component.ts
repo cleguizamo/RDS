@@ -19,7 +19,7 @@ export class HomeComponent implements OnInit {
     name: 'El Rincón del Sabor',
     slogan: 'Donde cada sorbo es una experiencia',
     address: 'Garagoa, Boyacá, Colombia',
-    phone: '+57 300 123 4567',
+    phone: '+57 312 362 9010',
     hours: {
       weekdays: 'Lun - Jue: 5:00 PM - 2:00 AM',
       weekend: 'Vie - Dom: 4:00 PM - 3:00 AM'
