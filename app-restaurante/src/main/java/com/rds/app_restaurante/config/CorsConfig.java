@@ -6,6 +6,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.filter.CorsFilter;
@@ -19,6 +20,12 @@ public class CorsConfig {
 
 	@Value("${app.cors.allowed-methods:GET,POST,PUT,DELETE,OPTIONS}")
 	private String allowedMethods;
+	
+	private final Environment environment;
+
+	public CorsConfig(Environment environment) {
+		this.environment = environment;
+	}
 
 	//Bean para configurar el filtro de CORS
 	@Bean
@@ -26,47 +33,66 @@ public class CorsConfig {
 		CorsConfiguration config = new CorsConfiguration();
 		config.setAllowCredentials(true);
 		
-		// Crear lista de patrones permitidos
-		List<String> patterns = new ArrayList<>();
+		// Determinar si estamos en producción
+		boolean isProduction = Arrays.asList(environment.getActiveProfiles()).contains("prod");
 		
-		// Agregar orígenes desde application.yml
-		if (allowedOrigins != null && !allowedOrigins.trim().isEmpty()) {
-			patterns.addAll(Arrays.asList(allowedOrigins.split(",")));
-		}
-		
-		// Agregar patrones para redes locales (si no están ya incluidos)
-		// Esto permite acceso desde cualquier máquina en la misma red
-		String[] localNetworkPatterns = {
-			"http://localhost:*",
-			"http://127.0.0.1:*",
-			"http://192.168.*.*:*",    // Redes privadas clase C (192.168.0.0/16)
-			"http://10.*.*.*:*",       // Redes privadas clase A (10.0.0.0/8)
-			"http://172.16.*.*:*",     // Redes privadas clase B (172.16.0.0/12)
-			"http://172.17.*.*:*",
-			"http://172.18.*.*:*",
-			"http://172.19.*.*:*",
-			"http://172.20.*.*:*",
-			"http://172.21.*.*:*",
-			"http://172.22.*.*:*",
-			"http://172.23.*.*:*",
-			"http://172.24.*.*:*",
-			"http://172.25.*.*:*",
-			"http://172.26.*.*:*",
-			"http://172.27.*.*:*",
-			"http://172.28.*.*:*",
-			"http://172.29.*.*:*",
-			"http://172.30.*.*:*",
-			"http://172.31.*.*:*"
-		};
-		
-		// Agregar solo si no están ya en la lista
-		for (String pattern : localNetworkPatterns) {
-			if (!patterns.contains(pattern)) {
-				patterns.add(pattern);
+		if (isProduction && allowedOrigins != null && !allowedOrigins.trim().isEmpty()) {
+			// En producción: usar URLs exactas (no patrones)
+			// setAllowedOriginPatterns NO funciona bien con URLs exactas de HTTPS
+			for (String origin : allowedOrigins.split(",")) {
+				origin = origin.trim();
+				if (origin.startsWith("https://") || origin.startsWith("http://")) {
+					config.addAllowedOrigin(origin);
+				}
 			}
+		} else {
+			// En desarrollo: usar patrones para redes locales
+			List<String> patterns = new ArrayList<>();
+			
+			// Agregar orígenes desde application.yml como patrones si son localhost
+			if (allowedOrigins != null && !allowedOrigins.trim().isEmpty()) {
+				for (String origin : allowedOrigins.split(",")) {
+					origin = origin.trim();
+					if (origin.contains("localhost") || origin.contains("127.0.0.1")) {
+						patterns.add(origin.replace("4200", "*"));
+					}
+				}
+			}
+			
+			// Agregar patrones para redes locales
+			String[] localNetworkPatterns = {
+				"http://localhost:*",
+				"http://127.0.0.1:*",
+				"http://192.168.*.*:*",    // Redes privadas clase C (192.168.0.0/16)
+				"http://10.*.*.*:*",       // Redes privadas clase A (10.0.0.0/8)
+				"http://172.16.*.*:*",     // Redes privadas clase B (172.16.0.0/12)
+				"http://172.17.*.*:*",
+				"http://172.18.*.*:*",
+				"http://172.19.*.*:*",
+				"http://172.20.*.*:*",
+				"http://172.21.*.*:*",
+				"http://172.22.*.*:*",
+				"http://172.23.*.*:*",
+				"http://172.24.*.*:*",
+				"http://172.25.*.*:*",
+				"http://172.26.*.*:*",
+				"http://172.27.*.*:*",
+				"http://172.28.*.*:*",
+				"http://172.29.*.*:*",
+				"http://172.30.*.*:*",
+				"http://172.31.*.*:*"
+			};
+			
+			// Agregar solo si no están ya en la lista
+			for (String pattern : localNetworkPatterns) {
+				if (!patterns.contains(pattern)) {
+					patterns.add(pattern);
+				}
+			}
+			
+			config.setAllowedOriginPatterns(patterns);
 		}
 		
-		config.setAllowedOriginPatterns(patterns);
 		config.setAllowedMethods(Arrays.asList(allowedMethods.split(",")));
 		config.addAllowedHeader("*");
 		config.setExposedHeaders(Arrays.asList("Authorization", "Content-Type"));
