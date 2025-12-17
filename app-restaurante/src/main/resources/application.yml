@@ -33,12 +33,12 @@ spring:
     type: caffeine
     cache-names: categories, subCategories, products, statistics
   mail:
-    host: ${SMTP_HOST:smtp.gmail.com}
+    host: ${SMTP_HOST:}
     port: ${SMTP_PORT:587}
-    username: ${SMTP_USERNAME}
+    username: ${SMTP_USERNAME:}
     # Para Gmail: usa una contraseña de aplicación (sin espacios) o ponla entre comillas si tiene espacios
     # Genera una contraseña de aplicación en: https://myaccount.google.com/apppasswords
-    password: ${SMTP_PASSWORD}
+    password: ${SMTP_PASSWORD:}
     properties:
       mail:
         smtp:
@@ -46,13 +46,11 @@ spring:
           starttls:
             enable: ${SMTP_STARTTLS:true}
             required: ${SMTP_STARTTLS_REQUIRED:false}
-          connectiontimeout: 30000
-          timeout: 30000
-          writetimeout: 30000
-          socketFactory:
-            port: 587
-            class: javax.net.ssl.SSLSocketFactory
-            fallback: false
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+          # No validar conexión al inicio - crítico para Railway
+          test-connection: false
     from: ${EMAIL_FROM:noreply@restaurante.com}
     from-name: ${EMAIL_FROM_NAME:Restaurante App}
 

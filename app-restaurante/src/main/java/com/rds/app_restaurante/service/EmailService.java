@@ -23,16 +23,28 @@ public class EmailService {
     private final TemplateEngine templateEngine;
     private final String fromEmail;
     private final String fromName;
+    private final boolean mailEnabled;
 
     public EmailService(
             JavaMailSender mailSender, 
             TemplateEngine templateEngine,
-            @Value("${spring.mail.from}") String fromEmail,
-            @Value("${spring.mail.from-name}") String fromName) {
+            @Value("${spring.mail.from:noreply@restaurante.com}") String fromEmail,
+            @Value("${spring.mail.from-name:Restaurante App}") String fromName,
+            @Value("${spring.mail.host:}") String smtpHost) {
         this.mailSender = mailSender;
         this.templateEngine = templateEngine;
         this.fromEmail = fromEmail;
         this.fromName = fromName;
+        // Solo habilitar email si hay configuración SMTP completa
+        boolean hasHost = smtpHost != null && !smtpHost.trim().isEmpty();
+        this.mailEnabled = hasHost;
+        
+        if (!mailEnabled) {
+            log.warn("Servicio de email deshabilitado: no hay configuración SMTP (SMTP_HOST vacío o no configurado). " +
+                    "Los emails no se enviarán, pero la aplicación funcionará normalmente.");
+        } else {
+            log.info("Servicio de email habilitado con host: {}", smtpHost);
+        }
     }
 
     /**
@@ -282,6 +294,11 @@ public class EmailService {
      * No lanza excepciones para evitar que falle la aplicación si el email no se puede enviar
      */
     private void sendEmail(String to, String subject, String htmlContent) {
+        if (!mailEnabled) {
+            log.debug("Email no enviado (servicio deshabilitado) a: {} - Asunto: {}", to, subject);
+            return;
+        }
+        
         try {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
@@ -294,11 +311,14 @@ public class EmailService {
             mailSender.send(message);
             log.debug("Email enviado exitosamente a: {}", to);
         } catch (org.springframework.mail.MailAuthenticationException e) {
-            log.error("Error de autenticación al enviar email a {}: {}. Verifica la configuración SMTP en application.yml " +
-                    "(username y password). Para Gmail, asegúrate de usar una contraseña de aplicación sin espacios.", 
+            log.warn("Error de autenticación al enviar email a {}: {}. Verifica la configuración SMTP. " +
+                    "Para Gmail, asegúrate de usar una contraseña de aplicación sin espacios.", 
+                    to, e.getMessage());
+        } catch (org.springframework.mail.MailSendException e) {
+            log.warn("Error de conexión al enviar email a {}: {}. El servidor SMTP puede no estar accesible.", 
                     to, e.getMessage());
         } catch (Exception e) {
-            log.error("Error enviando email a {}: {}", to, e.getMessage(), e);
+            log.warn("Error enviando email a {}: {}", to, e.getMessage());
         }
     }
 }
