@@ -27,16 +27,15 @@ public class DataInitializer {
                     "Principal",
                     DocumentType.CC,
                     "0000000000",
-                    "admin@restaurante.com",
-                    passwordEncoder.encode("admin123"), // Cambiar en producción
+                    "yerals17@hotmail.com",
+                    passwordEncoder.encode("Rincon2025"),
                     Long.parseLong("3000000000")
                 );
                 adminRepository.save(defaultAdmin);
                 System.out.println("========================================");
                 System.out.println("Admin predeterminado creado:");
-                System.out.println("Email: admin@restaurante.com");
-                System.out.println("Password: admin123");
-                System.out.println("¡IMPORTANTE: Cambiar la contraseña después del primer login!");
+                System.out.println("Email: yerals17@hotmail.com");
+                System.out.println("Password: Rincon2025");
                 System.out.println("========================================");
             }
         };
