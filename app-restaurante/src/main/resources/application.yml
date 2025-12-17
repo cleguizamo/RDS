@@ -45,10 +45,14 @@ spring:
           auth: ${SMTP_AUTH:true}
           starttls:
             enable: ${SMTP_STARTTLS:true}
-            required: ${SMTP_STARTTLS_REQUIRED:true}
-          connectiontimeout: 5000
-          timeout: 5000
-          writetimeout: 5000
+            required: ${SMTP_STARTTLS_REQUIRED:false}
+          connectiontimeout: 30000
+          timeout: 30000
+          writetimeout: 30000
+          socketFactory:
+            port: 587
+            class: javax.net.ssl.SSLSocketFactory
+            fallback: false
     from: ${EMAIL_FROM:noreply@restaurante.com}
     from-name: ${EMAIL_FROM_NAME:Restaurante App}
 
