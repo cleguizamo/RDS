@@ -4,7 +4,7 @@
 spring:
   jpa:
     hibernate:
-      ddl-auto: validate  # Validar schema, NO modificar en producción
+      ddl-auto: ${HIBERNATE_DDL_AUTO:validate}  # Usar variable de entorno, por defecto validate
     properties:
       hibernate:
         format_sql: false
