@@ -12,6 +12,171 @@
     <div class="alert alert-success">{{ successMessage() }}</div>
   }
 
+  <div class="filters">
+    <div class="basic-filters">
+      <input 
+        type="text" 
+        placeholder="Buscar por nombre o email..." 
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        class="search-input"
+      />
+      <button (click)="toggleAdvancedSearch()" class="btn-toggle-search">
+        {{ showAdvancedSearch() ? 'Ocultar' : 'Mostrar' }} Búsqueda Avanzada
+      </button>
+      @if (searchTerm()) {
+        <button (click)="clearFilters()" class="btn-clear">Limpiar filtros</button>
+      }
+    </div>
+
+    @if (showAdvancedSearch()) {
+      <div class="modal-overlay" (click)="closeAdvancedSearch()">
+        <div class="advanced-search-modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Búsqueda Avanzada</h3>
+            <button class="btn-close" (click)="closeAdvancedSearch()" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="search-grid">
+              <div class="search-field">
+                <label>Email:</label>
+                <input 
+                  type="text" 
+                  [ngModel]="searchRequest().email"
+                  (ngModelChange)="updateSearchField('email', $event)"
+                  placeholder="email@ejemplo.com"
+                />
+              </div>
+              <div class="search-field">
+                <label>Documento:</label>
+                <input 
+                  type="text" 
+                  [ngModel]="searchRequest().documentNumber"
+                  (ngModelChange)="updateSearchField('documentNumber', $event)"
+                  placeholder="Número de documento"
+                />
+              </div>
+              <div class="search-field">
+                <label>Teléfono:</label>
+                <input 
+                  type="text" 
+                  [ngModel]="searchRequest().phone"
+                  (ngModelChange)="updateSearchField('phone', $event)"
+                  placeholder="Teléfono"
+                />
+              </div>
+              <div class="search-field">
+                <label>Puntos Mínimos:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().minPoints"
+                  (ngModelChange)="updateSearchField('minPoints', $event)"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Puntos Máximos:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().maxPoints"
+                  (ngModelChange)="updateSearchField('maxPoints', $event)"
+                  placeholder="999999"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Pedidos Mínimos:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().minOrders"
+                  (ngModelChange)="updateSearchField('minOrders', $event)"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Pedidos Máximos:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().maxOrders"
+                  (ngModelChange)="updateSearchField('maxOrders', $event)"
+                  placeholder="999999"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Gastado Mínimo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().minSpent"
+                  (ngModelChange)="updateSearchField('minSpent', $event)"
+                  placeholder="0"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div class="search-field">
+                <label>Gastado Máximo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().maxSpent"
+                  (ngModelChange)="updateSearchField('maxSpent', $event)"
+                  placeholder="999999"
+                  min="0"
+                  step="0.01"
+                />
+              </div>
+              <div class="search-field">
+                <label>Ordenar por:</label>
+                <select 
+                  [ngModel]="searchRequest().sortBy || 'id'"
+                  (ngModelChange)="updateSearchField('sortBy', $event)"
+                >
+                  <option value="id">ID</option>
+                  <option value="name">Nombre</option>
+                  <option value="email">Email</option>
+                  <option value="points">Puntos</option>
+                  <option value="totalSpent">Total Gastado</option>
+                </select>
+              </div>
+              <div class="search-field">
+                <label>Dirección:</label>
+                <select 
+                  [ngModel]="searchRequest().sortDirection || 'ASC'"
+                  (ngModelChange)="updateSearchField('sortDirection', $event)"
+                >
+                  <option value="ASC">Ascendente</option>
+                  <option value="DESC">Descendente</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-clear-filters" (click)="clearAdvancedFilters()">Limpiar</button>
+            <button class="btn-cancel-search" (click)="closeAdvancedSearch()">Cancelar</button>
+            <button class="btn-apply-search" (click)="applyAdvancedSearch()">Aplicar Búsqueda</button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Información de paginación -->
+  <div class="pagination-info">
+    <span>Mostrando {{ users().length }} de {{ totalElements() }} usuarios</span>
+    <select 
+      [value]="pageSize()"
+      (change)="onPageSizeChange(+$any($event.target).value)"
+      class="page-size-select"
+    >
+      <option [value]="10">10 por página</option>
+      <option [value]="20">20 por página</option>
+      <option [value]="50">50 por página</option>
+      <option [value]="100">100 por página</option>
+    </select>
+  </div>
+
   @if (loading() && users().length === 0) {
     <div class="loading">Cargando usuarios...</div>
   } @else {
@@ -31,16 +196,21 @@
           </thead>
           <tbody>
             @for (user of users(); track user.id) {
-              <tr [class.selected]="selectedUser()?.id === user.id" (click)="selectUser(user)">
+              <tr>
                 <td>{{ user.id }}</td>
-                <td>{{ user.name }} {{ user.lastName }}</td>
-                <td>{{ user.email }}</td>
-                <td>{{ user.phone }}</td>
-                <td>{{ user.numberOfOrders }}</td>
+                <td>
+                  <div class="user-name">{{ user.name }} {{ user.lastName }}</div>
+                </td>
+                <td>
+                  <div class="user-email">{{ user.email }}</div>
+                </td>
+                <td>{{ user.phone || 'N/A' }}</td>
+                <td>{{ user.numberOfOrders || 0 }}</td>
                 <td>{{ user.totalSpent | formatCurrency }}</td>
                 <td>
-                  <button class="btn-edit" (click)="selectUser(user); $event.stopPropagation()">Editar</button>
-                  <button class="btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()">Eliminar</button>
+                  <div class="action-buttons">
+                    <button class="btn-delete" (click)="deleteUser(user.id); $event.stopPropagation()" [disabled]="loading()">Eliminar</button>
+                  </div>
                 </td>
               </tr>
             }
@@ -48,67 +218,29 @@
         </table>
       </div>
 
-      @if (selectedUser() && editingUser()) {
-        <div class="edit-panel">
-          <h3>Editar Usuario</h3>
-          <form (ngSubmit)="updateUser()">
-            <div class="form-group">
-              <label>Nombre</label>
-              <input type="text" [(ngModel)]="editingUser()!.name" name="name" required />
-            </div>
-
-            <div class="form-group">
-              <label>Apellido</label>
-              <input type="text" [(ngModel)]="editingUser()!.lastName" name="lastName" required />
-            </div>
-
-            <div class="form-group">
-              <label>Tipo de Documento</label>
-              <select [(ngModel)]="editingUser()!.documentType" name="documentType" required>
-                @for (type of documentTypes; track type) {
-                  <option [value]="type">{{ type }}</option>
-                }
-              </select>
-            </div>
-
-            <div class="form-group">
-              <label>Número de Documento</label>
-              <input type="text" [(ngModel)]="editingUser()!.documentNumber" name="documentNumber" required />
-            </div>
-
-            <div class="form-group">
-              <label>Teléfono</label>
-              <input type="number" [(ngModel)]="editingUser()!.phone" name="phone" required />
-            </div>
-
-            <div class="form-group">
-              <label>Email</label>
-              <input type="email" [(ngModel)]="editingUser()!.email" name="email" required />
-            </div>
-
-            <div class="form-group">
-              <label>Fecha de Nacimiento</label>
-              <input type="date" [(ngModel)]="editingUser()!.dateOfBirth" name="dateOfBirth" required />
-            </div>
-
-            <div class="form-group">
-              <label>Puntos</label>
-              <input type="number" [(ngModel)]="editingUser()!.points" name="points" min="0" />
-            </div>
-
-            <div class="form-group">
-              <label>Total Gastado</label>
-              <input type="number" [(ngModel)]="editingUser()!.totalSpent" name="totalSpent" min="0" step="0.01" />
-            </div>
-
-            <div class="form-actions">
-              <button type="submit" class="btn-save" [disabled]="loading()">Guardar</button>
-              <button type="button" class="btn-cancel" (click)="cancelEdit()">Cancelar</button>
-            </div>
-          </form>
+      <!-- Controles de paginación -->
+      @if (totalPages() > 1) {
+        <div class="pagination-controls">
+          <button 
+            (click)="previousPage()" 
+            [disabled]="currentPage() === 0"
+            class="btn-pagination"
+          >
+            Anterior
+          </button>
+          <span class="page-info">
+            Página {{ currentPage() + 1 }} de {{ totalPages() }}
+          </span>
+          <button 
+            (click)="nextPage()" 
+            [disabled]="currentPage() >= totalPages() - 1"
+            class="btn-pagination"
+          >
+            Siguiente
+          </button>
         </div>
       }
+
     </div>
   }
 </div>
-

@@ -34,3 +34,14 @@ export interface ProductResponse {
   stock: number;
 }
 
+export interface ProductSearchRequest {
+  name?: string;
+  categoryId?: number;
+  subCategoryId?: number;
+  minPrice?: number;
+  maxPrice?: number;
+  minStock?: number;
+  sortBy?: string;
+  sortDirection?: string;
+}
+

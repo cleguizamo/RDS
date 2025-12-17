@@ -1,12 +1,23 @@
-/* Estilos globales para el bar - Colores que incentivan el consumo */
+/* Estilos globales para el bar - Esquema elegante: Negro, Dorado, Rojo */
 :root {
-  --bar-red: #c41e3a;
-  --bar-dark-red: #8b1538;
-  --bar-gold: #d4af37;
+  /* Negro - Fondos principales */
+  --bar-black: #000000;
   --bar-dark: #1a1a1a;
-  --bar-warm: #2d1810;
-  --bar-light: #f5e6d3;
+  --bar-dark-secondary: #2d2d2d;
+  
+  /* Dorado - Detalles, títulos, premium */
+  --bar-gold: #d4af37;
+  --bar-gold-light: #e5c449;
+  --bar-gold-dark: #b8941f;
+  
+  /* Rojo - Acentos, CTAs */
+  --bar-red: #c41e3a;
+  --bar-red-dark: #8b1538;
+  --bar-red-light: #e63946;
+  
+  /* Complementarios */
   --bar-white: #ffffff;
+  --bar-light: #f5f5f5;
 }
 
 * {
@@ -18,8 +29,8 @@
 body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   line-height: 1.6;
-  color: #333;
-  background: var(--bar-light);
+  color: var(--bar-white);
+  background: var(--bar-black);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
@@ -37,13 +48,151 @@ button {
   font-family: inherit;
 }
 
+/* Estilos base para botones */
+button, .btn, [class*="btn-"] {
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  text-decoration: none;
+  outline: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0.25rem; /* Espaciado entre botones */
+}
+
+/* Contenedores de botones deben tener gap */
+button + button, .btn + .btn, [class*="btn-"] + [class*="btn-"],
+button + .btn, .btn + button,
+button + [class*="btn-"], [class*="btn-"] + button {
+  margin-left: 0.5rem;
+}
+
+/* Si los botones están en un contenedor con display flex/grid, resetear margin */
+.dashboard-header, .header-actions, .export-buttons, .quick-filters, 
+.date-filters, .date-range, .filters, .form-actions, .modal-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.dashboard-header button, .header-actions button, .export-buttons button, 
+.quick-filters button, .date-filters button, .date-range button,
+.filters button, .form-actions button, .modal-actions button {
+  margin: 0; /* Reset margin cuando están en contenedores con gap */
+}
+
+button:hover:not(:disabled), .btn:hover:not(:disabled), [class*="btn-"]:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+button:active:not(:disabled), .btn:active:not(:disabled), [class*="btn-"]:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+button:disabled, .btn:disabled, [class*="btn-"]:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Variantes de botones */
+.btn-primary, button.btn-primary {
+  background: var(--bar-gold);
+  color: #000000;
+}
+
+.btn-primary:hover:not(:disabled), button.btn-primary:hover:not(:disabled) {
+  background: var(--bar-gold-light);
+}
+
+.btn-secondary, button.btn-secondary {
+  background: var(--bar-dark-secondary);
+  color: var(--bar-white);
+}
+
+.btn-secondary:hover:not(:disabled), button.btn-secondary:hover:not(:disabled) {
+  background: #3d3d3d;
+}
+
+.btn-danger, button.btn-danger, .btn-delete, button.btn-delete {
+  background: var(--bar-red);
+  color: var(--bar-white);
+}
+
+.btn-danger:hover:not(:disabled), button.btn-danger:hover:not(:disabled),
+.btn-delete:hover:not(:disabled), button.btn-delete:hover:not(:disabled) {
+  background: var(--bar-red-light);
+}
+
+.btn-success, button.btn-success, .btn-save, button.btn-save {
+  background: #28a745;
+  color: var(--bar-white);
+}
+
+.btn-success:hover:not(:disabled), button.btn-success:hover:not(:disabled),
+.btn-save:hover:not(:disabled), button.btn-save:hover:not(:disabled) {
+  background: #34ce57;
+}
+
+.btn-info, button.btn-info, .btn-edit, button.btn-edit {
+  background: #17a2b8;
+  color: var(--bar-white);
+}
+
+.btn-info:hover:not(:disabled), button.btn-info:hover:not(:disabled),
+.btn-edit:hover:not(:disabled), button.btn-edit:hover:not(:disabled) {
+  background: #20c6d9;
+}
+
+.btn-outline, button.btn-outline {
+  background: transparent;
+  border: 2px solid var(--bar-gold);
+  color: var(--bar-gold);
+}
+
+.btn-outline:hover:not(:disabled), button.btn-outline:hover:not(:disabled) {
+  background: var(--bar-gold);
+  color: #000000;
+}
+
+/* Tamaños de botones */
+.btn-sm, button.btn-sm {
+  padding: 0.5rem 1rem;
+  font-size: 0.8rem;
+}
+
+.btn-lg, button.btn-lg {
+  padding: 1rem 2rem;
+  font-size: 1rem;
+}
+
+/* Botones de icono */
+.btn-icon {
+  padding: 0.5rem;
+  width: 2.5rem;
+  height: 2.5rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Scrollbar personalizada */
 ::-webkit-scrollbar {
   width: 10px;
 }
 
 ::-webkit-scrollbar-track {
-  background: var(--bar-dark);
+  background: var(--bar-black);
 }
 
 ::-webkit-scrollbar-thumb {
@@ -52,5 +201,356 @@ button {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #e5c449;
+  background: var(--bar-gold-light);
+}
+
+/* Estilos globales para elementos select (listas desplegables) */
+select {
+  padding: 0.75rem 1rem;
+  padding-right: 2.5rem;
+  border: 2px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: border-color 0.3s, box-shadow 0.3s, background-color 0.3s;
+  background: #ffffff;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23333' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1em;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  color: #000000;
+  outline: none;
+}
+
+select:hover {
+  border-color: var(--bar-gold);
+  background-color: #fafafa;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+select:focus {
+  outline: none;
+  border-color: var(--bar-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  background-color: #ffffff;
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+}
+
+select:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  background-color: #f5f5f5;
+  border-color: #ccc;
+}
+
+select option {
+  padding: 0.5rem;
+  background: #ffffff;
+  color: #000000;
+  font-weight: normal;
+}
+
+select option:hover {
+  background: var(--bar-gold);
+  color: #000000;
+}
+
+select option:checked {
+  background: var(--bar-gold);
+  color: #000000;
+  font-weight: 600;
+}
+
+/* Variantes específicas para selects en componentes admin */
+/* select.category-select, select.page-size-select, select[class*="select"] heredan los estilos base de select */
+
+/* Selects dentro de formularios */
+form select,
+.form-group select,
+.search-field select {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Selects pequeños */
+select.btn-sm,
+select[class*="sm"] {
+  padding: 0.5rem 0.75rem;
+  padding-right: 2rem;
+  font-size: 0.875rem;
+  background-size: 0.875em;
+  background-position: right 0.5rem center;
+}
+
+/* Selects grandes */
+select.btn-lg,
+select[class*="lg"] {
+  padding: 1rem 1.25rem;
+  padding-right: 3rem;
+  font-size: 1.125rem;
+  background-size: 1.125em;
+  background-position: right 1rem center;
+}
+
+/* Estilos globales para elementos input type="date" - Diseño limpio y moderno */
+input[type="date"] {
+  padding: 0.75rem 1rem;
+  padding-right: 2.5rem;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  background: var(--bar-dark-secondary);
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23d4af37' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpath d='M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z'%3e%3c/path%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1.2em;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  color: var(--bar-white);
+  outline: none;
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* Ocultar el indicador de calendario nativo */
+input[type="date"]::-webkit-calendar-picker-indicator {
+  opacity: 0;
+  position: absolute;
+  right: 0.75rem;
+  width: 1.5em;
+  height: 1.5em;
+  cursor: pointer;
+  z-index: 1;
+}
+
+input[type="date"]::-webkit-inner-spin-button,
+input[type="date"]::-webkit-clear-button {
+  opacity: 0;
+  cursor: pointer;
+}
+
+/* Estados interactivos */
+input[type="date"]:hover {
+  border-color: var(--bar-gold);
+  background-color: rgba(45, 45, 45, 0.8);
+}
+
+input[type="date"]:focus {
+  outline: none;
+  border-color: var(--bar-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+  background-color: var(--bar-dark-secondary);
+}
+
+input[type="date"]:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  background-color: rgba(45, 45, 45, 0.5);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Estilos para campos de fecha individuales - Diseño limpio sin cajas */
+input[type="date"]::-webkit-datetime-edit {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  background: transparent;
+}
+
+input[type="date"]::-webkit-datetime-edit-text {
+  color: var(--bar-white);
+  padding: 0 0.25em;
+  opacity: 0.7;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field,
+input[type="date"]::-webkit-datetime-edit-day-field,
+input[type="date"]::-webkit-datetime-edit-year-field {
+  color: var(--bar-white);
+  padding: 0.15em 0.25em;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  transition: background-color 0.2s ease, color 0.2s ease;
+  min-width: auto;
+  text-align: left;
+  appearance: none;
+  -webkit-appearance: none;
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:hover,
+input[type="date"]::-webkit-datetime-edit-day-field:hover,
+input[type="date"]::-webkit-datetime-edit-year-field:hover {
+  background-color: transparent;
+  color: var(--bar-gold);
+}
+
+input[type="date"]::-webkit-datetime-edit-month-field:focus,
+input[type="date"]::-webkit-datetime-edit-day-field:focus,
+input[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background-color: transparent;
+  outline: none;
+  color: var(--bar-gold);
+  background: rgba(212, 175, 55, 0.1);
+  border-radius: 3px;
+}
+
+/* Para inputs de fecha en formularios con fondo claro (admin) */
+.form-card input[type="date"],
+.expense-form input[type="date"],
+.basic-filters input[type="date"],
+.date-range input[type="date"],
+.search-field input[type="date"],
+.date-group input[type="date"] {
+  background: #ffffff;
+  color: #000000;
+  border-color: #ddd;
+}
+
+.form-card input[type="date"]::-webkit-datetime-edit-text,
+.expense-form input[type="date"]::-webkit-datetime-edit-text,
+.basic-filters input[type="date"]::-webkit-datetime-edit-text,
+.date-range input[type="date"]::-webkit-datetime-edit-text {
+  color: #000000;
+  opacity: 0.7;
+}
+
+.form-card input[type="date"]::-webkit-datetime-edit-month-field,
+.form-card input[type="date"]::-webkit-datetime-edit-day-field,
+.form-card input[type="date"]::-webkit-datetime-edit-year-field,
+.expense-form input[type="date"]::-webkit-datetime-edit-month-field,
+.expense-form input[type="date"]::-webkit-datetime-edit-day-field,
+.expense-form input[type="date"]::-webkit-datetime-edit-year-field,
+.basic-filters input[type="date"]::-webkit-datetime-edit-month-field,
+.basic-filters input[type="date"]::-webkit-datetime-edit-day-field,
+.basic-filters input[type="date"]::-webkit-datetime-edit-year-field,
+.date-range input[type="date"]::-webkit-datetime-edit-month-field,
+.date-range input[type="date"]::-webkit-datetime-edit-day-field,
+.date-range input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #000000;
+  background: transparent;
+}
+
+.form-card input[type="date"]::-webkit-datetime-edit-month-field:hover,
+.form-card input[type="date"]::-webkit-datetime-edit-day-field:hover,
+.form-card input[type="date"]::-webkit-datetime-edit-year-field:hover,
+.expense-form input[type="date"]::-webkit-datetime-edit-month-field:hover,
+.expense-form input[type="date"]::-webkit-datetime-edit-day-field:hover,
+.expense-form input[type="date"]::-webkit-datetime-edit-year-field:hover {
+  background-color: rgba(212, 175, 55, 0.1);
+  color: #000000;
+}
+
+.form-card input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.form-card input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.form-card input[type="date"]::-webkit-datetime-edit-year-field:focus,
+.expense-form input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.expense-form input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.expense-form input[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background-color: rgba(212, 175, 55, 0.15);
+  color: #000000;
+}
+
+.form-card input[type="date"]:hover,
+.expense-form input[type="date"]:hover,
+.basic-filters input[type="date"]:hover,
+.date-range input[type="date"]:hover {
+  background-color: #fafafa;
+  border-color: var(--bar-gold);
+}
+
+.form-card input[type="date"]:focus,
+.expense-form input[type="date"]:focus,
+.basic-filters input[type="date"]:focus,
+.date-range input[type="date"]:focus {
+  background-color: #ffffff;
+  border-color: var(--bar-gold);
+}
+
+/* Formularios oscuros (signup, login) - mantienen estilo negro */
+.signup-card input[type="date"],
+.login-card input[type="date"],
+.form-control[type="date"] {
+  background: var(--bar-dark-secondary);
+  color: var(--bar-white);
+  border-color: rgba(212, 175, 55, 0.3);
+}
+
+.signup-card input[type="date"]::-webkit-datetime-edit-text,
+.login-card input[type="date"]::-webkit-datetime-edit-text,
+.form-control[type="date"]::-webkit-datetime-edit-text {
+  color: var(--bar-white);
+  opacity: 0.7;
+}
+
+.signup-card input[type="date"]::-webkit-datetime-edit-month-field,
+.signup-card input[type="date"]::-webkit-datetime-edit-day-field,
+.signup-card input[type="date"]::-webkit-datetime-edit-year-field,
+.login-card input[type="date"]::-webkit-datetime-edit-month-field,
+.login-card input[type="date"]::-webkit-datetime-edit-day-field,
+.login-card input[type="date"]::-webkit-datetime-edit-year-field,
+.form-control[type="date"]::-webkit-datetime-edit-month-field,
+.form-control[type="date"]::-webkit-datetime-edit-day-field,
+.form-control[type="date"]::-webkit-datetime-edit-year-field {
+  color: var(--bar-white);
+  background: transparent;
+}
+
+.signup-card input[type="date"]::-webkit-datetime-edit-month-field:hover,
+.signup-card input[type="date"]::-webkit-datetime-edit-day-field:hover,
+.signup-card input[type="date"]::-webkit-datetime-edit-year-field:hover,
+.login-card input[type="date"]::-webkit-datetime-edit-month-field:hover,
+.login-card input[type="date"]::-webkit-datetime-edit-day-field:hover,
+.login-card input[type="date"]::-webkit-datetime-edit-year-field:hover,
+.form-control[type="date"]::-webkit-datetime-edit-month-field:hover,
+.form-control[type="date"]::-webkit-datetime-edit-day-field:hover,
+.form-control[type="date"]::-webkit-datetime-edit-year-field:hover {
+  background-color: transparent;
+  color: var(--bar-gold);
+}
+
+.signup-card input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.signup-card input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.signup-card input[type="date"]::-webkit-datetime-edit-year-field:focus,
+.login-card input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.login-card input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.login-card input[type="date"]::-webkit-datetime-edit-year-field:focus,
+.form-control[type="date"]::-webkit-datetime-edit-month-field:focus,
+.form-control[type="date"]::-webkit-datetime-edit-day-field:focus,
+.form-control[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background-color: rgba(212, 175, 55, 0.1);
+  color: var(--bar-gold);
+}
+
+/* Variantes de tamaño */
+input[type="date"].btn-sm,
+input[type="date"][class*="sm"],
+.date-input.btn-sm {
+  padding: 0.5rem 0.75rem;
+  padding-right: 2rem;
+  font-size: 0.875rem;
+  background-size: 1em;
+  background-position: right 0.5rem center;
+}
+
+input[type="date"].btn-lg,
+input[type="date"][class*="lg"],
+.date-input.btn-lg {
+  padding: 1rem 1.25rem;
+  padding-right: 3rem;
+  font-size: 1.125rem;
+  background-size: 1.3em;
+  background-position: right 1rem center;
 }

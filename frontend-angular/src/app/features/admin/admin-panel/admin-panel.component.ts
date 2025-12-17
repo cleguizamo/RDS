@@ -13,9 +13,10 @@ import { SubCategoryManagementComponent } from '../subcategory-management/subcat
 import { RewardManagementComponent } from '../reward-management/reward-management.component';
 import { ExpenseManagementComponent } from '../expense-management/expense-management.component';
 import { FinancialDashboardComponent } from '../financial-dashboard/financial-dashboard.component';
+import { BalanceManagementComponent } from '../balance-management/balance-management.component';
 import { ProductResponse } from '../../../core/models/product.model';
 
-type TabType = 'usuarios' | 'productos' | 'agregar-producto' | 'categorias' | 'subcategorias' | 'recompensas' | 'estadisticas' | 'gastos' | 'reservas' | 'pedidos' | 'empleados' | 'admins';
+type TabType = 'usuarios' | 'productos' | 'agregar-producto' | 'categorias' | 'subcategorias' | 'recompensas' | 'estadisticas' | 'gastos' | 'balance' | 'reservas' | 'pedidos' | 'empleados' | 'admins';
 
 @Component({
   selector: 'app-admin-panel',
@@ -30,6 +31,7 @@ type TabType = 'usuarios' | 'productos' | 'agregar-producto' | 'categorias' | 's
     RewardManagementComponent,
     ExpenseManagementComponent,
     FinancialDashboardComponent,
+    BalanceManagementComponent,
     EmployeeManagementComponent,
     ReservationManagementComponent,
     OrderManagementComponent,
@@ -48,6 +50,13 @@ export class AdminPanelComponent {
     this.activeTab.set(tab);
     if (tab !== 'agregar-producto') {
       this.editingProduct.set(null);
+    }
+    
+    // Forzar recarga del componente de estadísticas cuando se cambia al tab
+    // Esto asegura que los datos se actualicen después de crear pedidos/deliveries
+    if (tab === 'estadisticas') {
+      // El key cambia cada vez, forzando que el componente se reinicialice
+      console.log('Tab de estadísticas seleccionado, forzando recarga de datos...');
     }
   }
 

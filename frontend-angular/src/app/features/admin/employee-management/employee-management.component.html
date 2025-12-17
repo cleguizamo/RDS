@@ -7,7 +7,9 @@
   </div>
 
   @if (errorMessage()) {
-    <div class="alert alert-error">{{ errorMessage() }}</div>
+    <div class="alert alert-error">
+      <pre>{{ errorMessage() }}</pre>
+    </div>
   }
 
   @if (successMessage()) {
@@ -61,6 +63,46 @@
           <small>Mínimo 6 caracteres, debe incluir letras y números</small>
         </div>
 
+        <div class="form-divider">
+          <h4>Información de Sueldo (Opcional)</h4>
+          <small>Puedes configurar el sueldo ahora o hacerlo después desde la tabla</small>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Sueldo (COP)</label>
+            <input 
+              type="number" 
+              [(ngModel)]="salaryForm.salary" 
+              name="salary"
+              min="0"
+              step="1000"
+              placeholder="Ej: 2000000"
+            />
+          </div>
+          <div class="form-group">
+            <label>Frecuencia de Pago</label>
+            <select [(ngModel)]="salaryForm.paymentFrequency" name="salaryFrequency">
+              @for (frequency of paymentFrequencies; track frequency) {
+                <option [value]="frequency">{{ getPaymentFrequencyLabel(frequency) }}</option>
+              }
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Día de Pago (1-31)</label>
+          <input 
+            type="number" 
+            [(ngModel)]="salaryForm.paymentDay" 
+            name="paymentDay"
+            min="1"
+            max="31"
+            placeholder="Ej: 1, 15, 30"
+          />
+          <small>Día del mes en que se realizará el pago automático</small>
+        </div>
+
         <div class="form-actions">
           <button type="submit" class="btn-save" [disabled]="loading()">
             {{ loading() ? 'Guardando...' : 'Crear Empleado' }}
@@ -73,7 +115,84 @@
     </div>
   }
 
-  @if (loading() && employees().length === 0) {
+  <div class="filters">
+    <div class="basic-filters">
+      <input 
+        type="text" 
+        placeholder="Buscar por nombre, email, documento o ID..." 
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        class="search-input"
+      />
+      <button (click)="toggleAdvancedSearch()" class="btn-toggle-search">
+        {{ showAdvancedSearch() ? 'Ocultar' : 'Mostrar' }} Búsqueda Avanzada
+      </button>
+      @if (searchTerm() || hasActiveFilters()) {
+        <button (click)="clearFilters()" class="btn-clear">Limpiar filtros</button>
+      }
+    </div>
+
+    @if (showAdvancedSearch()) {
+      <div class="modal-overlay" (click)="closeAdvancedSearch()">
+        <div class="advanced-search-modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Búsqueda Avanzada</h3>
+            <button class="btn-close" (click)="closeAdvancedSearch()" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="search-grid">
+              <div class="search-field">
+                <label>Nombre:</label>
+                <input 
+                  type="text" 
+                  [ngModel]="searchRequest().name"
+                  (ngModelChange)="updateSearchField('name', $event)"
+                  placeholder="Nombre completo"
+                />
+              </div>
+              <div class="search-field">
+                <label>Email:</label>
+                <input 
+                  type="email" 
+                  [ngModel]="searchRequest().email"
+                  (ngModelChange)="updateSearchField('email', $event)"
+                  placeholder="email@ejemplo.com"
+                />
+              </div>
+              <div class="search-field">
+                <label>Número de Documento:</label>
+                <input 
+                  type="text" 
+                  [ngModel]="searchRequest().documentNumber"
+                  (ngModelChange)="updateSearchField('documentNumber', $event)"
+                  placeholder="Número de documento"
+                />
+              </div>
+              <div class="search-field">
+                <label>Tipo de Documento:</label>
+                <select 
+                  [ngModel]="searchRequest().documentType"
+                  (ngModelChange)="updateSearchField('documentType', $event)"
+                >
+                  <option [value]="undefined">Todos</option>
+                  @for (type of documentTypes; track type) {
+                    <option [value]="type">{{ type }}</option>
+                  }
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-clear-filters" (click)="clearAdvancedFilters()" type="button">Limpiar</button>
+            <button class="btn-cancel-search" (click)="closeAdvancedSearch()" type="button">Cancelar</button>
+            <button class="btn-apply-search" (click)="applyAdvancedSearch()" [disabled]="loading()" type="button">Aplicar Búsqueda</button>
+          </div>
+        </div>
+      </div>
+    }
+  </div>
+
+  @if (loading() && allEmployees().length === 0) {
     <div class="loading">Cargando empleados...</div>
   } @else {
     <div class="employees-table">
@@ -85,11 +204,12 @@
             <th>Email</th>
             <th>Teléfono</th>
             <th>Documento</th>
+            <th>Sueldo</th>
             <th>Acciones</th>
           </tr>
         </thead>
         <tbody>
-          @for (employee of employees(); track employee.id) {
+          @for (employee of getFilteredEmployees(); track employee.id) {
             <tr>
               <td>{{ employee.id }}</td>
               <td>{{ employee.name }} {{ employee.lastName }}</td>
@@ -97,17 +217,146 @@
               <td>{{ employee.phone }}</td>
               <td>{{ employee.documentType }} - {{ employee.documentNumber }}</td>
               <td>
-                <button class="btn-delete" (click)="deleteEmployee(employee.id)">Eliminar</button>
+                @if (employee.salary && employee.salary > 0) {
+                  <span class="salary-badge">{{ formatCurrency(employee.salary) }}</span>
+                  @if (employee.paymentFrequency && employee.paymentDay) {
+                    <small class="salary-info">
+                      {{ getPaymentFrequencyLabel(employee.paymentFrequency) }} - Día {{ employee.paymentDay }}
+                    </small>
+                  }
+                } @else {
+                  <span class="no-salary">No configurado</span>
+                }
+              </td>
+              <td>
+                <div class="action-buttons">
+                  <button class="btn-salary" (click)="openSalaryModal(employee)" title="Configurar sueldo">
+                    💰
+                  </button>
+                  @if (employee.salary) {
+                    <button class="btn-history" (click)="openPaymentHistoryModal(employee)" title="Ver historial de pagos">
+                      📋
+                    </button>
+                  }
+                  <button class="btn-delete" (click)="deleteEmployee(employee.id)" title="Eliminar">🗑️</button>
+                </div>
               </td>
             </tr>
           }
-          @if (employees().length === 0) {
+          @if (getFilteredEmployees().length === 0) {
             <tr>
-              <td colspan="6" class="no-data">No hay empleados registrados</td>
+              <td colspan="7" class="no-data">No se encontraron empleados</td>
             </tr>
           }
         </tbody>
       </table>
+    </div>
+  }
+
+  <!-- Modal para configurar sueldo -->
+  @if (showSalaryModal()) {
+    <div class="modal-overlay" (click)="closeSalaryModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Configurar Sueldo - {{ selectedEmployee()?.name }} {{ selectedEmployee()?.lastName }}</h3>
+          <button class="btn-close" (click)="closeSalaryModal()" aria-label="Cerrar">×</button>
+        </div>
+        <div class="modal-body">
+          <form (ngSubmit)="updateSalary()">
+            <div class="form-group">
+              <label>Sueldo (COP) *</label>
+              <input 
+                type="number" 
+                [(ngModel)]="salaryForm.salary" 
+                name="salary"
+                min="1"
+                step="1000"
+                required 
+                placeholder="Ej: 2000000"
+              />
+            </div>
+
+            <div class="form-group">
+              <label>Frecuencia de Pago *</label>
+              <select [(ngModel)]="salaryForm.paymentFrequency" name="paymentFrequency" required>
+                @for (frequency of paymentFrequencies; track frequency) {
+                  <option [value]="frequency">{{ getPaymentFrequencyLabel(frequency) }}</option>
+                }
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label>Día de Pago (1-31) *</label>
+              <input 
+                type="number" 
+                [(ngModel)]="salaryForm.paymentDay" 
+                name="paymentDay"
+                min="1"
+                max="31"
+                required 
+                placeholder="Ej: 1, 15, 30"
+              />
+              <small>Día del mes en que se realizará el pago automático</small>
+            </div>
+
+            <div class="form-actions">
+              <button type="button" class="btn-cancel" (click)="closeSalaryModal()" [disabled]="loading()">
+                Cancelar
+              </button>
+              <button type="submit" class="btn-save" [disabled]="loading()">
+                {{ loading() ? 'Guardando...' : 'Guardar' }}
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+
+  <!-- Modal para historial de pagos -->
+  @if (showPaymentHistoryModal()) {
+    <div class="modal-overlay" (click)="closePaymentHistoryModal()">
+      <div class="modal-content modal-large" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Historial de Pagos - {{ selectedEmployee()?.name }} {{ selectedEmployee()?.lastName }}</h3>
+          <button class="btn-close" (click)="closePaymentHistoryModal()" aria-label="Cerrar">×</button>
+        </div>
+        <div class="modal-body">
+          @if (loading() && salaryPayments().length === 0) {
+            <div class="loading">Cargando historial...</div>
+          } @else if (salaryPayments().length === 0) {
+            <div class="no-data">No hay pagos registrados para este empleado</div>
+          } @else {
+            <div class="payments-table">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Fecha de Pago</th>
+                    <th>Período</th>
+                    <th>Monto</th>
+                    <th>Frecuencia</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  @for (payment of salaryPayments(); track payment.id) {
+                    <tr>
+                      <td>{{ formatDate(payment.paymentDate) }}</td>
+                      <td>
+                        {{ formatDate(payment.periodStartDate) }} - {{ formatDate(payment.periodEndDate) }}
+                      </td>
+                      <td class="amount-cell">{{ formatCurrency(payment.amount) }}</td>
+                      <td>{{ getPaymentFrequencyLabel(payment.paymentFrequency) }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          }
+        </div>
+        <div class="modal-actions">
+          <button class="btn-cancel" (click)="closePaymentHistoryModal()">Cerrar</button>
+        </div>
+      </div>
     </div>
   }
 </div>

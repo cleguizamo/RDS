@@ -78,6 +78,14 @@ public class User {
     @Column(name = "number_of_reservations", nullable = false)
     private long numberOfReservations;
 
+    //Código de 8 dígitos para recuperación de contraseña
+    @Column(name = "reset_password_code", nullable = true, length = 8)
+    private String resetPasswordCode;
+
+    //Fecha de expiración del código de recuperación
+    @Column(name = "reset_password_code_expiry", nullable = true)
+    private java.time.LocalDateTime resetPasswordCodeExpiry;
+
     //Constructor para crear un nuevo usuario (Sin ID ya que lo genera la base de datos)
     public User(String name, String lastName, DocumentType documentType, String documentNumber, Long phone, String password, String email, LocalDate dateOfBirth) {
         this.name = name;

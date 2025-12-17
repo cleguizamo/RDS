@@ -38,3 +38,15 @@ export const PAYMENT_METHODS = [
   'Cheque'
 ];
 
+export interface ExpenseSearchRequest {
+  description?: string;
+  category?: string;
+  paymentMethod?: string;
+  startDate?: string;
+  endDate?: string;
+  minAmount?: number;
+  maxAmount?: number;
+  sortBy?: string;
+  sortDirection?: string;
+}
+

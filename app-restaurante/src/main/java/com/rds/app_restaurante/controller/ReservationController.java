@@ -20,7 +20,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class ReservationController {
 
     private final ReservationService reservationService;
@@ -33,14 +33,23 @@ public class ReservationController {
         return ResponseEntity.ok(reservations);
     }
 
-    @GetMapping("/admin/reservations/{id}")
+    // Rutas específicas primero para evitar conflictos
+    @PutMapping("/admin/reservations/{id}/confirm")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<?> getReservationById(@PathVariable Long id) {
+    public ResponseEntity<?> confirmReservationByAdmin(@PathVariable Long id) {
+        System.out.println("=== Endpoint confirmReservationByAdmin llamado con ID: " + id + " ===");
         try {
-            ReservationResponse reservation = reservationService.getReservationById(id);
+            ReservationResponse reservation = reservationService.confirmReservation(id);
+            System.out.println("=== Reserva confirmada exitosamente: " + reservation.getId() + " ===");
             return ResponseEntity.ok(reservation);
         } catch (RuntimeException e) {
+            System.err.println("=== Error al confirmar reserva: " + e.getMessage() + " ===");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            System.err.println("=== Error inesperado al confirmar reserva: " + e.getMessage() + " ===");
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error al confirmar la reserva");
         }
     }
 
@@ -57,6 +66,17 @@ public class ReservationController {
     public ResponseEntity<List<ReservationResponse>> getReservationsByStatus(@PathVariable boolean status) {
         List<ReservationResponse> reservations = reservationService.getReservationsByStatus(status);
         return ResponseEntity.ok(reservations);
+    }
+
+    @GetMapping("/admin/reservations/{id}")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> getReservationById(@PathVariable Long id) {
+        try {
+            ReservationResponse reservation = reservationService.getReservationById(id);
+            return ResponseEntity.ok(reservation);
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        }
     }
 
     @PutMapping("/employee/reservations/{id}/confirm")

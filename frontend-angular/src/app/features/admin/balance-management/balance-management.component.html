@@ -1,0 +1,362 @@
+<div class="balance-management">
+  <div class="header">
+    <h2>Gestión de Balance y Caja</h2>
+    <div class="header-actions">
+      @if (!balance()) {
+        <button class="btn-primary" (click)="openInitModal()" [disabled]="loading()">
+          Inicializar Balance
+        </button>
+      } @else {
+        <button class="btn-secondary" (click)="openAdjustModal()" [disabled]="loading()">
+          Ajustar Balance
+        </button>
+        <button class="btn-secondary" (click)="updateThreshold()" [disabled]="loading()">
+          Cambiar Umbral
+        </button>
+      }
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <div class="alert alert-error">{{ errorMessage() }}</div>
+  }
+
+  @if (successMessage()) {
+    <div class="alert alert-success">{{ successMessage() }}</div>
+  }
+
+  @if (loading() && !balance()) {
+    <div class="loading">Cargando balance...</div>
+  }
+
+  @if (balance()) {
+    <div class="balance-cards">
+      <div class="balance-card main">
+        <div class="card-header">
+          <h3>Balance Actual</h3>
+          <span class="last-updated">Actualizado: {{ formatDate(balance()!.lastUpdated) }}</span>
+        </div>
+        <div class="balance-amount" [class.low]="balance()!.isLowBalance">
+          {{ balance()!.currentBalance | formatCurrency }}
+        </div>
+        @if (balance()!.isLowBalance) {
+          <div class="low-balance-warning">
+            ⚠️ El saldo está por debajo del umbral de {{ balance()!.lowBalanceThreshold | formatCurrency }}
+          </div>
+        }
+        <div class="balance-info">
+          <div class="info-item">
+            <span class="label">Umbral de Alerta:</span>
+            <span class="value">{{ balance()!.lowBalanceThreshold | formatCurrency }}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="balance-card alerts">
+        <div class="card-header">
+          <h3>Alertas Activas</h3>
+        </div>
+        <div class="alert-count" [class.has-alerts]="getActiveAlertsCount() > 0">
+          {{ getActiveAlertsCount() }}
+        </div>
+        <button class="btn-view" (click)="openAlertsModal()">Ver Alertas</button>
+      </div>
+
+      <div class="balance-card pending">
+        <div class="card-header">
+          <h3>Pagos Pendientes</h3>
+        </div>
+        <div class="pending-count" [class.has-pending]="getPendingPaymentsCount() > 0">
+          {{ getPendingPaymentsCount() }}
+        </div>
+        <button class="btn-view" (click)="openPendingPaymentsModal()">Ver Pagos</button>
+      </div>
+    </div>
+
+    <div class="quick-actions">
+      <button class="btn-action" (click)="openTransactionsModal()">
+        📊 Ver Historial de Transacciones
+      </button>
+      <button class="btn-action btn-migrate" (click)="migrateHistoricalData()" [disabled]="loading()">
+        🔄 Migrar Datos Históricos
+      </button>
+      <button class="btn-action btn-process-salary" (click)="processSalaryPayments()" [disabled]="loading()">
+        💵 Procesar Sueldos de Hoy
+      </button>
+      @if (getPendingPaymentsCount() > 0) {
+        <button class="btn-action btn-process" (click)="processPendingPayments()" [disabled]="loading()">
+          💰 Procesar Pagos Pendientes
+        </button>
+      }
+    </div>
+  }
+</div>
+
+<!-- Modal de Inicialización -->
+@if (showInitModal()) {
+  <div class="modal-overlay" (click)="closeInitModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Inicializar Balance</h3>
+        <button class="modal-close" (click)="closeInitModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Saldo Inicial *</label>
+          <input 
+            type="number" 
+            [(ngModel)]="initForm().initialBalance"
+            placeholder="0.00"
+            step="0.01"
+            min="0"
+          />
+        </div>
+        <div class="form-group">
+          <label>Umbral de Saldo Bajo *</label>
+          <input 
+            type="number" 
+            [(ngModel)]="initForm().lowBalanceThreshold"
+            placeholder="100000"
+            step="0.01"
+            min="0"
+          />
+          <small>Se enviará una alerta cuando el saldo esté por debajo de este valor</small>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeInitModal()">Cancelar</button>
+        <button class="btn-primary" (click)="initializeBalance()" [disabled]="loading()">
+          Inicializar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Ajuste -->
+@if (showAdjustModal()) {
+  <div class="modal-overlay" (click)="closeAdjustModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Ajustar Balance</h3>
+        <button class="modal-close" (click)="closeAdjustModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Monto *</label>
+          <input 
+            type="number" 
+            [(ngModel)]="adjustForm().amount"
+            placeholder="0.00"
+            step="0.01"
+          />
+          <small>Valor positivo para aumentar, negativo para disminuir</small>
+        </div>
+        <div class="form-group">
+          <label>Razón *</label>
+          <input 
+            type="text" 
+            [(ngModel)]="adjustForm().reason"
+            placeholder="Ej: Ajuste contable, Corrección de error..."
+          />
+        </div>
+        <div class="form-group">
+          <label>Notas (opcional)</label>
+          <textarea 
+            [(ngModel)]="adjustForm().notes"
+            placeholder="Detalles adicionales..."
+            rows="3"
+          ></textarea>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeAdjustModal()">Cancelar</button>
+        <button class="btn-primary" (click)="adjustBalance()" [disabled]="loading()">
+          Ajustar
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Transacciones -->
+@if (showTransactionsModal()) {
+  <div class="modal-overlay modal-large" (click)="closeTransactionsModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Historial de Transacciones</h3>
+        <button class="modal-close" (click)="closeTransactionsModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="filter-bar">
+          <button 
+            class="filter-btn"
+            [class.active]="!selectedTransactionType()"
+            (click)="loadTransactions()"
+          >
+            Todas
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="selectedTransactionType() === TransactionType.INCOME"
+            (click)="loadTransactionsByType(TransactionType.INCOME)"
+          >
+            Ingresos
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="selectedTransactionType() === TransactionType.EXPENSE"
+            (click)="loadTransactionsByType(TransactionType.EXPENSE)"
+          >
+            Gastos
+          </button>
+          <button 
+            class="filter-btn"
+            [class.active]="selectedTransactionType() === TransactionType.SALARY_PAYMENT"
+            (click)="loadTransactionsByType(TransactionType.SALARY_PAYMENT)"
+          >
+            Sueldos
+          </button>
+        </div>
+        <div class="transactions-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Monto</th>
+                <th>Balance Antes</th>
+                <th>Balance Después</th>
+                <th>Descripción</th>
+              </tr>
+            </thead>
+            <tbody>
+              @if (loading()) {
+                <tr>
+                  <td colspan="6" class="loading-cell">Cargando transacciones...</td>
+                </tr>
+              } @else if (transactions().length === 0) {
+                <tr>
+                  <td colspan="6" class="empty-cell">No hay transacciones</td>
+                </tr>
+              } @else {
+                @for (transaction of transactions(); track transaction.id) {
+                  <tr>
+                    <td>{{ formatDate(transaction.createdAt) }}</td>
+                    <td>
+                      <span class="badge" [class]="getTransactionTypeClass(transaction.transactionType)">
+                        {{ getTransactionTypeLabel(transaction.transactionType) }}
+                      </span>
+                    </td>
+                    <td [class]="getTransactionTypeClass(transaction.transactionType)">
+                      {{ transaction.transactionType === TransactionType.INCOME || transaction.transactionType === TransactionType.REFUND ? '+' : '-' }}
+                      {{ transaction.amount | formatCurrency }}
+                    </td>
+                    <td>{{ transaction.balanceBefore | formatCurrency }}</td>
+                    <td>{{ transaction.balanceAfter | formatCurrency }}</td>
+                    <td>{{ transaction.description }}</td>
+                  </tr>
+                }
+              }
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Alertas -->
+@if (showAlertsModal()) {
+  <div class="modal-overlay modal-large" (click)="closeAlertsModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Alertas</h3>
+        <button class="modal-close" (click)="closeAlertsModal()">×</button>
+      </div>
+      <div class="modal-body">
+        @if (alerts().length === 0) {
+          <div class="empty-state">No hay alertas</div>
+        } @else {
+          <div class="alerts-list">
+            @for (alert of alerts(); track alert.id) {
+              <div class="alert-item" [class]="getAlertSeverityClass(alert.severity)">
+                <div class="alert-header">
+                  <span class="alert-type">{{ getAlertTypeLabel(alert.alertType) }}</span>
+                  <span class="alert-status" [class]="alert.status.toLowerCase()">
+                    {{ alert.status === 'ACTIVE' ? 'Activa' : alert.status === 'RESOLVED' ? 'Resuelta' : 'Descartada' }}
+                  </span>
+                </div>
+                <div class="alert-message">{{ alert.message }}</div>
+                <div class="alert-footer">
+                  <span class="alert-date">{{ formatDate(alert.createdAt) }}</span>
+                  @if (alert.status === 'ACTIVE') {
+                    <button class="btn-small" (click)="resolveAlert(alert.id)">Resolver</button>
+                  }
+                </div>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+<!-- Modal de Pagos Pendientes -->
+@if (showPendingPaymentsModal()) {
+  <div class="modal-overlay modal-large" (click)="closePendingPaymentsModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Pagos Pendientes</h3>
+        <button class="modal-close" (click)="closePendingPaymentsModal()">×</button>
+      </div>
+      <div class="modal-body">
+        @if (loading()) {
+          <div class="loading-cell">Cargando pagos pendientes...</div>
+        } @else if (pendingPayments().length === 0) {
+          <div class="empty-state">No hay pagos pendientes</div>
+        } @else {
+          <div class="pending-payments-list">
+            <table>
+              <thead>
+                <tr>
+                  <th>Empleado</th>
+                  <th>Monto</th>
+                  <th>Fecha de Pago</th>
+                  <th>Período</th>
+                  <th>Estado</th>
+                  <th>Razón</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (payment of pendingPayments(); track payment.id) {
+                  <tr>
+                    <td>{{ payment.employeeName }} {{ payment.employeeLastName }}</td>
+                    <td>{{ payment.amount | formatCurrency }}</td>
+                    <td>{{ formatDate(payment.paymentDate) }}</td>
+                    <td>
+                      {{ formatDate(payment.periodStartDate) }} - {{ formatDate(payment.periodEndDate) }}
+                    </td>
+                    <td>
+                      <span class="badge" [class]="getPaymentStatusClass(payment.status)">
+                        {{ getPaymentStatusLabel(payment.status) }}
+                      </span>
+                    </td>
+                    <td>{{ payment.failureReason || '-' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+            <div class="modal-actions">
+              <button class="btn-primary" (click)="processPendingPayments()" [disabled]="loading()">
+                Procesar Todos los Pagos
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+}
+

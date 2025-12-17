@@ -47,7 +47,11 @@
               <div class="product-card">
                 <div class="product-image-container">
                   @if (product.imageUrl) {
-                    <img [src]="product.imageUrl" [alt]="product.name" class="product-image">
+                    <img 
+                      [src]="product.imageUrl" 
+                      [alt]="product.name" 
+                      class="product-image"
+                      loading="lazy">
                   } @else {
                     <div class="product-image-placeholder">
                       <span>📷</span>
@@ -68,6 +72,14 @@
                       <span class="product-stock out-of-stock">Sin stock</span>
                     }
                   </div>
+                  @if (product.stock > 0) {
+                    <button 
+                      class="btn-add-to-cart"
+                      (click)="addToCart(product)"
+                      type="button">
+                      Agregar al Carrito
+                    </button>
+                  }
                 </div>
               </div>
             }

@@ -1,8 +1,9 @@
 .product-form {
   padding: 2rem;
-  background: white;
+  background: #f5e6d3;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #000000;
 }
 
 .form-header {
@@ -127,35 +128,16 @@
 
 .btn-upload,
 .btn-upload-now {
-  padding: 0.75rem 1.5rem;
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
   width: fit-content;
-}
-
-.btn-upload:hover:not(:disabled),
-.btn-upload-now:hover:not(:disabled) {
-  background: #e5c449;
-}
-
-.btn-upload:disabled,
-.btn-upload-now:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  /* Usa estilos base globales */
 }
 
 .btn-upload-now {
-  background: #28a745;
-  color: white;
-}
-
-.btn-upload-now:hover:not(:disabled) {
-  background: #218838;
+  background: #28a745 !important;
+  color: #ffffff !important;
+  /* Usa estilos base globales */
 }
 
 .url-input {
@@ -182,41 +164,16 @@
   border-top: 1px solid #eee;
 }
 
-.btn-save, .btn-cancel {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
 .btn-save {
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-}
-
-.btn-save:hover:not(:disabled) {
-  background: #e5c449;
-}
-
-.btn-save:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  /* Usa estilos base globales */
 }
 
 .btn-cancel {
-  background: #95a5a6;
-  color: white;
-}
-
-.btn-cancel:hover:not(:disabled) {
-  background: #7f8c8d;
-}
-
-.btn-cancel:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: #6c757d !important;
+  color: #ffffff !important;
+  /* Usa estilos base globales */
 }
 
 @media (max-width: 768px) {

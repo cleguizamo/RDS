@@ -166,18 +166,6 @@
               Subir Imagen
             </button>
           }
-          <div class="url-input">
-            <label for="imageUrl">O ingresa una URL:</label>
-            <input 
-              type="url" 
-              id="imageUrl" 
-              [(ngModel)]="formData().imageUrl" 
-              name="imageUrl" 
-              placeholder="https://ejemplo.com/imagen.jpg"
-              (change)="imagePreview.set(formData().imageUrl)"
-              [disabled]="loading() || uploading()"
-            />
-          </div>
         </div>
       </div>
     </div>

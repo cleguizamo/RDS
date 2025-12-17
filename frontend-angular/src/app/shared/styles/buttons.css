@@ -1,0 +1,34 @@
+/* Estilos globales para botones - aplicar en todos los paneles */
+
+/* Clases base ya están en styles.css globales */
+/* Aquí solo agregamos clases específicas si son necesarias */
+
+/* Botones específicos que pueden necesitar ajustes */
+.btn-toggle-search {
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+}
+
+.btn-clear, .btn-clear-filters {
+  background: #6c757d !important;
+  color: #ffffff !important;
+}
+
+.btn-new-order, .btn-add {
+  background: #28a745 !important;
+  color: #ffffff !important;
+}
+
+/* Asegurar que todos los botones tengan transiciones suaves */
+button, .btn, [class*="btn-"] {
+  transition: all 0.3s ease !important;
+}
+
+/* Botones pequeños en tablas */
+table .btn-edit,
+table .btn-delete {
+  padding: 0.5rem 1rem !important;
+  font-size: 0.875rem !important;
+  margin: 0 0.25rem;
+}
+

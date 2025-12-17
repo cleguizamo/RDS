@@ -27,24 +27,34 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         
         final String requestPath = request.getRequestURI();
+        final String method = request.getMethod();
         
-        // Rutas públicas que no requieren autenticación
-        if (requestPath.startsWith("/api/public/") || 
-            requestPath.startsWith("/api/auth/") ||
-            requestPath.startsWith("/actuator/") ||
-            requestPath.startsWith("/v3/api-docs/") ||
-            requestPath.startsWith("/swagger-ui")) {
-            System.out.println("JWT Filter: Public path detected: " + requestPath + " - skipping JWT validation");
+        // Permitir OPTIONS (preflight CORS) sin procesar
+        if ("OPTIONS".equals(method)) {
             filterChain.doFilter(request, response);
             return;
         }
         
+        // Rutas públicas que no requieren autenticación - omitir filtro JWT completamente
+        if (requestPath.startsWith("/api/public/") || 
+            requestPath.startsWith("/api/auth/") ||
+            requestPath.startsWith("/actuator/") ||
+            requestPath.startsWith("/v3/api-docs/") ||
+            requestPath.startsWith("/swagger-ui") ||
+            requestPath.equals("/") ||
+            requestPath.equals("/api") ||
+            requestPath.startsWith("/error")) {
+            // No procesar estas rutas con JWT, pasar directamente
+            filterChain.doFilter(request, response);
+            return;
+        }
+        
+        // Para todas las demás rutas, verificar el token JWT
         final String authHeader = request.getHeader("Authorization");
         
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
-            System.out.println("JWT Filter: No Authorization header found for: " + requestPath);
-            // NO limpiar SecurityContext aquí para rutas que podrían ser públicas
-            // Dejar que Spring Security evalúe los requestMatchers
+            // No hay token, dejar que Spring Security maneje la autenticación
+            // No loguear aquí porque Spring Security ya lo manejará y devolverá 401/403
             filterChain.doFilter(request, response);
             return;
         }
@@ -91,9 +101,11 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                 SecurityContextHolder.clearContext();
             }
         } catch (Exception e) {
-            // Token inválido, continuar sin autenticación
+            // Token inválido o expirado, limpiar contexto y continuar
             System.err.println("JWT Authentication error for: " + request.getRequestURI() + " - " + e.getMessage());
+            System.err.println("JWT Filter: Exception type: " + e.getClass().getSimpleName());
             e.printStackTrace();
+            SecurityContextHolder.clearContext();
         }
         
         filterChain.doFilter(request, response);

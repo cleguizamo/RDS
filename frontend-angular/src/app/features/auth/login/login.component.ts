@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router, ActivatedRoute, RouterLink } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 import { LoginRequest } from '../../../core/models/user.model';
+import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-login',
@@ -68,6 +69,7 @@ export class LoginComponent {
         console.error('Error en login:', error);
         console.error('Error status:', error.status);
         console.error('Error error:', error.error);
+        console.error('Error completo:', JSON.stringify(error, null, 2));
         
         // Manejar diferentes formatos de error
         let errorMsg = 'Error al iniciar sesión. Verifica tus credenciales.';
@@ -77,16 +79,20 @@ export class LoginComponent {
             errorMsg = error.error;
           } else if (error.error.message) {
             errorMsg = error.error.message;
+          } else if (error.error.error) {
+            errorMsg = error.error.error;
           }
         } else if (error.message) {
           errorMsg = error.message;
         }
         
         // Mensajes específicos según el código de estado
-        if (error.status === 401) {
+        if (error.status === 401 || error.status === 403) {
           errorMsg = 'Credenciales inválidas. Verifica tu email y contraseña.';
-        } else if (error.status === 0) {
-          errorMsg = 'Error de conexión. Verifica que el servidor esté corriendo.';
+        } else if (error.status === 0 || !error.status) {
+          errorMsg = `Error de conexión. Verifica que el servidor esté corriendo en ${environment.apiUrl.replace('/api', '')}.`;
+        } else if (error.status >= 500) {
+          errorMsg = 'Error del servidor. Por favor, intenta más tarde.';
         }
         
         this.errorMessage.set(errorMsg);

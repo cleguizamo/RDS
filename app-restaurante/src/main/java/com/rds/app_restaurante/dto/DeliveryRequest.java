@@ -1,5 +1,6 @@
 package com.rds.app_restaurante.dto;
 
+import com.rds.app_restaurante.model.PaymentMethod;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -22,5 +23,10 @@ public class DeliveryRequest {
     @NotNull(message = "El teléfono de entrega es obligatorio")
     @Min(value = 1, message = "El teléfono debe ser válido")
     private Long deliveryPhone;
+
+    @NotNull(message = "El método de pago es obligatorio")
+    private PaymentMethod paymentMethod;
+
+    private String paymentProofUrl; // Opcional, solo si el método de pago lo requiere
 }
 

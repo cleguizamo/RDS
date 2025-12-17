@@ -150,71 +150,173 @@
 
   <!-- Filtros y búsqueda -->
   <div class="filters-section">
-    <div class="search-bar">
+    <!-- Primera fila: Filtros principales -->
+    <div class="filters-row">
       <input 
         type="text" 
         placeholder="Buscar gastos..." 
-        [(ngModel)]="searchTerm"
-        (input)="onSearchChange(searchTerm())"
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
         [disabled]="loading()"
+        class="search-input"
       />
-    </div>
-    <div class="filters-row">
-      <div class="filter-group">
-        <label for="categoryFilter">Categoría:</label>
-        <select 
-          id="categoryFilter"
-          [(ngModel)]="selectedCategory"
-          (change)="onCategoryChange(selectedCategory())"
-          [disabled]="loading()"
-        >
-          <option value="">Todas</option>
-          @for (cat of categories; track cat) {
-            <option [value]="cat">{{ cat }}</option>
-          }
-        </select>
-      </div>
-      <div class="filter-group">
-        <label for="startDate">Desde:</label>
+      <select 
+        [value]="selectedCategory()"
+        (change)="onCategoryChange($any($event.target).value)"
+        [disabled]="loading()"
+        class="category-select"
+      >
+        <option value="">Todas las categorías</option>
+        @for (cat of categories; track cat) {
+          <option [value]="cat">{{ cat }}</option>
+        }
+      </select>
+      <div class="date-group">
+        <label for="startDate" class="date-label">Desde:</label>
         <input 
           type="date" 
           id="startDate"
-          [(ngModel)]="startDate"
-          (change)="onDateRangeChange()"
+          [value]="startDate()"
+          (change)="startDate.set($any($event.target).value); onDateRangeChange()"
           [disabled]="loading()"
+          class="date-input"
         />
       </div>
-      <div class="filter-group">
-        <label for="endDate">Hasta:</label>
+      <div class="date-group">
+        <label for="endDate" class="date-label">Hasta:</label>
         <input 
           type="date" 
           id="endDate"
-          [(ngModel)]="endDate"
-          (change)="onDateRangeChange()"
+          [value]="endDate()"
+          (change)="endDate.set($any($event.target).value); onDateRangeChange()"
           [disabled]="loading()"
+          class="date-input"
         />
       </div>
-      @if (startDate() || endDate()) {
+    </div>
+
+    <!-- Segunda fila: Botones de acción -->
+    <div class="actions-row">
+      <button (click)="toggleAdvancedSearch()" class="btn-toggle-search">
+        {{ showAdvancedSearch() ? 'Ocultar' : 'Mostrar' }} Búsqueda Avanzada
+      </button>
+      @if (searchTerm() || selectedCategory() || startDate() || endDate() || hasActiveFilters()) {
         <button 
-          class="btn-clear-filters"
-          (click)="startDate.set(''); endDate.set(''); loadExpenses()"
+          class="btn-clear"
+          (click)="clearFilters()"
           [disabled]="loading()"
         >
-          Limpiar Filtros
+          Limpiar filtros
         </button>
       }
+      <button 
+        class="btn-export"
+        (click)="exportToExcel()"
+        [disabled]="loading()"
+      >
+        📊 Exportar
+      </button>
     </div>
-    <div class="total-expenses">
-      <strong>Total Gastos: {{ getTotalExpenses() | formatCurrency }}</strong>
+
+    @if (showAdvancedSearch()) {
+      <div class="modal-overlay" (click)="closeAdvancedSearch()">
+        <div class="advanced-search-modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Búsqueda Avanzada</h3>
+            <button class="btn-close" (click)="closeAdvancedSearch()" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="search-grid">
+              <div class="search-field">
+                <label>Monto Mínimo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().minAmount"
+                  (ngModelChange)="updateSearchField('minAmount', $event)"
+                  placeholder="0"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Monto Máximo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().maxAmount"
+                  (ngModelChange)="updateSearchField('maxAmount', $event)"
+                  placeholder="999999"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Método de Pago:</label>
+                <select 
+                  [ngModel]="searchRequest().paymentMethod"
+                  (ngModelChange)="updateSearchField('paymentMethod', $event)"
+                >
+                  <option value="">Todos</option>
+                  @for (method of paymentMethods; track method) {
+                    <option [value]="method">{{ method }}</option>
+                  }
+                </select>
+              </div>
+              <div class="search-field">
+                <label>Ordenar por:</label>
+                <select 
+                  [ngModel]="searchRequest().sortBy"
+                  (ngModelChange)="updateSearchField('sortBy', $event)"
+                >
+                  <option value="">Sin ordenar</option>
+                  <option value="expenseDate">Fecha</option>
+                  <option value="amount">Monto</option>
+                  <option value="category">Categoría</option>
+                  <option value="description">Descripción</option>
+                </select>
+              </div>
+              <div class="search-field">
+                <label>Dirección:</label>
+                <select 
+                  [ngModel]="searchRequest().sortDirection"
+                  (ngModelChange)="updateSearchField('sortDirection', $event)"
+                >
+                  <option value="DESC">Descendente</option>
+                  <option value="ASC">Ascendente</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-clear-filters" (click)="clearAdvancedFilters()" type="button">Limpiar</button>
+            <button class="btn-cancel-search" (click)="closeAdvancedSearch()" type="button">Cancelar</button>
+            <button class="btn-apply-search" (click)="applyAdvancedSearch()" [disabled]="loading()" type="button">Aplicar Búsqueda</button>
+          </div>
+        </div>
+      </div>
+    }
+
+    <div class="pagination-info">
+      <span>Mostrando {{ expenses().length }} de {{ totalElements() }} gastos</span>
+      <span class="total-expenses">Total: {{ getTotalExpenses() | formatCurrency }}</span>
+      <select 
+        [value]="pageSize()"
+        (change)="onPageSizeChange(+$any($event.target).value)"
+        class="page-size-select"
+      >
+        <option [value]="10">10 por página</option>
+        <option [value]="20">20 por página</option>
+        <option [value]="50">50 por página</option>
+        <option [value]="100">100 por página</option>
+      </select>
     </div>
   </div>
 
   <!-- Lista de gastos -->
   @if (loading() && expenses().length === 0) {
     <div class="loading">Cargando gastos...</div>
-  } @else if (!loading() && filteredExpenses().length === 0) {
+  } @else if (!loading() && expenses().length === 0) {
     <div class="empty-state">
-      @if (searchTerm() || selectedCategory()) {
+      @if (searchTerm() || selectedCategory() || startDate() || endDate()) {
         <p>No se encontraron gastos que coincidan con los filtros.</p>
       } @else {
         <p>No hay gastos registrados. Registra tu primer gasto para comenzar.</p>
@@ -234,7 +336,7 @@
           </tr>
         </thead>
         <tbody>
-          @for (expense of filteredExpenses(); track expense.id) {
+          @for (expense of expenses(); track expense.id) {
             <tr>
               <td>{{ expense.expenseDate | date:'shortDate' }}</td>
               <td>{{ expense.description }}</td>
@@ -262,6 +364,29 @@
         </tbody>
       </table>
     </div>
+
+    <!-- Controles de paginación -->
+    @if (totalPages() > 1) {
+      <div class="pagination-controls">
+        <button 
+          (click)="previousPage()" 
+          [disabled]="currentPage() === 0"
+          class="btn-pagination"
+        >
+          Anterior
+        </button>
+        <span class="page-info">
+          Página {{ currentPage() + 1 }} de {{ totalPages() }}
+        </span>
+        <button 
+          (click)="nextPage()" 
+          [disabled]="currentPage() >= totalPages() - 1"
+          class="btn-pagination"
+        >
+          Siguiente
+        </button>
+      </div>
+    }
   }
 </div>
 

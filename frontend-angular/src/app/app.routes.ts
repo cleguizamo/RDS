@@ -17,8 +17,21 @@ export const routes: Routes = [
     loadComponent: () => import('./features/auth/signup/signup.component').then(m => m.SignupComponent)
   },
   {
+    path: 'forgot-password',
+    loadComponent: () => import('./features/auth/forgot-password/forgot-password.component').then(m => m.ForgotPasswordComponent)
+  },
+  {
+    path: 'reset-password',
+    loadComponent: () => import('./features/auth/reset-password/reset-password.component').then(m => m.ResetPasswordComponent)
+  },
+  {
     path: 'dashboard',
     loadComponent: () => import('./features/client/dashboard/dashboard.component').then(m => m.DashboardComponent),
+    canActivate: [authGuard]
+  },
+  {
+    path: 'dashboard/orders',
+    loadComponent: () => import('./features/client/order-history/order-history.component').then(m => m.OrderHistoryComponent),
     canActivate: [authGuard]
   },
   {
@@ -38,6 +51,15 @@ export const routes: Routes = [
   {
     path: 'reservations',
     loadComponent: () => import('./features/reservations/reservations.component').then(m => m.ReservationsComponent)
+  },
+  {
+    path: 'cart',
+    loadComponent: () => import('./features/cart/cart.component').then(m => m.CartComponent)
+  },
+  {
+    path: 'account',
+    loadComponent: () => import('./features/account/account.component').then(m => m.AccountComponent),
+    canActivate: [authGuard]
   },
   {
     path: '**',

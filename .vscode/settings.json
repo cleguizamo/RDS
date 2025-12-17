@@ -1,4 +1,13 @@
 {
-    "java.project.sourcePaths": [],
-    "java.debug.settings.onBuildFailureProceed": true
+  "java.configuration.runtimes": [
+    {
+      "name": "JavaSE-21",
+      "path": "/Users/cleguizamo/Library/Java/JavaVirtualMachines/ms-21.0.9/Contents/Home",
+      "default": true
+    }
+  ],
+  "java.jdt.ls.java.home": "/Users/cleguizamo/Library/Java/JavaVirtualMachines/ms-21.0.9/Contents/Home",
+  "java.compile.nullAnalysis.mode": "automatic",
+  "java.configuration.updateBuildConfiguration": "automatic",
+  "java.debug.settings.onBuildFailureProceed": true
 }

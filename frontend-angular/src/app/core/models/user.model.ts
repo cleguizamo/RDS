@@ -72,3 +72,18 @@ export interface SignUpRequest {
   dateOfBirth: string;
 }
 
+export interface UserSearchRequest {
+  name?: string;
+  email?: string;
+  documentNumber?: string;
+  phone?: string;
+  minPoints?: number;
+  maxPoints?: number;
+  minOrders?: number;
+  maxOrders?: number;
+  minSpent?: number;
+  maxSpent?: number;
+  sortBy?: string;
+  sortDirection?: string;
+}
+

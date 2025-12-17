@@ -1,6 +1,6 @@
 <div class="home-container">
   <!-- Hero Section -->
-  <section class="hero">
+  <section class="hero" [style.background-image]="'url(' + backgroundImage + ')'">
     <div class="hero-content">
       <h1 class="hero-title">{{ barInfo.name }}</h1>
       <p class="hero-slogan">{{ barInfo.slogan }}</p>
@@ -32,20 +32,46 @@
           <a [routerLink]="['/menu']" class="category-link">Ver más →</a>
         </div>
         <div class="category-card">
-          <div class="category-icon">🍕</div>
-          <h3>Comida</h3>
-          <p>Platos exquisitos para acompañar tus bebidas favoritas</p>
+          <div class="category-icon">🥃</div>
+          <h3>Tragos</h3>
+          <p>Desde aguardientes hasta vinos premium, solo para disfrutar de una noche increíble</p>
           <a [routerLink]="['/menu']" class="category-link">Ver más →</a>
         </div>
         <div class="category-card">
-          <div class="category-icon">🍰</div>
-          <h3>Postres</h3>
-          <p>Dulces tentaciones para endulzar tu noche</p>
+          <div class="category-icon">🍟</div>
+          <h3>Snacks</h3>
+          <p>Pequeños antojos para acompañar tus bebidas</p>
           <a [routerLink]="['/menu']" class="category-link">Ver más →</a>
         </div>
       </div>
     </div>
   </section>
+
+  <!-- Gallery Section -->
+  <section class="gallery-section">
+    <div class="container">
+      <h2 class="section-title">Nuestro Espacio</h2>
+      <p class="section-description">Descubre el ambiente único que te espera en nuestro bar</p>
+      <div class="gallery-grid" *ngIf="galleryImages.length > 0">
+        <div class="gallery-item" *ngFor="let image of galleryImages; let i = index">
+          <img [src]="image.url" [alt]="image.alt || 'Imagen del restaurante ' + (i + 1)" (click)="openLightbox(i)" loading="lazy">
+        </div>
+      </div>
+      <div class="gallery-empty" *ngIf="galleryImages.length === 0">
+        <p>Próximamente mostraremos imágenes de nuestro espacio</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightbox Modal -->
+  <div class="lightbox" *ngIf="lightboxOpen" (click)="closeLightbox()">
+    <div class="lightbox-content" (click)="$event.stopPropagation()">
+      <button class="lightbox-close" (click)="closeLightbox()">&times;</button>
+      <button class="lightbox-prev" (click)="prevImage($event)">&#8249;</button>
+      <img [src]="galleryImages[currentImageIndex].url" [alt]="galleryImages[currentImageIndex].alt">
+      <button class="lightbox-next" (click)="nextImage($event)">&#8250;</button>
+    </div>
+  </div>
 
   <!-- Location Section -->
   <section class="location-section">
@@ -81,18 +107,28 @@
           </div>
         </div>
         <div class="location-map">
-          <google-map
-            height="400px"
-            width="100%"
-            [center]="center"
-            [zoom]="zoom"
-            [options]="mapOptions">
-            <map-marker
-              [position]="markerPosition"
-              [options]="markerOptions"
-              [title]="barInfo.name">
-            </map-marker>
-          </google-map>
+          <div class="map-container">
+            <iframe
+              width="100%"
+              height="100%"
+              class="map-iframe"
+              loading="lazy"
+              allowfullscreen
+              referrerpolicy="no-referrer-when-downgrade"
+              src="https://www.google.com/maps?q=5.0821692,-73.364131&z=16&output=embed">
+            </iframe>
+          </div>
+          
+          <!-- Botón para abrir la ubicación en Google Maps completo -->
+          <a 
+            href="https://www.google.com/maps/place/El+Rincón+del+Sabor/@5.0821692,-73.3667059,1088m/data=!3m2!1e3!4b1!4m6!3m5!1s0x8e6aa404656553d9:0xb834c98b75130656!8m2!3d5.0821692!4d-73.364131!16s%2Fg%2F11c6cr7164!5m1!1e1"
+            target="_blank"
+            rel="noopener"
+            class="btn-map-link"
+          >
+            <span class="map-icon">📍</span>
+            Ver en Google Maps
+          </a>
         </div>
       </div>
     </div>

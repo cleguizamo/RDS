@@ -9,30 +9,188 @@
   }
 
   <div class="filters">
-    <button 
-      [class.active]="filterType() === 'all'"
-      (click)="filterType.set('all'); loadOrders()"
-      class="filter-btn"
-    >
-      Todos
-    </button>
-    <button 
-      [class.active]="filterType() === OrderType.EN_MESA"
-      (click)="filterType.set(OrderType.EN_MESA); loadOrders()"
-      class="filter-btn"
-    >
-      En Mesa
-    </button>
-    <button 
-      [class.active]="filterType() === OrderType.DOMICILIO"
-      (click)="filterType.set(OrderType.DOMICILIO); loadOrders()"
-      class="filter-btn"
-    >
-      Domicilio
-    </button>
+    <div class="basic-filters">
+      <input 
+        type="text" 
+        placeholder="Buscar por cliente, email o ID (ej: M001, D023)..." 
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        class="search-input"
+      />
+      <button 
+        [class.active]="filterType() === 'all'"
+        (click)="filterType.set('all'); loadOrders()"
+        class="filter-btn"
+      >
+        Todos
+      </button>
+      <button 
+        [class.active]="filterType() === OrderType.EN_MESA"
+        (click)="filterType.set(OrderType.EN_MESA); loadOrders()"
+        class="filter-btn"
+      >
+        En Mesa
+      </button>
+      <button 
+        [class.active]="filterType() === OrderType.DOMICILIO"
+        (click)="filterType.set(OrderType.DOMICILIO); loadOrders()"
+        class="filter-btn"
+      >
+        Domicilio
+      </button>
+      <div class="payment-status-filters">
+        <span class="filter-label">Estado de Pago:</span>
+        <button 
+          [class.active]="filterPaymentStatus() === 'all'"
+          (click)="filterPaymentStatus.set('all')"
+          class="filter-btn"
+        >
+          Todos
+        </button>
+        <button 
+          [class.active]="filterPaymentStatus().toString() === PaymentStatus.PENDING.toString()"
+          (click)="filterPaymentStatus.set(PaymentStatus.PENDING)"
+          class="filter-btn pending"
+        >
+          ⏳ Pendientes
+        </button>
+        <button 
+          [class.active]="filterPaymentStatus().toString() === PaymentStatus.VERIFIED.toString()"
+          (click)="filterPaymentStatus.set(PaymentStatus.VERIFIED)"
+          class="filter-btn verified"
+        >
+          ✓ Verificados
+        </button>
+      </div>
+      <button (click)="toggleAdvancedSearch()" class="btn-toggle-search">
+        {{ showAdvancedSearch() ? 'Ocultar' : 'Mostrar' }} Búsqueda Avanzada
+      </button>
+      @if (searchTerm() || hasActiveFilters()) {
+        <button (click)="clearFilters()" class="btn-clear">Limpiar filtros</button>
+      }
+    </div>
+
+    @if (showAdvancedSearch()) {
+      <div class="modal-overlay" (click)="closeAdvancedSearch()">
+        <div class="advanced-search-modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Búsqueda Avanzada</h3>
+            <button class="btn-close" (click)="closeAdvancedSearch()" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="search-grid">
+              <div class="search-field">
+                <label>ID del Pedido:</label>
+                <input 
+                  type="text" 
+                  [ngModel]="searchRequest().orderId"
+                  (ngModelChange)="updateSearchField('orderId', $event)"
+                  placeholder="Ej: M001, D023, 1, 23"
+                />
+              </div>
+              <div class="search-field">
+                <label>Nombre del Cliente:</label>
+                <input 
+                  type="text" 
+                  [ngModel]="searchRequest().clientName"
+                  (ngModelChange)="updateSearchField('clientName', $event)"
+                  placeholder="Nombre del cliente"
+                />
+              </div>
+              <div class="search-field">
+                <label>Email del Cliente:</label>
+                <input 
+                  type="email" 
+                  [ngModel]="searchRequest().clientEmail"
+                  (ngModelChange)="updateSearchField('clientEmail', $event)"
+                  placeholder="email@ejemplo.com"
+                />
+              </div>
+              <div class="search-field">
+                <label>Estado del Pedido:</label>
+                <select 
+                  [ngModel]="searchRequest().status"
+                  (ngModelChange)="updateSearchField('status', $event)"
+                >
+                  <option [value]="undefined">Todos</option>
+                  <option [value]="true">Completado</option>
+                  <option [value]="false">Pendiente</option>
+                </select>
+              </div>
+              <div class="search-field">
+                <label>Estado de Pago:</label>
+                <select 
+                  [ngModel]="searchRequest().paymentStatus"
+                  (ngModelChange)="updateSearchField('paymentStatus', $event)"
+                >
+                  <option [value]="undefined">Todos</option>
+                  <option [value]="PaymentStatus.PENDING">Pendiente</option>
+                  <option [value]="PaymentStatus.VERIFIED">Verificado</option>
+                  <option [value]="PaymentStatus.REJECTED">Rechazado</option>
+                  <option [value]="PaymentStatus.PAID">Pagado</option>
+                </select>
+              </div>
+              <div class="search-field">
+                <label>Fecha Desde:</label>
+                <input 
+                  type="date" 
+                  [ngModel]="searchRequest().minDate"
+                  (ngModelChange)="updateSearchField('minDate', $event)"
+                />
+              </div>
+              <div class="search-field">
+                <label>Fecha Hasta:</label>
+                <input 
+                  type="date" 
+                  [ngModel]="searchRequest().maxDate"
+                  (ngModelChange)="updateSearchField('maxDate', $event)"
+                />
+              </div>
+              <div class="search-field">
+                <label>Precio Mínimo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().minPrice"
+                  (ngModelChange)="updateSearchField('minPrice', $event)"
+                  placeholder="0"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Precio Máximo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().maxPrice"
+                  (ngModelChange)="updateSearchField('maxPrice', $event)"
+                  placeholder="999999"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Número de Mesa:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().tableNumber"
+                  (ngModelChange)="updateSearchField('tableNumber', $event)"
+                  placeholder="Mesa (solo EN_MESA)"
+                  min="1"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-clear-filters" (click)="clearAdvancedFilters()" type="button">Limpiar</button>
+            <button class="btn-cancel-search" (click)="closeAdvancedSearch()" type="button">Cancelar</button>
+            <button class="btn-apply-search" (click)="applyAdvancedSearch()" [disabled]="loading()" type="button">Aplicar Búsqueda</button>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 
-  @if (loading() && orders().length === 0) {
+  @if (loading() && allOrders().length === 0) {
     <div class="loading">Cargando pedidos...</div>
   } @else {
     <div class="orders-table">
@@ -46,13 +204,30 @@
             <th>Hora</th>
             <th>Total</th>
             <th>Estado</th>
+            <th>Pago</th>
             <th>Detalles</th>
+            <th style="min-width: 180px;">Acciones Pago</th>
+            <th style="min-width: 120px;">Acciones Estado</th>
           </tr>
         </thead>
         <tbody>
           @for (order of getFilteredOrders(); track order.id) {
             <tr [class.completed]="order.status" [class.pending]="!order.status">
-              <td>#{{ order.id }}</td>
+              <td class="order-id-cell">
+                <span 
+                  class="order-id" 
+                  [class.copied]="copiedOrderId() === order.id"
+                  [class.en-mesa]="order.type === OrderType.EN_MESA"
+                  [class.domicilio]="order.type === OrderType.DOMICILIO"
+                  (click)="copyOrderIdToClipboard(order.id, order.type, $event)"
+                  title="Clic para copiar ID"
+                >
+                  {{ formatOrderId(order.id, order.type) }}
+                  @if (copiedOrderId() === order.id) {
+                    <span class="copy-icon">✓</span>
+                  }
+                </span>
+              </td>
               <td>{{ order.userName }}<br><small>{{ order.userEmail }}</small></td>
               <td>
                 <span class="type-badge" [class.en-mesa]="order.type === OrderType.EN_MESA" [class.domicilio]="order.type === OrderType.DOMICILIO">
@@ -66,6 +241,26 @@
                 <span class="status-badge" [class.completed]="order.status">
                   {{ order.status ? 'Completado' : 'Pendiente' }}
                 </span>
+              </td>
+              <td class="payment-status-cell">
+                @if (order.paymentStatus) {
+                  <div class="payment-info">
+                    <span class="payment-status-badge" 
+                          [class.pending]="(order.paymentStatus?.toString() || '').toUpperCase() === 'PENDING'"
+                          [class.verified]="(order.paymentStatus?.toString() || '').toUpperCase() === 'VERIFIED'"
+                          [class.rejected]="(order.paymentStatus?.toString() || '').toUpperCase() === 'REJECTED'">
+                      {{ getPaymentStatusLabel(order.paymentStatus) }}
+                    </span>
+                    @if (order.paymentMethod) {
+                      <div class="payment-method-label">{{ getPaymentMethodLabel(order.paymentMethod) }}</div>
+                    }
+                    @if (order.verifiedByName) {
+                      <div class="verified-by">Por: {{ order.verifiedByName }}</div>
+                    }
+                  </div>
+                } @else {
+                  <span class="payment-status-badge">N/A</span>
+                }
               </td>
               <td class="details-cell">
                 @if (order.type === OrderType.EN_MESA && order.tableNumber) {
@@ -81,15 +276,138 @@
                   <div><strong>Productos:</strong> {{ order.items.length }} item(s)</div>
                 }
               </td>
+              <td class="payment-actions-cell">
+                <div class="payment-actions">
+                  <!-- Si el pago está pendiente o no tiene estado (pedidos antiguos) -->
+                  @if (isPaymentPending(order)) {
+                    <button 
+                      class="btn-verify-payment" 
+                      (click)="verifyPayment(order.id, order.type === OrderType.DOMICILIO)"
+                      [disabled]="loading()"
+                      title="Verificar pago y enviar confirmación"
+                    >
+                      ✓ Verificar
+                    </button>
+                    @if (order.paymentProofUrl) {
+                      <button 
+                        class="btn-reject-payment" 
+                        (click)="rejectPayment(order.id, order.type === OrderType.DOMICILIO)"
+                        [disabled]="loading()"
+                        title="Rechazar pago"
+                      >
+                        ✕ Rechazar
+                      </button>
+                    }
+                  }
+                  
+                  <!-- Estado de pago actual -->
+                  <div class="payment-status-display">
+                    <div class="status-label">Estado:</div>
+                    <span class="payment-status-badge-inline" 
+                          [class.pending]="(order.paymentStatus?.toString() || '').toUpperCase() === 'PENDING' || !order.paymentStatus"
+                          [class.verified]="(order.paymentStatus?.toString() || '').toUpperCase() === 'VERIFIED'"
+                          [class.rejected]="(order.paymentStatus?.toString() || '').toUpperCase() === 'REJECTED'">
+                      {{ getPaymentStatusLabel(order.paymentStatus) }}
+                    </span>
+                  </div>
+                  
+                  <!-- Comprobante como link -->
+                  @if (order.paymentProofUrl && order.paymentProofUrl !== 'null' && order.paymentProofUrl.trim() !== '') {
+                    <div class="proof-link-container">
+                      <a 
+                        [href]="order.paymentProofUrl" 
+                        target="_blank"
+                        class="proof-link"
+                        (click)="viewPaymentProof(order); $event.preventDefault()"
+                        title="Ver comprobante de pago"
+                      >
+                        📎 Ver Comprobante
+                      </a>
+                    </div>
+                  } @else {
+                    <div class="proof-link-container">
+                      <span class="no-proof-text">Sin comprobante</span>
+                    </div>
+                  }
+                </div>
+              </td>
+              <td class="status-actions-cell">
+                <div class="status-actions">
+                  <!-- Si el pago está verificado y el pedido no está completado -->
+                  @if (!order.status && (isPaymentVerified(order) || !order.paymentStatus)) {
+                    <button 
+                      class="btn-confirm" 
+                      (click)="confirmOrder(order.id, order.type)" 
+                      [disabled]="loading()"
+                      title="Marcar como completado y enviar notificación"
+                    >
+                      ✓ Completar
+                    </button>
+                  }
+                  
+                  <!-- Si el pedido no está completado y no tiene paymentStatus, mostrar opción de completar -->
+                  @if (!order.status && !order.paymentStatus && !isPaymentVerified(order)) {
+                    <button 
+                      class="btn-confirm" 
+                      (click)="confirmOrder(order.id, order.type)" 
+                      [disabled]="loading()"
+                      title="Marcar como completado"
+                    >
+                      ✓ Completar
+                    </button>
+                  }
+                </div>
+              </td>
             </tr>
           }
           @if (getFilteredOrders().length === 0) {
             <tr>
-              <td colspan="8" class="no-data">No hay pedidos</td>
+              <td colspan="11" class="no-data">No hay pedidos</td>
             </tr>
           }
         </tbody>
       </table>
+    </div>
+  }
+
+  <!-- Modal para ver comprobante de pago -->
+  @if (selectedProofImage() && selectedOrderForProof()) {
+    <div class="modal-overlay" (click)="closeProofModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Comprobante de Pago - Pedido #{{ formatOrderId(selectedOrderForProof()!.id, selectedOrderForProof()!.type) }}</h3>
+          <button (click)="closeProofModal()" class="btn-close-modal">✕</button>
+        </div>
+        <div class="modal-body">
+          <img [src]="selectedProofImage()!" alt="Comprobante de pago" class="proof-image">
+          <div class="proof-info">
+            <p><strong>Cliente:</strong> {{ selectedOrderForProof()!.userName }}</p>
+            <p><strong>Método de Pago:</strong> {{ getPaymentMethodLabel(selectedOrderForProof()!.paymentMethod) }}</p>
+            <p><strong>Monto:</strong> ${{ selectedOrderForProof()!.totalPrice | number:'1.2-2' }}</p>
+            @if (selectedOrderForProof()!.verifiedByName) {
+              <p><strong>Verificado por:</strong> {{ selectedOrderForProof()!.verifiedByName }}</p>
+            }
+          </div>
+          @if (selectedOrderForProof()!.paymentStatus === PaymentStatus.PENDING) {
+            <div class="modal-actions">
+              <button 
+                class="btn-verify-payment-modal" 
+                (click)="verifyPayment(selectedOrderForProof()!.id, selectedOrderForProof()!.type === OrderType.DOMICILIO)"
+                [disabled]="loading()"
+              >
+                ✓ Verificar Pago
+              </button>
+              <button 
+                class="btn-reject-payment-modal" 
+                (click)="rejectPayment(selectedOrderForProof()!.id, selectedOrderForProof()!.type === OrderType.DOMICILIO)"
+                [disabled]="loading()"
+              >
+                ✕ Rechazar Pago
+              </button>
+            </div>
+          }
+        </div>
+      </div>
     </div>
   }
 </div>

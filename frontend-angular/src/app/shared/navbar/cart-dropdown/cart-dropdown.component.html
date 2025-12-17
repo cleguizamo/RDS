@@ -1,0 +1,72 @@
+<div class="cart-dropdown">
+  <button class="cart-toggle" (click)="toggle()" type="button">
+    <span class="cart-icon">🛒</span>
+    @if (totalItems() > 0) {
+      <span class="cart-badge">{{ totalItems() }}</span>
+    }
+  </button>
+
+  @if (isOpen) {
+    <div class="cart-menu" (click)="$event.stopPropagation()">
+      <div class="cart-header">
+        <h3>Carrito de Compras</h3>
+        <button class="close-btn" (click)="close()">×</button>
+      </div>
+
+      @if (items().length === 0) {
+        <div class="cart-empty">
+          <p>Tu carrito está vacío</p>
+        </div>
+      } @else {
+        <div class="cart-items">
+          @for (item of items(); track item.product.id) {
+            <div class="cart-item">
+              <img 
+                [src]="item.product.imageUrl" 
+                [alt]="item.product.name"
+                class="item-image"
+                loading="lazy">
+              <div class="item-info">
+                <h4 class="item-name">{{ item.product.name }}</h4>
+                <p class="item-price">${{ item.product.price | number:'1.0-0' }}</p>
+                
+                <div class="item-controls">
+                  <button 
+                    class="qty-btn" 
+                    (click)="decreaseQuantity(item)"
+                    type="button">-</button>
+                  <span class="qty-value">{{ item.quantity }}</span>
+                  <button 
+                    class="qty-btn" 
+                    (click)="increaseQuantity(item)"
+                    type="button">+</button>
+                </div>
+              </div>
+              <div class="item-total">
+                <p>${{ item.subtotal | number:'1.0-0' }}</p>
+                <button 
+                  class="remove-btn" 
+                  (click)="removeItem(item.product.id!)"
+                  type="button">×</button>
+              </div>
+            </div>
+          }
+        </div>
+
+        <div class="cart-footer">
+          <div class="cart-total">
+            <strong>Total: ${{ totalPrice() | number:'1.0-0' }}</strong>
+          </div>
+          <a [routerLink]="['/cart']" class="checkout-btn" (click)="close()">
+            Ver Carrito
+          </a>
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (isOpen) {
+  <div class="cart-overlay" (click)="close()"></div>
+}
+

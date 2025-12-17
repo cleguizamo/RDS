@@ -2,11 +2,13 @@ package com.rds.app_restaurante.service;
 
 import com.rds.app_restaurante.dto.EmployeeRequest;
 import com.rds.app_restaurante.dto.EmployeeResponse;
+import com.rds.app_restaurante.dto.SalaryUpdateRequest;
 import com.rds.app_restaurante.model.Employee;
 import com.rds.app_restaurante.repository.EmployeeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -47,6 +49,19 @@ public class EmployeeService {
         return mapToResponse(employee);
     }
 
+    @Transactional
+    public EmployeeResponse updateEmployeeSalary(Long id, SalaryUpdateRequest salaryUpdateRequest) {
+        Employee employee = employeeRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Empleado no encontrado con id: " + id));
+        
+        employee.setSalary(salaryUpdateRequest.getSalary());
+        employee.setPaymentFrequency(salaryUpdateRequest.getPaymentFrequency());
+        employee.setPaymentDay(salaryUpdateRequest.getPaymentDay());
+        
+        Employee savedEmployee = employeeRepository.save(employee);
+        return mapToResponse(savedEmployee);
+    }
+
     public void deleteEmployee(Long id) {
         if (!employeeRepository.existsById(id)) {
             throw new RuntimeException("Empleado no encontrado con id: " + id);
@@ -63,6 +78,9 @@ public class EmployeeService {
                 .documentNumber(employee.getDocumentNumber())
                 .email(employee.getEmail())
                 .phone(employee.getPhone())
+                .salary(employee.getSalary())
+                .paymentFrequency(employee.getPaymentFrequency())
+                .paymentDay(employee.getPaymentDay())
                 .build();
     }
 }

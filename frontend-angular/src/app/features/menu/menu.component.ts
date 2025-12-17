@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 import { ProductService } from '../../core/services/product.service';
 import { ProductResponse } from '../../core/models/product.model';
 import { AuthService } from '../../core/services/auth.service';
+import { CartService } from '../../core/services/cart.service';
 
 @Component({
   selector: 'app-menu',
@@ -22,7 +23,8 @@ export class MenuComponent implements OnInit {
 
   constructor(
     private productService: ProductService,
-    public authService: AuthService
+    public authService: AuthService,
+    private cartService: CartService
   ) {}
 
   ngOnInit(): void {
@@ -64,6 +66,10 @@ export class MenuComponent implements OnInit {
 
   getProductsByCategory(category: string): ProductResponse[] {
     return this.filteredProducts().filter(p => p.categoryName === category);
+  }
+
+  addToCart(product: ProductResponse): void {
+    this.cartService.addItem(product, 1);
   }
 }
 

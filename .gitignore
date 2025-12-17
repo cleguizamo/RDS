@@ -1,0 +1,40 @@
+# Archivos de entorno (NUNCA subir al repositorio)
+.env
+.env.local
+.env.production
+.env.*.local
+
+# Backend
+app-restaurante/.gradle/
+app-restaurante/build/
+app-restaurante/.idea/
+app-restaurante/*.iml
+app-restaurante/logs/
+
+# Frontend
+frontend-angular/node_modules/
+frontend-angular/dist/
+frontend-angular/.angular/
+frontend-angular/.sass-cache/
+frontend-angular/.idea/
+frontend-angular/*.iml
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporal
+tmp/
+temp/
+

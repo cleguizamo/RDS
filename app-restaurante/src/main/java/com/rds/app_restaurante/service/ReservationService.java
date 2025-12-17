@@ -7,6 +7,7 @@ import com.rds.app_restaurante.model.User;
 import com.rds.app_restaurante.repository.ReservationRepository;
 import com.rds.app_restaurante.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,10 +17,12 @@ import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ReservationService {
 
     private final ReservationRepository reservationRepository;
     private final UserRepository userRepository;
+    private final EmailService emailService;
 
     public List<ReservationResponse> getAllReservations() {
         return reservationRepository.findAll().stream()
@@ -71,6 +74,22 @@ public class ReservationService {
         user.setNumberOfReservations(user.getNumberOfReservations() + 1);
         userRepository.save(user);
 
+        // Enviar email de reserva pendiente (no confirmada aún)
+        try {
+            emailService.sendReservationPendingEmail(
+                    user.getEmail(),
+                    user.getName() + " " + user.getLastName(),
+                    savedReservation.getId(),
+                    savedReservation.getDate(),
+                    savedReservation.getTime(),
+                    savedReservation.getNumberOfPeople(),
+                    savedReservation.getNotes()
+            );
+        } catch (Exception e) {
+            log.warn("Error enviando email de reserva pendiente: {}", e.getMessage());
+            // No fallar la creación de la reserva si falla el email
+        }
+
         return mapToResponse(savedReservation);
     }
 
@@ -79,8 +98,28 @@ public class ReservationService {
         Reservation reservation = reservationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Reserva no encontrada con id: " + id));
         
+        boolean wasConfirmed = reservation.isStatus();
         reservation.setStatus(true);
         Reservation confirmedReservation = reservationRepository.save(reservation);
+        
+        // Enviar email de confirmación si la reserva acaba de ser confirmada
+        if (!wasConfirmed) {
+            User user = reservation.getUser();
+            try {
+                emailService.sendReservationConfirmationEmail(
+                        user.getEmail(),
+                        user.getName() + " " + user.getLastName(),
+                        confirmedReservation.getId(),
+                        confirmedReservation.getDate(),
+                        confirmedReservation.getTime(),
+                        confirmedReservation.getNumberOfPeople(),
+                        confirmedReservation.getNotes()
+                );
+            } catch (Exception e) {
+                log.warn("Error enviando email de confirmación de reserva: {}", e.getMessage());
+            }
+        }
+        
         return mapToResponse(confirmedReservation);
     }
 

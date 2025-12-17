@@ -1,5 +1,7 @@
 .admin-management {
   padding: 2rem;
+  background: #f5e6d3;
+  color: #000000;
 }
 
 .header {
@@ -82,36 +84,16 @@
   margin-top: 2rem;
 }
 
-.btn-save, .btn-cancel {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
 .btn-save {
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-}
-
-.btn-save:hover:not(:disabled) {
-  background: #e5c449;
-}
-
-.btn-save:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  /* Usa estilos base globales */
 }
 
 .btn-cancel {
-  background: #95a5a6;
-  color: white;
-}
-
-.btn-cancel:hover:not(:disabled) {
-  background: #7f8c8d;
+  background: #6c757d !important;
+  color: #ffffff !important;
+  /* Usa estilos base globales */
 }
 
 @media (max-width: 768px) {

@@ -1,5 +1,7 @@
 .reservation-management {
   padding: 2rem;
+  background: #f5e6d3;
+  color: #000000;
 }
 
 .header {
@@ -15,23 +17,9 @@
 }
 
 .btn-refresh {
-  padding: 0.75rem 1.5rem;
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-refresh:hover:not(:disabled) {
-  background: #e5c449;
-}
-
-.btn-refresh:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  /* Usa estilos base globales */
 }
 
 .alert {
@@ -50,6 +38,33 @@
   display: flex;
   gap: 1rem;
   margin-bottom: 2rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.basic-filters {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  align-items: center;
+  width: 100%;
+}
+
+.basic-filters button, .basic-filters input {
+  margin: 0;
+}
+
+.search-input {
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 1rem;
+  flex: 1;
+  min-width: 200px;
+}
+
+.btn-toggle-search, .btn-clear {
+  white-space: nowrap;
 }
 
 .filter-btn {
@@ -156,19 +171,50 @@
   border-top: 1px solid #eee;
 }
 
-.btn-delete {
+.btn-confirm {
   padding: 0.5rem 1rem;
-  background: #e74c3c;
-  color: white;
+  background: #27ae60;
+  color: #ffffff;
   border: none;
   border-radius: 4px;
   cursor: pointer;
   font-size: 0.875rem;
-  transition: background 0.2s;
+  font-weight: 600;
+  transition: all 0.2s;
 }
 
-.btn-delete:hover {
+.btn-confirm:hover:not(:disabled) {
+  background: #229954;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(39, 174, 96, 0.3);
+}
+
+.btn-confirm:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-delete {
+  padding: 0.5rem 1rem;
+  background: #e74c3c;
+  color: #ffffff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover:not(:disabled) {
   background: #c0392b;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(231, 76, 60, 0.3);
+}
+
+.btn-delete:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .no-reservations {
@@ -181,6 +227,217 @@
 @media (max-width: 768px) {
   .reservations-list {
     grid-template-columns: 1fr;
+  }
+  
+  .basic-filters {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
+  .search-input {
+    width: 100%;
+    min-width: 100%;
+  }
+}
+
+/* Estilos para búsqueda avanzada modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+  animation: fadeIn 0.2s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.advanced-search-modal {
+  background: #ffffff;
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  max-width: 900px;
+  width: 100%;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  animation: slideUp 0.3s ease-out;
+  overflow: hidden;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(30px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  border-bottom: 2px solid var(--bar-gold);
+  background: var(--bar-gold);
+  color: #000000;
+}
+
+.modal-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.btn-close {
+  background: transparent !important;
+  border: none !important;
+  font-size: 2rem;
+  line-height: 1;
+  cursor: pointer;
+  color: #000000;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: background 0.2s;
+  margin: 0;
+  box-shadow: none !important;
+}
+
+.btn-close:hover {
+  background: rgba(0, 0, 0, 0.1) !important;
+}
+
+.modal-body {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.search-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.25rem;
+}
+
+.search-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.search-field label {
+  font-weight: 600;
+  color: var(--bar-dark);
+  font-size: 0.9rem;
+}
+
+.search-field input,
+.search-field select {
+  padding: 0.75rem;
+  border: 2px solid #ddd;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: border-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.search-field input:focus,
+.search-field select:focus {
+  outline: none;
+  border-color: var(--bar-gold);
+  box-shadow: 0 0 0 3px rgba(212, 175, 55, 0.2);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 1.5rem;
+  border-top: 2px solid #eee;
+  background: #f9f9f9;
+}
+
+.modal-actions button {
+  margin: 0;
+}
+
+.btn-apply-search {
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  font-weight: 600;
+}
+
+.btn-apply-search:hover {
+  background: #e5c449 !important;
+}
+
+.btn-cancel-search {
+  background: #6c757d !important;
+  color: #ffffff !important;
+}
+
+.btn-cancel-search:hover {
+  background: #5a6268 !important;
+}
+
+.btn-clear-filters {
+  background: #dc3545 !important;
+  color: #ffffff !important;
+}
+
+.btn-clear-filters:hover {
+  background: #c82333 !important;
+}
+
+/* Responsive para el modal */
+@media (max-width: 768px) {
+  .modal-overlay {
+    padding: 1rem;
+  }
+
+  .advanced-search-modal {
+    max-width: 100%;
+    max-height: 95vh;
+  }
+
+  .search-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 1024px) and (min-width: 769px) {
+  .search-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }
 

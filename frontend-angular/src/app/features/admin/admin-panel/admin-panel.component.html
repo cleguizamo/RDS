@@ -9,94 +9,184 @@
     </div>
   </div>
 
-  <div class="admin-tabs">
-    <button 
-      [class.active]="activeTab() === 'usuarios'"
-      (click)="setTab('usuarios')"
-      class="tab-btn"
-    >
-      Usuarios
-    </button>
-    <button 
-      [class.active]="activeTab() === 'productos'"
-      (click)="setTab('productos')"
-      class="tab-btn"
-    >
-      Productos/Menú
-    </button>
-    <button 
-      [class.active]="activeTab() === 'agregar-producto'"
-      (click)="setTab('agregar-producto')"
-      class="tab-btn"
-    >
-      {{ editingProduct() ? 'Editar Producto' : 'Agregar Producto' }}
-    </button>
-    <button 
-      [class.active]="activeTab() === 'categorias'"
-      (click)="setTab('categorias')"
-      class="tab-btn"
-    >
-      Categorías
-    </button>
-    <button 
-      [class.active]="activeTab() === 'subcategorias'"
-      (click)="setTab('subcategorias')"
-      class="tab-btn"
-    >
-      Subcategorías
-    </button>
-    <button 
-      [class.active]="activeTab() === 'recompensas'"
-      (click)="setTab('recompensas')"
-      class="tab-btn"
-    >
-      Recompensas
-    </button>
-    <button 
-      [class.active]="activeTab() === 'estadisticas'"
-      (click)="setTab('estadisticas')"
-      class="tab-btn"
-    >
-      Estadísticas
-    </button>
-    <button 
-      [class.active]="activeTab() === 'gastos'"
-      (click)="setTab('gastos')"
-      class="tab-btn"
-    >
-      Gastos
-    </button>
-    <button 
-      [class.active]="activeTab() === 'reservas'"
-      (click)="setTab('reservas')"
-      class="tab-btn"
-    >
-      Reservas
-    </button>
-    <button 
-      [class.active]="activeTab() === 'pedidos'"
-      (click)="setTab('pedidos')"
-      class="tab-btn"
-    >
-      Pedidos
-    </button>
-    <button 
-      [class.active]="activeTab() === 'empleados'"
-      (click)="setTab('empleados')"
-      class="tab-btn"
-    >
-      Empleados
-    </button>
-    <button 
-      [class.active]="activeTab() === 'admins'"
-      (click)="setTab('admins')"
-      class="tab-btn"
-    >
-      Administradores
-    </button>
-  </div>
+  <div class="admin-layout">
+    <!-- Barra Lateral -->
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <!-- Gestión de Personas -->
+        <div class="nav-category">
+          <div class="category-header">
+            <span class="category-icon">👥</span>
+            <span class="category-title">Gestión de Personas</span>
+          </div>
+          <ul class="nav-menu">
+            <li>
+              <button 
+                [class.active]="activeTab() === 'usuarios'"
+                (click)="setTab('usuarios')"
+                class="nav-item"
+              >
+                <span class="nav-icon">👤</span>
+                <span>Usuarios</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'empleados'"
+                (click)="setTab('empleados')"
+                class="nav-item"
+              >
+                <span class="nav-icon">🧑‍💼</span>
+                <span>Empleados</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'admins'"
+                (click)="setTab('admins')"
+                class="nav-item"
+              >
+                <span class="nav-icon">🔐</span>
+                <span>Administradores</span>
+              </button>
+            </li>
+          </ul>
+        </div>
 
-  <div class="admin-content">
+        <!-- Gestión de Productos -->
+        <div class="nav-category">
+          <div class="category-header">
+            <span class="category-icon">🍽️</span>
+            <span class="category-title">Gestión de Productos</span>
+          </div>
+          <ul class="nav-menu">
+            <li>
+              <button 
+                [class.active]="activeTab() === 'productos'"
+                (click)="setTab('productos')"
+                class="nav-item"
+              >
+                <span class="nav-icon">📋</span>
+                <span>Productos/Menú</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'agregar-producto'"
+                (click)="setTab('agregar-producto')"
+                class="nav-item"
+              >
+                <span class="nav-icon">{{ editingProduct() ? '✏️' : '➕' }}</span>
+                <span>{{ editingProduct() ? 'Editar Producto' : 'Agregar Producto' }}</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'categorias'"
+                (click)="setTab('categorias')"
+                class="nav-item"
+              >
+                <span class="nav-icon">📁</span>
+                <span>Categorías</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'subcategorias'"
+                (click)="setTab('subcategorias')"
+                class="nav-item"
+              >
+                <span class="nav-icon">📂</span>
+                <span>Subcategorías</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'recompensas'"
+                (click)="setTab('recompensas')"
+                class="nav-item"
+              >
+                <span class="nav-icon">🎁</span>
+                <span>Recompensas</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Gestión de Pedidos -->
+        <div class="nav-category">
+          <div class="category-header">
+            <span class="category-icon">📦</span>
+            <span class="category-title">Gestión de Pedidos</span>
+          </div>
+          <ul class="nav-menu">
+            <li>
+              <button 
+                [class.active]="activeTab() === 'pedidos'"
+                (click)="setTab('pedidos')"
+                class="nav-item"
+              >
+                <span class="nav-icon">🛒</span>
+                <span>Pedidos</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'reservas'"
+                (click)="setTab('reservas')"
+                class="nav-item"
+              >
+                <span class="nav-icon">📅</span>
+                <span>Reservas</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+
+        <!-- Gestión Financiera -->
+        <div class="nav-category">
+          <div class="category-header">
+            <span class="category-icon">💰</span>
+            <span class="category-title">Gestión Financiera</span>
+          </div>
+          <ul class="nav-menu">
+            <li>
+              <button 
+                [class.active]="activeTab() === 'balance'"
+                (click)="setTab('balance')"
+                class="nav-item"
+              >
+                <span class="nav-icon">💵</span>
+                <span>Balance/Caja</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'gastos'"
+                (click)="setTab('gastos')"
+                class="nav-item"
+              >
+                <span class="nav-icon">📊</span>
+                <span>Gastos</span>
+              </button>
+            </li>
+            <li>
+              <button 
+                [class.active]="activeTab() === 'estadisticas'"
+                (click)="setTab('estadisticas')"
+                class="nav-item"
+              >
+                <span class="nav-icon">📈</span>
+                <span>Estadísticas</span>
+              </button>
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Contenido Principal -->
+    <main class="admin-content">
     @switch (activeTab()) {
       @case ('usuarios') {
         <app-user-management></app-user-management>
@@ -121,17 +211,20 @@
         <app-reward-management></app-reward-management>
       }
       @case ('estadisticas') {
-        <app-financial-dashboard></app-financial-dashboard>
+        <app-financial-dashboard [refreshKey]="activeTab()"></app-financial-dashboard>
       }
       @case ('gastos') {
         <app-expense-management></app-expense-management>
       }
+      @case ('balance') {
+        <app-balance-management></app-balance-management>
+      }
       @case ('reservas') {
         <app-reservation-management></app-reservation-management>
       }
-      @case ('pedidos') {
-        <app-order-management></app-order-management>
-      }
+        @case ('pedidos') {
+          <app-order-management></app-order-management>
+        }
       @case ('empleados') {
         <app-employee-management></app-employee-management>
       }
@@ -139,6 +232,7 @@
         <app-admin-management></app-admin-management>
       }
     }
+    </main>
   </div>
 </div>
 

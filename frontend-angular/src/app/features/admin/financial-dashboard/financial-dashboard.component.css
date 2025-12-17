@@ -1,8 +1,9 @@
 .financial-dashboard {
   padding: 2rem;
-  background: white;
+  background: #f5e6d3;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #000000;
 }
 
 .dashboard-header {
@@ -12,6 +13,31 @@
   margin-bottom: 2rem;
   flex-wrap: wrap;
   gap: 1rem;
+  position: relative;
+}
+
+.btn-refresh {
+  padding: 0.75rem 1.5rem;
+  background: var(--bar-gold);
+  color: #000000;
+  border: none;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-size: 0.9rem;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.btn-refresh:hover:not(:disabled) {
+  background: #e5c449;
+}
+
+.btn-refresh:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
 }
 
 .dashboard-header h2 {
@@ -21,20 +47,26 @@
 
 .date-filters {
   display: flex;
-  gap: 1rem;
+  gap: 1.5rem;
   align-items: center;
   flex-wrap: wrap;
+  width: 100%;
+}
+
+.date-filters > * {
+  margin: 0;
 }
 
 .quick-filters {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
+  flex-wrap: wrap;
 }
 
 .btn-filter {
   padding: 0.5rem 1rem;
-  background: var(--bar-dark);
-  color: white;
+  background: var(--bar-gold);
+  color: #000000;
   border: none;
   border-radius: 6px;
   font-weight: 600;
@@ -44,13 +76,19 @@
 }
 
 .btn-filter:hover {
-  background: #333;
+  background: #e5c449;
 }
 
 .date-range {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.75rem;
   align-items: center;
+  flex-wrap: wrap;
+}
+
+.date-range label,
+.date-range input {
+  margin: 0;
 }
 
 .date-range label {
@@ -59,11 +97,20 @@
   font-size: 0.9rem;
 }
 
-.date-range input {
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 6px;
-  font-size: 0.9rem;
+.date-range input[type="date"] {
+  min-width: 160px;
+  /* Hereda los estilos globales mejorados de input[type="date"] */
+}
+
+/* Estilos para export-buttons si no existen */
+.export-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.export-buttons button {
+  margin: 0;
 }
 
 .alert {
@@ -93,10 +140,11 @@
 }
 
 .stat-card {
-  background: linear-gradient(135deg, var(--bar-dark) 0%, var(--bar-warm) 100%);
-  color: white;
+  background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+  color: #000000;
   padding: 2rem;
   border-radius: 12px;
+  border: 2px solid var(--bar-gold);
   display: flex;
   gap: 1.5rem;
   box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
@@ -109,19 +157,23 @@
 }
 
 .stat-card.revenue {
-  background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+  background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+  border-color: #28a745;
 }
 
 .stat-card.expenses {
-  background: linear-gradient(135deg, #dc3545 0%, #fd7e14 100%);
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border-color: #dc3545;
 }
 
 .stat-card.profit.positive {
-  background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+  background: linear-gradient(135deg, #d1ecf1 0%, #bee5eb 100%);
+  border-color: #007bff;
 }
 
 .stat-card.profit.negative {
-  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  background: linear-gradient(135deg, #f8d7da 0%, #f5c6cb 100%);
+  border-color: #dc3545;
 }
 
 .stat-icon {
@@ -137,15 +189,16 @@
 
 .stat-label {
   font-size: 0.9rem;
-  opacity: 0.9;
+  color: #333;
   margin-bottom: 0.5rem;
+  font-weight: 600;
 }
 
 .stat-value {
   font-size: 2rem;
   font-weight: 700;
   margin-bottom: 0.5rem;
-  color: var(--bar-gold);
+  color: #000000;
 }
 
 .stat-detail {
@@ -153,7 +206,7 @@
   flex-direction: column;
   gap: 0.25rem;
   font-size: 0.85rem;
-  opacity: 0.9;
+  color: #333;
 }
 
 .business-stats {
@@ -280,10 +333,11 @@
 }
 
 .category-item {
-  background: #f8f9fa;
+  background: #ffffff;
   padding: 1rem;
   border-radius: 8px;
   border: 1px solid #dee2e6;
+  color: #000000;
 }
 
 .category-info {
@@ -328,10 +382,11 @@
   display: flex;
   gap: 1rem;
   padding: 1rem;
-  background: #f8f9fa;
+  background: #ffffff;
   border-radius: 8px;
   border: 1px solid #dee2e6;
   align-items: center;
+  color: #000000;
 }
 
 .product-rank,
@@ -398,6 +453,7 @@
   position: relative;
   min-width: 40px;
   width: calc((100% - 6.5rem) / 14); /* 14 días máximo, menos gaps */
+  cursor: pointer;
 }
 
 .chart-bar-label {
@@ -431,8 +487,14 @@
   cursor: pointer;
 }
 
-.chart-bar:hover {
-  opacity: 0.8;
+.chart-bar-group:hover {
+  z-index: 10;
+}
+
+.chart-bar-group:hover .chart-bar {
+  opacity: 0.85;
+  transform: scaleY(1.05);
+  filter: brightness(1.1);
 }
 
 .revenue-bar {
@@ -511,6 +573,98 @@
 
   .chart-bars-wrapper {
     gap: 0.15rem;
+  }
+}
+
+/* Tooltip para el gráfico */
+.chart-tooltip {
+  position: fixed;
+  background: rgba(26, 26, 26, 0.95);
+  backdrop-filter: blur(10px);
+  color: #ffffff;
+  padding: 0.75rem 1rem;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  z-index: 1000;
+  min-width: 180px;
+  border: 1px solid var(--bar-gold);
+  animation: fadeInTooltip 0.2s ease-out;
+}
+
+@keyframes fadeInTooltip {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.tooltip-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.tooltip-header {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--bar-gold);
+  border-bottom: 1px solid rgba(212, 175, 55, 0.3);
+  padding-bottom: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.tooltip-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  font-size: 0.9rem;
+}
+
+.tooltip-label {
+  color: #cccccc;
+  font-weight: 500;
+}
+
+.tooltip-value {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.tooltip-value.revenue {
+  color: #28a745;
+}
+
+.tooltip-value.expense {
+  color: #dc3545;
+}
+
+.tooltip-value.positive {
+  color: #28a745;
+}
+
+.tooltip-value.negative {
+  color: #dc3545;
+}
+
+@media (max-width: 768px) {
+  .chart-tooltip {
+    min-width: 160px;
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+
+  .tooltip-header {
+    font-size: 0.85rem;
+  }
+
+  .tooltip-item {
+    font-size: 0.8rem;
   }
 }
 

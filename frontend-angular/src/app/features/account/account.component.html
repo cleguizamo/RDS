@@ -1,0 +1,176 @@
+<div class="account-container">
+  <div class="account-header">
+    <h1>Mi Cuenta</h1>
+    <p>Gestiona tu información personal y configuración</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading">Cargando información...</div>
+  } @else if (userInfo()) {
+    <div class="account-content">
+      <!-- Información Personal -->
+      <div class="info-section">
+        <h2>Información Personal</h2>
+        
+        @if (errorMessage()) {
+          <div class="alert alert-error">{{ errorMessage() }}</div>
+        }
+
+        @if (successMessage()) {
+          <div class="alert alert-success">{{ successMessage() }}</div>
+        }
+
+        <div class="info-grid">
+          <div class="info-item">
+            <label>Nombre Completo</label>
+            <p>{{ userInfo()?.name }} {{ userInfo()?.lastName }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Email</label>
+            <p>{{ userInfo()?.email }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Tipo de Documento</label>
+            <p>{{ getDocumentTypeLabel(userInfo()!.documentType) }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Número de Documento</label>
+            <p>{{ userInfo()?.documentNumber }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Teléfono</label>
+            <p>{{ userInfo()?.phone }}</p>
+          </div>
+
+          <div class="info-item">
+            <label>Fecha de Nacimiento</label>
+            <p>{{ formatDate(userInfo()!.dateOfBirth) }}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Estadísticas -->
+      <div class="info-section">
+        <h2>Estadísticas</h2>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon">🎯</div>
+            <div class="stat-value">{{ userInfo()?.points || 0 }}</div>
+            <div class="stat-label">Puntos Acumulados</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">📦</div>
+            <div class="stat-value">{{ userInfo()?.numberOfOrders || 0 }}</div>
+            <div class="stat-label">Pedidos Realizados</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">💰</div>
+            <div class="stat-value">{{ userInfo()?.totalSpent | formatCurrency }}</div>
+            <div class="stat-label">Total Gastado</div>
+          </div>
+
+          <div class="stat-card">
+            <div class="stat-icon">📅</div>
+            <div class="stat-value">{{ userInfo()?.numberOfReservations || 0 }}</div>
+            <div class="stat-label">Reservas Realizadas</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Cambiar Contraseña -->
+      <div class="info-section">
+        <h2>Seguridad</h2>
+        
+        <button 
+          class="btn-secondary" 
+          (click)="toggleChangePassword()"
+          [class.active]="showChangePassword()">
+          @if (showChangePassword()) {
+            Cancelar Cambio de Contraseña
+          } @else {
+            Cambiar Contraseña
+          }
+        </button>
+
+        @if (showChangePassword()) {
+          <form [formGroup]="changePasswordForm" (ngSubmit)="onChangePassword()" class="change-password-form">
+            <div class="form-group">
+              <label for="currentPassword">Contraseña Actual</label>
+              <input
+                id="currentPassword"
+                type="password"
+                formControlName="currentPassword"
+                class="form-control"
+                [class.invalid]="currentPassword?.invalid && currentPassword?.touched"
+                placeholder="••••••••"
+              />
+              @if (currentPassword?.invalid && currentPassword?.touched) {
+                <span class="error-text">La contraseña actual es obligatoria</span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="newPassword">Nueva Contraseña</label>
+              <input
+                id="newPassword"
+                type="password"
+                formControlName="newPassword"
+                class="form-control"
+                [class.invalid]="newPassword?.invalid && newPassword?.touched"
+                placeholder="••••••••"
+              />
+              @if (newPassword?.invalid && newPassword?.touched) {
+                <span class="error-text">
+                  @if (newPassword?.errors?.['required']) {
+                    La nueva contraseña es obligatoria
+                  } @else if (newPassword?.errors?.['minlength']) {
+                    La contraseña debe tener al menos 6 caracteres
+                  }
+                </span>
+              }
+            </div>
+
+            <div class="form-group">
+              <label for="confirmPassword">Confirmar Nueva Contraseña</label>
+              <input
+                id="confirmPassword"
+                type="password"
+                formControlName="confirmPassword"
+                class="form-control"
+                [class.invalid]="confirmPassword?.invalid && confirmPassword?.touched"
+                placeholder="••••••••"
+              />
+              @if (confirmPassword?.invalid && confirmPassword?.touched) {
+                <span class="error-text">
+                  @if (confirmPassword?.errors?.['required']) {
+                    Confirma tu nueva contraseña
+                  } @else if (confirmPassword?.errors?.['passwordMismatch']) {
+                    Las contraseñas no coinciden
+                  }
+                </span>
+              }
+            </div>
+
+            <button
+              type="submit"
+              class="btn-primary"
+              [disabled]="changingPassword() || changePasswordForm.invalid">
+              @if (changingPassword()) {
+                Cambiando...
+              } @else {
+                Actualizar Contraseña
+              }
+            </button>
+          </form>
+        }
+      </div>
+    </div>
+  }
+</div>
+

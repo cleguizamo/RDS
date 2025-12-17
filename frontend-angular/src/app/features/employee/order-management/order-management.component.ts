@@ -5,7 +5,7 @@ import { OrderService } from '../../../core/services/order.service';
 import { EmployeeService } from '../../../core/services/employee.service';
 import { ProductService } from '../../../core/services/product.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Order, OrderRequest, DeliveryRequest, OrderItemRequest, OrderType, UnifiedOrder } from '../../../core/models/order.model';
+import { Order, OrderRequest, DeliveryRequest, OrderItemRequest, OrderType, UnifiedOrder, PaymentMethod } from '../../../core/models/order.model';
 import { ProductResponse } from '../../../core/models/product.model';
 import { UserResponse } from '../../../core/models/user.model';
 
@@ -245,7 +245,8 @@ export class OrderManagementComponent implements OnInit {
       const orderRequest: OrderRequest = {
         userId: parseInt(formValue.userId),
         items: items,
-        tableNumber: parseInt(formValue.tableNumber)
+        tableNumber: parseInt(formValue.tableNumber),
+        paymentMethod: PaymentMethod.CASH // Los empleados siempre registran pagos en efectivo
       };
 
       this.orderService.createOrderAsEmployee(orderRequest).subscribe({
@@ -267,7 +268,8 @@ export class OrderManagementComponent implements OnInit {
         userId: parseInt(formValue.userId),
         items: items,
         deliveryAddress: formValue.deliveryAddress,
-        deliveryPhone: parseInt(formValue.deliveryPhone)
+        deliveryPhone: parseInt(formValue.deliveryPhone),
+        paymentMethod: PaymentMethod.CASH // Los empleados siempre registran pagos en efectivo
       };
 
       this.orderService.createDeliveryAsEmployee(deliveryRequest).subscribe({

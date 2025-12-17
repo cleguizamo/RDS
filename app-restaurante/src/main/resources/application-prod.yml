@@ -1,0 +1,31 @@
+# Configuración específica para producción
+# Este archivo se activa cuando SPRING_PROFILES_ACTIVE=prod
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: validate  # Validar schema, NO modificar en producción
+    properties:
+      hibernate:
+        format_sql: false
+        show_sql: false
+        use_sql_comments: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info  # Solo endpoints esenciales
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+
+logging:
+  level:
+    root: WARN
+    com.rds.app_restaurante: INFO
+    org.springframework.security: WARN
+    org.hibernate: WARN
+    org.springframework.web: WARN
+

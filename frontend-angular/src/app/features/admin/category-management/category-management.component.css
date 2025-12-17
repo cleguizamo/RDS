@@ -1,8 +1,9 @@
 .category-management {
   padding: 2rem;
-  background: white;
+  background: #f5e6d3;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  color: #000000;
 }
 
 .header {
@@ -18,23 +19,9 @@
 }
 
 .btn-add {
-  padding: 0.75rem 1.5rem;
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-add:hover:not(:disabled) {
-  background: #e5c449;
-}
-
-.btn-add:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: #28a745 !important;
+  color: #ffffff !important;
+  /* Usa estilos base globales */
 }
 
 .alert {
@@ -116,38 +103,15 @@
 }
 
 .btn-save {
-  padding: 0.75rem 1.5rem;
-  background: var(--bar-dark);
-  color: white;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-save:hover:not(:disabled) {
-  background: #333;
-}
-
-.btn-save:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  /* Usa estilos base globales */
 }
 
 .btn-cancel {
-  padding: 0.75rem 1.5rem;
-  background: #ccc;
-  color: var(--bar-dark);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-cancel:hover:not(:disabled) {
-  background: #bbb;
+  background: #6c757d !important;
+  color: #ffffff !important;
+  /* Usa estilos base globales */
 }
 
 .btn-cancel:disabled {

@@ -20,11 +20,36 @@ export class StatisticsService {
     if (endDate) {
       params = params.set('endDate', endDate);
     }
+    // Agregar timestamp para evitar cache del navegador
+    params = params.set('_t', Date.now().toString());
     return this.http.get<FinancialStatsResponse>(`${this.apiUrl}/financial`, { params });
   }
 
   getBusinessStats(): Observable<BusinessStatsResponse> {
-    return this.http.get<BusinessStatsResponse>(`${this.apiUrl}/business`);
+    // Agregar timestamp para evitar cache del navegador
+    const params = new HttpParams().set('_t', Date.now().toString());
+    return this.http.get<BusinessStatsResponse>(`${this.apiUrl}/business`, { params });
+  }
+
+  // Exportación de estadísticas
+  exportFinancialStatsToExcel(startDate: string, endDate: string): Observable<Blob> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get(`${environment.apiUrl}/admin/export/statistics/excel`, {
+      params,
+      responseType: 'blob'
+    });
+  }
+
+  exportFinancialStatsToPdf(startDate: string, endDate: string): Observable<Blob> {
+    const params = new HttpParams()
+      .set('startDate', startDate)
+      .set('endDate', endDate);
+    return this.http.get(`${environment.apiUrl}/admin/export/statistics/pdf`, {
+      params,
+      responseType: 'blob'
+    });
   }
 }
 

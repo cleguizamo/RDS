@@ -1,6 +1,10 @@
 <div class="financial-dashboard">
   <div class="dashboard-header">
     <h2>Dashboard Financiero</h2>
+    <button (click)="loadStats()" class="btn-refresh" [disabled]="loading()" title="Actualizar estadísticas">
+      <span *ngIf="loading()">Actualizando...</span>
+      <span *ngIf="!loading()">🔄 Actualizar</span>
+    </button>
     <div class="date-filters">
       <div class="quick-filters">
         <button (click)="setDateRange(7)" class="btn-filter">7 días</button>
@@ -24,6 +28,22 @@
           (change)="onDateRangeChange()"
           [disabled]="loading()"
         />
+      </div>
+      <div class="export-buttons">
+        <button 
+          (click)="exportToExcel()" 
+          class="btn-export-excel"
+          [disabled]="loading() || !startDate() || !endDate()"
+        >
+          📊 Exportar a Excel
+        </button>
+        <button 
+          (click)="exportToPdf()" 
+          class="btn-export-pdf"
+          [disabled]="loading() || !startDate() || !endDate()"
+        >
+          📄 Exportar a PDF
+        </button>
       </div>
     </div>
   </div>
@@ -228,11 +248,14 @@
         <div class="chart-container">
           <div class="chart-bars">
             @for (day of getDisplayedDailyStats(); track day.date) {
-              <div class="chart-bar-group">
+              <div class="chart-bar-group" 
+                   (mouseenter)="showTooltip($event, day)"
+                   (mouseleave)="hideTooltip()"
+                   (mousemove)="updateTooltipPosition($event)">
                 <div class="chart-bar-label">{{ day.date | date:'dd/MM' }}</div>
                 <div class="chart-bars-wrapper">
-                  <div class="chart-bar revenue-bar" [style.height.%]="(day.revenue / getMaxDisplayedValue()) * 100" title="Ingresos: {{ day.revenue | formatCurrency }}"></div>
-                  <div class="chart-bar expense-bar" [style.height.%]="(day.expenses / getMaxDisplayedValue()) * 100" title="Gastos: {{ day.expenses | formatCurrency }}"></div>
+                  <div class="chart-bar revenue-bar" [style.height.%]="(day.revenue / getMaxDisplayedValue()) * 100"></div>
+                  <div class="chart-bar expense-bar" [style.height.%]="(day.expenses / getMaxDisplayedValue()) * 100"></div>
                 </div>
               </div>
             }
@@ -240,6 +263,31 @@
           <div class="chart-legend">
             <span class="legend-item"><span class="legend-color revenue"></span> Ingresos</span>
             <span class="legend-item"><span class="legend-color expense"></span> Gastos</span>
+          </div>
+        </div>
+      </div>
+    }
+
+    <!-- Tooltip para el gráfico -->
+    @if (tooltipVisible()) {
+      <div class="chart-tooltip" 
+           [style.left.px]="tooltipPosition().x" 
+           [style.top.px]="tooltipPosition().y">
+        <div class="tooltip-content">
+          <div class="tooltip-header">{{ tooltipData().date | date:'dd/MM/yyyy' }}</div>
+          <div class="tooltip-item">
+            <span class="tooltip-label">Ingresos:</span>
+            <span class="tooltip-value revenue">{{ tooltipData().revenue | formatCurrency }}</span>
+          </div>
+          <div class="tooltip-item">
+            <span class="tooltip-label">Gastos:</span>
+            <span class="tooltip-value expense">{{ tooltipData().expenses | formatCurrency }}</span>
+          </div>
+          <div class="tooltip-item">
+            <span class="tooltip-label">Ganancia:</span>
+            <span class="tooltip-value" [class.positive]="(tooltipData().revenue - tooltipData().expenses) >= 0" [class.negative]="(tooltipData().revenue - tooltipData().expenses) < 0">
+              {{ (tooltipData().revenue - tooltipData().expenses) | formatCurrency }}
+            </span>
           </div>
         </div>
       </div>

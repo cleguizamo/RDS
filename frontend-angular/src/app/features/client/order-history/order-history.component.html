@@ -1,0 +1,233 @@
+<div class="order-history-container">
+  <div class="order-history-header">
+    <h1>Historial de Pedidos</h1>
+    <p>Gestiona y revisa todos tus pedidos anteriores</p>
+  </div>
+
+  <!-- Filtros -->
+  <div class="filters-section">
+    <div class="filters-grid">
+      <div class="filter-group">
+        <label for="orderType">Tipo de Pedido</label>
+        <select 
+          id="orderType"
+          [value]="selectedOrderType()"
+          (change)="onOrderTypeChange($any($event.target).value)"
+          class="filter-select">
+          <option value="all">Todos</option>
+          <option [value]="OrderType.EN_MESA">En Mesa</option>
+          <option [value]="OrderType.DOMICILIO">Domicilio</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="status">Estado</label>
+        <select 
+          id="status"
+          [value]="getStatusValue()"
+          (change)="onStatusChange($any($event.target).value)"
+          class="filter-select">
+          <option value="all">Todos</option>
+          <option value="false">Pendiente</option>
+          <option value="true">Completado</option>
+        </select>
+      </div>
+
+      <div class="filter-group">
+        <label for="searchDate">Fecha</label>
+        <input 
+          type="date" 
+          id="searchDate"
+          [value]="searchDate()"
+          (change)="onDateChange($any($event.target).value)"
+          class="filter-input">
+      </div>
+
+      <div class="filter-actions">
+        <button 
+          class="btn-clear-filters"
+          (click)="clearFilters()"
+          type="button">
+          Limpiar Filtros
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Lista de Pedidos -->
+  @if (loading()) {
+    <div class="loading-container">
+      <div class="loading-spinner"></div>
+      <p>Cargando pedidos...</p>
+    </div>
+  } @else if (filteredOrders().length === 0) {
+    <div class="empty-container">
+      <div class="empty-icon">📦</div>
+      <h2>No hay pedidos</h2>
+      <p>No se encontraron pedidos con los filtros seleccionados</p>
+      <a [routerLink]="['/menu']" class="btn-primary">Ver Menú</a>
+    </div>
+  } @else {
+    <div class="orders-grid">
+      @for (order of filteredOrders(); track order.id) {
+        <div class="order-card">
+          <div class="order-header">
+            <div class="order-id">
+              <strong>Pedido #{{ order.id }}</strong>
+              <span [class]="'order-type-badge type-' + (order.type || OrderType.EN_MESA).toLowerCase()">
+                {{ getOrderTypeLabel(order.type || OrderType.EN_MESA) }}
+              </span>
+            </div>
+            <span class="status-badge" [class]="getStatusClass(order.status)">
+              {{ getStatusLabel(order.status) }}
+            </span>
+          </div>
+
+          <div class="order-info">
+            <div class="info-row">
+              <span class="info-label">Fecha:</span>
+              <span class="info-value">{{ order.date }} {{ order.time }}</span>
+            </div>
+            <div class="info-row">
+              <span class="info-label">Total:</span>
+              <span class="info-value total-price">${{ order.totalPrice | number:'1.0-0' }}</span>
+            </div>
+            @if (order.type === OrderType.EN_MESA && order.tableNumber) {
+              <div class="info-row">
+                <span class="info-label">Mesa:</span>
+                <span class="info-value">#{{ order.tableNumber }}</span>
+              </div>
+            }
+            @if (order.type === OrderType.DOMICILIO) {
+              @if (order.deliveryAddress) {
+                <div class="info-row">
+                  <span class="info-label">Dirección:</span>
+                  <span class="info-value">{{ order.deliveryAddress }}</span>
+                </div>
+              }
+              @if (order.deliveryPhone) {
+                <div class="info-row">
+                  <span class="info-label">Teléfono:</span>
+                  <span class="info-value">{{ order.deliveryPhone }}</span>
+                </div>
+              }
+            }
+            @if (order.items && order.items.length > 0) {
+              <div class="info-row">
+                <span class="info-label">Items:</span>
+                <span class="info-value">{{ order.items.length }} producto(s)</span>
+              </div>
+            }
+          </div>
+
+          <div class="order-actions">
+            <button 
+              class="btn-view-details"
+              (click)="viewOrderDetails(order)"
+              type="button">
+              Ver Detalles
+            </button>
+            <button 
+              class="btn-reorder"
+              (click)="reorder(order)"
+              type="button">
+              Reordenar
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal de Detalles -->
+  @if (showOrderDetails() && selectedOrder()) {
+    <div class="modal-overlay" (click)="closeOrderDetails()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h2>Detalles del Pedido #{{ selectedOrder()!.id }}</h2>
+          <button class="modal-close" (click)="closeOrderDetails()">×</button>
+        </div>
+
+        <div class="modal-body">
+          <div class="order-details-section">
+            <h3>Información del Pedido</h3>
+            <div class="details-grid">
+              <div class="detail-item">
+                <span class="detail-label">Tipo:</span>
+                <span class="detail-value">{{ getOrderTypeLabel(selectedOrder()!.type) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Fecha:</span>
+                <span class="detail-value">{{ selectedOrder()!.date }} {{ selectedOrder()!.time }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Estado:</span>
+                <span class="detail-value" [class]="getStatusClass(selectedOrder()!.status)">
+                  {{ getStatusLabel(selectedOrder()!.status) }}
+                </span>
+              </div>
+              @if (selectedOrder()!.type === 'EN_MESA' && selectedOrder()!.tableNumber) {
+                <div class="detail-item">
+                  <span class="detail-label">Mesa:</span>
+                  <span class="detail-value">#{{ selectedOrder()!.tableNumber }}</span>
+                </div>
+              }
+              @if (selectedOrder()!.type === 'DOMICILIO') {
+                @if (selectedOrder()!.deliveryAddress) {
+                  <div class="detail-item">
+                    <span class="detail-label">Dirección:</span>
+                    <span class="detail-value">{{ selectedOrder()!.deliveryAddress }}</span>
+                  </div>
+                }
+                @if (selectedOrder()!.deliveryPhone) {
+                  <div class="detail-item">
+                    <span class="detail-label">Teléfono:</span>
+                    <span class="detail-value">{{ selectedOrder()!.deliveryPhone }}</span>
+                  </div>
+                }
+              }
+            </div>
+          </div>
+
+          @if (selectedOrder() && selectedOrder()!.items && selectedOrder()!.items!.length > 0) {
+            <div class="order-items-section">
+              <h3>Productos</h3>
+              <div class="items-list">
+                @for (item of selectedOrder()!.items!; track item.id) {
+                  <div class="item-row">
+                    <div class="item-info">
+                      <span class="item-name">{{ item.productName }}</span>
+                      <span class="item-quantity">x{{ item.quantity }}</span>
+                    </div>
+                    <div class="item-price">
+                      ${{ item.subtotal | number:'1.0-0' }}
+                    </div>
+                  </div>
+                }
+              </div>
+              <div class="items-total">
+                <strong>Total: ${{ selectedOrder()!.totalPrice | number:'1.0-0' }}</strong>
+              </div>
+            </div>
+          }
+
+          <div class="modal-actions">
+            <button 
+              class="btn-reorder-modal"
+              (click)="reorder(selectedOrder()!)"
+              type="button">
+              Reordenar
+            </button>
+            <button 
+              class="btn-close-modal"
+              (click)="closeOrderDetails()"
+              type="button">
+              Cerrar
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

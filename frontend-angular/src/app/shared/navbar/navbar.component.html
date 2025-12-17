@@ -18,6 +18,9 @@
       <a [routerLink]="['/menu']" routerLinkActive="active" class="nav-link">Menú</a>
       <a [routerLink]="['/reservations']" routerLinkActive="active" class="nav-link">Reservas</a>
 
+      <!-- Carrito de compras - Visible para todos -->
+      <app-cart-dropdown></app-cart-dropdown>
+
       @if (!authService.isAuthenticated()) {
         <a [routerLink]="['/login']" class="nav-link nav-btn">Iniciar Sesión</a>
         <a [routerLink]="['/signup']" class="nav-link nav-btn-primary">Registrarse</a>
@@ -32,6 +35,7 @@
             [class.open]="isDropdownOpen()"
             (mouseenter)="keepDropdownOpen()"
             (mouseleave)="closeDropdown()">
+            <a [routerLink]="['/account']" class="dropdown-link">Mi Cuenta</a>
             @if (authService.currentUser()?.role === 'ADMIN') {
               <a [routerLink]="['/admin']" class="dropdown-link">Panel Admin</a>
             }
@@ -39,7 +43,7 @@
               <a [routerLink]="['/employee']" class="dropdown-link">Panel Empleado</a>
             }
             @if (authService.currentUser()?.role === 'CLIENT') {
-              <a [routerLink]="['/dashboard']" class="dropdown-link">Mi Cuenta</a>
+              <a [routerLink]="['/dashboard']" class="dropdown-link">Dashboard</a>
             }
             <button (click)="logout()" class="dropdown-link">Cerrar Sesión</button>
           </div>

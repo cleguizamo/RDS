@@ -13,33 +13,128 @@
   }
 
   <div class="filters">
-    <input 
-      type="text" 
-      placeholder="Buscar productos..." 
-      [value]="searchTerm()"
-      (input)="onSearchChange($any($event.target).value)"
-      class="search-input"
-    />
-    <select 
-      [value]="selectedCategory()"
-      (change)="onCategoryChange($any($event.target).value)"
-      class="category-select"
-    >
-      <option value="">Todas las categorías</option>
-      @for (category of getCategories(); track category) {
-        <option [value]="category">{{ category }}</option>
+    <div class="basic-filters">
+      <input 
+        type="text" 
+        placeholder="Buscar productos..." 
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        class="search-input"
+      />
+      <select 
+        [value]="selectedCategory()"
+        (change)="onCategoryChange($any($event.target).value)"
+        class="category-select"
+      >
+        <option value="">Todas las categorías</option>
+        @for (category of categories(); track category.id) {
+          <option [value]="category.id">{{ category.name }}</option>
+        }
+      </select>
+      <button (click)="toggleAdvancedSearch()" class="btn-toggle-search">
+        {{ showAdvancedSearch() ? 'Ocultar' : 'Mostrar' }} Búsqueda Avanzada
+      </button>
+      @if (searchTerm() || selectedCategory() || hasActiveFilters()) {
+        <button (click)="clearFilters()" class="btn-clear">Limpiar filtros</button>
       }
-    </select>
-    @if (searchTerm() || selectedCategory()) {
-      <button (click)="clearFilters()" class="btn-clear">Limpiar filtros</button>
+    </div>
+
+    @if (showAdvancedSearch()) {
+      <div class="modal-overlay" (click)="closeAdvancedSearch()">
+        <div class="advanced-search-modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Búsqueda Avanzada</h3>
+            <button class="btn-close" (click)="closeAdvancedSearch()" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="search-grid">
+              <div class="search-field">
+                <label>Precio Mínimo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().minPrice"
+                  (ngModelChange)="updateSearchField('minPrice', $event)"
+                  placeholder="0"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Precio Máximo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().maxPrice"
+                  (ngModelChange)="updateSearchField('maxPrice', $event)"
+                  placeholder="999999"
+                  step="0.01"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Stock Mínimo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().minStock"
+                  (ngModelChange)="updateSearchField('minStock', $event)"
+                  placeholder="0"
+                  min="0"
+                />
+              </div>
+              <div class="search-field">
+                <label>Ordenar por:</label>
+                <select 
+                  [ngModel]="searchRequest().sortBy"
+                  (ngModelChange)="updateSearchField('sortBy', $event)"
+                >
+                  <option value="">Sin ordenar</option>
+                  <option value="id">ID</option>
+                  <option value="name">Nombre</option>
+                  <option value="price">Precio</option>
+                  <option value="stock">Stock</option>
+                </select>
+              </div>
+              <div class="search-field">
+                <label>Dirección:</label>
+                <select 
+                  [ngModel]="searchRequest().sortDirection"
+                  (ngModelChange)="updateSearchField('sortDirection', $event)"
+                >
+                  <option value="ASC">Ascendente</option>
+                  <option value="DESC">Descendente</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-clear-filters" (click)="clearAdvancedFilters()" type="button">Limpiar</button>
+            <button class="btn-cancel-search" (click)="closeAdvancedSearch()" type="button">Cancelar</button>
+            <button class="btn-apply-search" (click)="applyAdvancedSearch()" [disabled]="loading()" type="button">Aplicar Búsqueda</button>
+          </div>
+        </div>
+      </div>
     }
+  </div>
+
+  <!-- Información de paginación -->
+  <div class="pagination-info">
+    <span>Mostrando {{ products().length }} de {{ totalElements() }} productos</span>
+    <select 
+      [value]="pageSize()"
+      (change)="onPageSizeChange(+$any($event.target).value)"
+      class="page-size-select"
+    >
+      <option [value]="10">10 por página</option>
+      <option [value]="20">20 por página</option>
+      <option [value]="50">50 por página</option>
+      <option [value]="100">100 por página</option>
+    </select>
   </div>
 
   @if (loading() && products().length === 0) {
     <div class="loading">Cargando productos...</div>
   } @else {
     <div class="products-grid">
-      @for (product of filteredProducts(); track product.id) {
+      @for (product of products(); track product.id) {
         <div class="product-card">
           <div class="product-image">
             <img [src]="product.imageUrl" [alt]="product.name" />
@@ -59,12 +154,34 @@
           </div>
         </div>
       }
-      @if (filteredProducts().length === 0) {
+      @if (products().length === 0) {
         <div class="no-products">
           <p>No se encontraron productos</p>
         </div>
       }
     </div>
+
+    <!-- Controles de paginación -->
+    @if (totalPages() > 1) {
+      <div class="pagination-controls">
+        <button 
+          (click)="previousPage()" 
+          [disabled]="currentPage() === 0"
+          class="btn-pagination"
+        >
+          Anterior
+        </button>
+        <span class="page-info">
+          Página {{ currentPage() + 1 }} de {{ totalPages() }}
+        </span>
+        <button 
+          (click)="nextPage()" 
+          [disabled]="currentPage() >= totalPages() - 1"
+          class="btn-pagination"
+        >
+          Siguiente
+        </button>
+      </div>
+    }
   }
 </div>
-

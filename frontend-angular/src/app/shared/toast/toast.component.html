@@ -1,0 +1,29 @@
+<div class="toast-container">
+  @for (notification of notifications(); track notification.id) {
+    <div 
+      class="toast toast-{{ notification.type }}"
+      (click)="removeNotification(notification.id)">
+      <div class="toast-icon">
+        @switch (notification.type) {
+          @case ('success') {
+            <span>✓</span>
+          }
+          @case ('error') {
+            <span>✕</span>
+          }
+          @case ('warning') {
+            <span>⚠</span>
+          }
+          @default {
+            <span>ℹ</span>
+          }
+        }
+      </div>
+      <div class="toast-message">{{ notification.message }}</div>
+      <button class="toast-close" (click)="removeNotification(notification.id); $event.stopPropagation()">
+        ×
+      </button>
+    </div>
+  }
+</div>
+

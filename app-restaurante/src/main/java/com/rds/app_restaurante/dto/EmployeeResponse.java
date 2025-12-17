@@ -1,10 +1,12 @@
 package com.rds.app_restaurante.dto;
 
 import com.rds.app_restaurante.model.DocumentType;
+import com.rds.app_restaurante.model.PaymentFrequency;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import java.math.BigDecimal;
 
 @Data
 @Builder
@@ -18,5 +20,8 @@ public class EmployeeResponse {
     private String documentNumber;
     private String email;
     private Long phone;
+    private BigDecimal salary;
+    private PaymentFrequency paymentFrequency;
+    private Integer paymentDay;
 }
 

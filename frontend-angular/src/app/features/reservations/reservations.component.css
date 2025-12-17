@@ -1,25 +1,29 @@
-/* Colores que incentivan el consumo en un bar */
+/* Esquema elegante: Negro, Dorado, Rojo */
 :host {
-  --bar-red: #c41e3a;
-  --bar-dark-red: #8b1538;
-  --bar-gold: #d4af37;
+  --bar-black: #000000;
   --bar-dark: #1a1a1a;
-  --bar-warm: #2d1810;
-  --bar-light: #f5e6d3;
+  --bar-dark-secondary: #2d2d2d;
+  --bar-gold: #d4af37;
+  --bar-gold-light: #e5c449;
+  --bar-gold-dark: #b8941f;
+  --bar-red: #c41e3a;
+  --bar-red-dark: #8b1538;
+  --bar-red-light: #e63946;
   --bar-white: #ffffff;
+  --bar-light: #f5f5f5;
 }
 
 .reservations-container {
   width: 100%;
   min-height: 100vh;
-  background: linear-gradient(180deg, var(--bar-warm) 0%, var(--bar-dark) 100%);
+  background: var(--bar-black);
   padding: 2rem 1rem;
 }
 
 .reservations-header {
   text-align: center;
   margin-bottom: 3rem;
-  color: var(--bar-light);
+  color: var(--bar-white);
 }
 
 .reservations-header h1 {
@@ -27,12 +31,12 @@
   font-weight: 700;
   margin-bottom: 0.5rem;
   color: var(--bar-gold);
-  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.8);
 }
 
 .subtitle {
   font-size: 1.2rem;
-  color: var(--bar-light);
+  color: var(--bar-white);
   opacity: 0.9;
 }
 
@@ -44,13 +48,13 @@
 }
 
 .auth-message {
-  background: rgba(26, 26, 26, 0.9);
+  background: var(--bar-dark);
   padding: 3rem;
   border-radius: 12px;
   border: 2px solid var(--bar-gold);
   text-align: center;
   max-width: 500px;
-  color: var(--bar-light);
+  color: var(--bar-white);
 }
 
 .auth-message h2 {
@@ -75,7 +79,7 @@
 }
 
 .reservation-form {
-  background: rgba(26, 26, 26, 0.9);
+  background: var(--bar-dark);
   padding: 2rem;
   border-radius: 12px;
   border: 2px solid rgba(212, 175, 55, 0.3);
@@ -102,7 +106,7 @@
 .alert-error {
   background-color: rgba(196, 30, 58, 0.2);
   border: 1px solid var(--bar-red);
-  color: var(--bar-light);
+  color: var(--bar-white);
 }
 
 .form-group {
@@ -112,7 +116,7 @@
 .form-group label {
   display: block;
   margin-bottom: 0.5rem;
-  color: var(--bar-light);
+  color: var(--bar-white);
   font-weight: 500;
 }
 
@@ -122,8 +126,8 @@
   padding: 0.75rem;
   border: 2px solid rgba(212, 175, 55, 0.3);
   border-radius: 8px;
-  background: var(--bar-warm);
-  color: var(--bar-light);
+  background: var(--bar-dark-secondary);
+  color: var(--bar-white);
   font-size: 1rem;
   transition: all 0.3s ease;
 }
@@ -152,11 +156,12 @@
   text-align: center;
 }
 
+/* Botón CTA - Rojo */
 .btn-primary {
   padding: 0.75rem 2rem;
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-  border: 2px solid var(--bar-gold);
+  background: var(--bar-red);
+  color: var(--bar-white);
+  border: 2px solid var(--bar-red);
   border-radius: 25px;
   font-weight: 600;
   font-size: 1rem;
@@ -166,10 +171,9 @@
 }
 
 .btn-primary:hover:not(:disabled) {
-  background: transparent;
-  color: var(--bar-gold);
+  background: var(--bar-red-light);
   transform: translateY(-2px);
-  box-shadow: 0 4px 8px rgba(212, 175, 55, 0.3);
+  box-shadow: 0 4px 8px rgba(196, 30, 58, 0.4);
 }
 
 .btn-primary:disabled {
@@ -187,7 +191,7 @@
   justify-content: space-between;
   align-items: center;
   margin-bottom: 2rem;
-  color: var(--bar-light);
+  color: var(--bar-white);
 }
 
 .section-header h2 {
@@ -208,14 +212,14 @@
 
 .btn-toggle:hover {
   background: var(--bar-gold);
-  color: var(--bar-dark);
+  color: var(--bar-black);
 }
 
 .loading,
 .no-reservations {
   text-align: center;
   padding: 3rem;
-  color: var(--bar-light);
+  color: var(--bar-white);
   font-size: 1.1rem;
 }
 
@@ -225,7 +229,7 @@
 }
 
 .reservation-card {
-  background: rgba(26, 26, 26, 0.9);
+  background: var(--bar-dark);
   padding: 1.5rem;
   border-radius: 12px;
   border: 2px solid rgba(212, 175, 55, 0.3);
@@ -276,7 +280,7 @@
 }
 
 .reservation-body {
-  color: var(--bar-light);
+  color: var(--bar-white);
 }
 
 .reservation-info p {
@@ -308,13 +312,13 @@
 
 .btn-secondary {
   background: transparent;
-  color: var(--bar-light);
-  border: 2px solid var(--bar-light);
+  color: var(--bar-white);
+  border: 2px solid var(--bar-white);
 }
 
 .btn-secondary:hover {
-  background: var(--bar-light);
-  color: var(--bar-dark);
+  background: var(--bar-white);
+  color: var(--bar-black);
   transform: translateY(-2px);
 }
 
@@ -326,7 +330,7 @@
 
 .btn-outline:hover {
   background: var(--bar-gold);
-  color: var(--bar-dark);
+  color: var(--bar-black);
   transform: translateY(-2px);
 }
 
@@ -358,4 +362,3 @@
     align-items: center;
   }
 }
-

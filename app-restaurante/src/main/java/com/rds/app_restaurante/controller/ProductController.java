@@ -2,10 +2,14 @@ package com.rds.app_restaurante.controller;
 
 import com.rds.app_restaurante.dto.ProductRequest;
 import com.rds.app_restaurante.dto.ProductResponse;
+import com.rds.app_restaurante.dto.ProductSearchRequest;
 import com.rds.app_restaurante.service.CloudinaryService;
 import com.rds.app_restaurante.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -18,16 +22,70 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/products")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class ProductController {
 
     private final ProductService productService;
     private final CloudinaryService cloudinaryService;
 
     @GetMapping
-    public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponse> products = productService.getAllProducts();
-        return ResponseEntity.ok(products);
+    public ResponseEntity<?> getAllProducts(
+            @RequestParam(required = false, defaultValue = "0") int page,
+            @RequestParam(required = false, defaultValue = "20") int size,
+            // Parámetros de búsqueda avanzada
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Long categoryId,
+            @RequestParam(required = false) Long subCategoryId,
+            @RequestParam(required = false) Double minPrice,
+            @RequestParam(required = false) Double maxPrice,
+            @RequestParam(required = false) Integer minStock,
+            @RequestParam(required = false) String sortBy,
+            @RequestParam(required = false) String sortDirection) {
+        
+        // Si hay algún filtro de búsqueda, usar búsqueda avanzada
+        if (name != null || categoryId != null || subCategoryId != null || 
+            minPrice != null || maxPrice != null || minStock != null ||
+            sortBy != null) {
+            
+            ProductSearchRequest searchRequest = ProductSearchRequest.builder()
+                    .name(name)
+                    .categoryId(categoryId)
+                    .subCategoryId(subCategoryId)
+                    .minPrice(minPrice)
+                    .maxPrice(maxPrice)
+                    .minStock(minStock)
+                    .page(page)
+                    .size(size)
+                    .sortBy(sortBy)
+                    .sortDirection(sortDirection)
+                    .build();
+            
+            Page<ProductResponse> productsPage = productService.searchProducts(searchRequest);
+            return ResponseEntity.ok(productsPage);
+        }
+        
+        // Sin filtros, comportamiento normal
+        if (page == 0 && size == 20) {
+            // Si no se especifica paginación, devolver todos los productos (para compatibilidad)
+            List<ProductResponse> products = productService.getAllProducts();
+            return ResponseEntity.ok(products);
+        } else {
+            // Paginación simple
+            Pageable pageable = PageRequest.of(page, size);
+            Page<ProductResponse> productsPage = productService.getAllProductsPaginated(pageable);
+            return ResponseEntity.ok(productsPage);
+        }
+    }
+    
+    @PostMapping("/search")
+    public ResponseEntity<?> searchProducts(@RequestBody ProductSearchRequest searchRequest) {
+        try {
+            Page<ProductResponse> productsPage = productService.searchProducts(searchRequest);
+            return ResponseEntity.ok(productsPage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                    .body(Map.of("message", "Error en la búsqueda: " + e.getMessage()));
+        }
     }
 
     @GetMapping("/{id}")

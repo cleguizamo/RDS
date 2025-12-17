@@ -10,12 +10,13 @@
 
 .employee-panel {
   min-height: 100vh;
-  background: var(--bar-light);
+  background: #f5e6d3;
+  color: #000000;
 }
 
 .employee-header {
-  background: var(--bar-dark);
-  color: white;
+  background: #d4af37;
+  color: #000000;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
@@ -31,7 +32,8 @@
 .employee-header h1 {
   margin: 0;
   font-size: 2rem;
-  color: var(--bar-gold);
+  color: #000000;
+  font-weight: 700;
 }
 
 .user-info {
@@ -42,6 +44,7 @@
 
 .user-info span {
   font-size: 1rem;
+  color: #000000;
 }
 
 .btn-logout {
@@ -60,7 +63,7 @@
 }
 
 .employee-tabs {
-  background: white;
+  background: #f5e6d3;
   border-bottom: 2px solid var(--bar-gold);
   display: flex;
   gap: 0;

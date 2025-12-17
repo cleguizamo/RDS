@@ -16,7 +16,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/rewards")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class RewardProductController {
 
     private final RewardProductService rewardProductService;

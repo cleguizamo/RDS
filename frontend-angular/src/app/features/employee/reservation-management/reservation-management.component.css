@@ -1,5 +1,7 @@
 .reservation-management {
   padding: 2rem;
+  background: #f5e6d3;
+  color: #000000;
 }
 
 .header {
@@ -15,23 +17,9 @@
 }
 
 .btn-refresh {
-  padding: 0.75rem 1.5rem;
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.3s;
-}
-
-.btn-refresh:hover:not(:disabled) {
-  background: #e5c449;
-}
-
-.btn-refresh:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  /* Usa estilos base globales */
 }
 
 .alert {
@@ -157,10 +145,9 @@
 }
 
 .btn-confirm {
-  padding: 0.75rem 1.5rem;
-  background: #4caf50;
-  color: white;
-  border: none;
+  background: #28a745 !important;
+  color: #ffffff !important;
+  /* Usa estilos base globales */
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
@@ -173,10 +160,9 @@
 }
 
 .btn-open-order {
-  padding: 0.75rem 1.5rem;
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-  border: none;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  /* Usa estilos base globales */
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
@@ -319,26 +305,15 @@
 }
 
 .btn-cancel {
-  background: #e0e0e0;
-  color: #666;
-}
-
-.btn-cancel:hover {
-  background: #d0d0d0;
+  background: #6c757d !important;
+  color: #ffffff !important;
+  /* Usa estilos base globales */
 }
 
 .btn-submit {
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-}
-
-.btn-submit:hover:not(:disabled) {
-  background: #e5c449;
-}
-
-.btn-submit:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  /* Usa estilos base globales */
 }
 
 @media (max-width: 768px) {

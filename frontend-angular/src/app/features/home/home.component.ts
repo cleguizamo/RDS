@@ -11,6 +11,9 @@ import { GoogleMapsModule } from '@angular/google-maps';
   styleUrl: './home.component.css'
 })
 export class HomeComponent implements OnInit {
+  // URL de la imagen de fondo en Cloudinary
+  backgroundImage = 'https://res.cloudinary.com/drp8os7tp/image/upload/v1763599708/bamboo-background_mlegad.jpg';
+  
   // Información del bar (puedes mover esto a un servicio después)
   barInfo = {
     name: 'El Rincón del Sabor',
@@ -72,6 +75,20 @@ export class HomeComponent implements OnInit {
   markerPosition: { lat: number; lng: number } = this.center;
   private isBrowser: boolean;
 
+  // Galería de imágenes
+  galleryImages: Array<{ url: string; alt?: string }> = [
+    { url: 'https://res.cloudinary.com/drp8os7tp/image/upload/v1765919998/2022-08-10_md3nnf.jpg', alt: 'Botella de whisky' },
+    { url: 'https://res.cloudinary.com/drp8os7tp/image/upload/v1765920010/2022-09-12-2_y1drga.jpg', alt: 'Frente del local' },
+    { url: 'https://res.cloudinary.com/drp8os7tp/image/upload/v1765920087/2022-09-12_rbms81.jpg', alt: 'Frente diagonal del negocio' },
+    { url: 'https://res.cloudinary.com/drp8os7tp/image/upload/v1765920094/2022-10-16_bknd4m.jpg', alt: 'Vista diagonal exterior del negocio' },
+    { url: 'https://res.cloudinary.com/drp8os7tp/image/upload/v1765920149/2024-06-29_trxx10.jpg', alt: 'Grupo de personas festejando en el negocio' },
+    { url: 'https://res.cloudinary.com/drp8os7tp/image/upload/v1765920132/2023-07-08_x1cevv.jpg', alt: 'Exterior del negocio' }
+  ];
+
+  // Lightbox
+  lightboxOpen = false;
+  currentImageIndex = 0;
+
   constructor(@Inject(PLATFORM_ID) platformId: Object) {
     this.isBrowser = isPlatformBrowser(platformId);
   }
@@ -117,6 +134,52 @@ export class HomeComponent implements OnInit {
         ]
       };
     }
+  }
+
+  openLightbox(index: number): void {
+    this.currentImageIndex = index;
+    this.lightboxOpen = true;
+    // Prevenir scroll del body cuando el lightbox está abierto
+    if (this.isBrowser) {
+      document.body.style.overflow = 'hidden';
+      // Agregar listener para teclado
+      document.addEventListener('keydown', this.handleKeyDown);
+    }
+  }
+
+  closeLightbox(): void {
+    this.lightboxOpen = false;
+    if (this.isBrowser) {
+      document.body.style.overflow = '';
+      // Remover listener de teclado
+      document.removeEventListener('keydown', this.handleKeyDown);
+    }
+  }
+
+  private handleKeyDown = (event: KeyboardEvent): void => {
+    if (!this.lightboxOpen) return;
+
+    switch (event.key) {
+      case 'Escape':
+        this.closeLightbox();
+        break;
+      case 'ArrowRight':
+        this.nextImage(event);
+        break;
+      case 'ArrowLeft':
+        this.prevImage(event);
+        break;
+    }
+  };
+
+  nextImage(event: Event): void {
+    event.stopPropagation();
+    this.currentImageIndex = (this.currentImageIndex + 1) % this.galleryImages.length;
+  }
+
+  prevImage(event: Event): void {
+    event.stopPropagation();
+    this.currentImageIndex = (this.currentImageIndex - 1 + this.galleryImages.length) % this.galleryImages.length;
   }
 }
 

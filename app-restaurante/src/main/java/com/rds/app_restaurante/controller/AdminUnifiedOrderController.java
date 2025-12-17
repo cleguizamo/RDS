@@ -17,7 +17,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/admin/unified-orders")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class AdminUnifiedOrderController {
 
     private final OrderService orderService;
@@ -26,7 +26,7 @@ public class AdminUnifiedOrderController {
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<List<Map<String, Object>>> getAllUnifiedOrders(
-            @RequestParam(required = false) String type) {
+            @RequestParam(value = "type", required = false) String type) {
         List<Map<String, Object>> unifiedOrders = new ArrayList<>();
 
         // Obtener pedidos en mesa
@@ -45,6 +45,13 @@ public class AdminUnifiedOrderController {
                 unified.put("userName", order.getUserName());
                 unified.put("userEmail", order.getUserEmail());
                 unified.put("items", order.getItems());
+                // Campos de pago
+                unified.put("paymentStatus", order.getPaymentStatus());
+                unified.put("paymentMethod", order.getPaymentMethod());
+                unified.put("paymentProofUrl", order.getPaymentProofUrl());
+                unified.put("verifiedBy", order.getVerifiedBy());
+                unified.put("verifiedByName", order.getVerifiedByName());
+                unified.put("verifiedAt", order.getVerifiedAt());
                 unifiedOrders.add(unified);
             }
         }
@@ -66,6 +73,13 @@ public class AdminUnifiedOrderController {
                 unified.put("userName", delivery.getUserName());
                 unified.put("userEmail", delivery.getUserEmail());
                 unified.put("items", delivery.getItems());
+                // Campos de pago
+                unified.put("paymentStatus", delivery.getPaymentStatus());
+                unified.put("paymentMethod", delivery.getPaymentMethod());
+                unified.put("paymentProofUrl", delivery.getPaymentProofUrl());
+                unified.put("verifiedBy", delivery.getVerifiedByAdminId());
+                unified.put("verifiedByName", delivery.getVerifiedByAdminName());
+                unified.put("verifiedAt", delivery.getVerifiedAt());
                 unifiedOrders.add(unified);
             }
         }

@@ -18,7 +18,7 @@ import java.util.Map;
 @RestController
 @RequestMapping("/api/employee/unified-orders")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class UnifiedOrderController {
 
     private final OrderService orderService;
@@ -27,7 +27,7 @@ public class UnifiedOrderController {
     @GetMapping
     @PreAuthorize("hasRole('EMPLOYEE')")
     public ResponseEntity<List<Map<String, Object>>> getAllUnifiedOrders(
-            @RequestParam(required = false) String type) {
+            @RequestParam(value = "type", required = false) String type) {
         
         System.out.println("=== getAllUnifiedOrders llamado ===");
         System.out.println("Type filter: " + type);

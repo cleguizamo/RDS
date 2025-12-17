@@ -11,7 +11,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/public/subcategories")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*")
+
 public class PublicSubCategoryController {
 
     private final SubCategoryService subCategoryService;

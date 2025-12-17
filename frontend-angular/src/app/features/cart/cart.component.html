@@ -1,0 +1,234 @@
+<div class="cart-container">
+  <div class="cart-header">
+    <h1>Carrito de Compras</h1>
+    @if (!cartService.isEmpty()) {
+      <button class="btn-clear-cart" (click)="clearCart()" type="button">
+        Vaciar Carrito
+      </button>
+    }
+  </div>
+
+  @if (cartService.isEmpty()) {
+    <div class="cart-empty">
+      <div class="empty-icon">🛒</div>
+      <h2>Tu carrito está vacío</h2>
+      <p>Agrega productos desde nuestro menú para comenzar</p>
+      <a [routerLink]="['/menu']" class="btn-primary">Ver Menú</a>
+    </div>
+  } @else {
+    <div class="cart-content">
+      <div class="cart-items-section">
+        @for (item of items(); track item.product.id) {
+          <div class="cart-item-card">
+            <img 
+              [src]="item.product.imageUrl" 
+              [alt]="item.product.name"
+              class="item-image"
+              loading="lazy"
+              [style.object-fit]="'cover'">
+            <div class="item-details">
+              <h3 class="item-name">{{ item.product.name }}</h3>
+              <p class="item-description">{{ item.product.description }}</p>
+              <div class="item-meta">
+                <span class="item-price">${{ item.product.price | number:'1.0-0' }} c/u</span>
+                @if (item.product.stock > 0) {
+                  <span class="item-stock">{{ item.product.stock }} disponibles</span>
+                }
+              </div>
+            </div>
+            <div class="item-controls">
+              <div class="quantity-controls">
+                <button 
+                  class="qty-btn" 
+                  (click)="decreaseQuantity(item)"
+                  type="button"
+                  [disabled]="item.quantity <= 1">-</button>
+                <input 
+                  type="number" 
+                  class="qty-input"
+                  [value]="item.quantity"
+                  (change)="onQuantityInputChange(item, $event)"
+                  (blur)="onQuantityInputChange(item, $event)"
+                  min="1"
+                  [max]="item.product.stock"
+                  [disabled]="item.product.stock === 0">
+                <button 
+                  class="qty-btn" 
+                  (click)="increaseQuantity(item)"
+                  type="button"
+                  [disabled]="item.quantity >= item.product.stock">+</button>
+              </div>
+              <div class="item-subtotal">
+                <strong>${{ (item.product.price * item.quantity) | number:'1.0-0' }}</strong>
+              </div>
+              <button 
+                class="remove-btn" 
+                (click)="removeItem(item.product.id!)"
+                type="button"
+                title="Eliminar">
+                ×
+              </button>
+            </div>
+          </div>
+        }
+      </div>
+
+      <div class="cart-summary">
+        <div class="summary-card">
+          <h2>Resumen del Pedido</h2>
+          
+          <div class="summary-row">
+            <span>Productos ({{ totalItems() }})</span>
+            <span>${{ totalPrice() | number:'1.0-0' }}</span>
+          </div>
+          
+          <div class="summary-total">
+            <span><strong>Total</strong></span>
+            <span><strong>${{ totalPrice() | number:'1.0-0' }}</strong></span>
+          </div>
+
+          @if (!authService.isAuthenticated()) {
+            <div class="auth-required">
+              <p>Debes iniciar sesión para realizar un pedido</p>
+              <a [routerLink]="['/login']" class="btn-primary">Iniciar Sesión</a>
+            </div>
+          } @else {
+            <button 
+              class="btn-checkout"
+              (click)="toggleCheckoutForm()"
+              type="button">
+              @if (showCheckoutForm()) {
+                Cancelar
+              } @else {
+                Proceder al Checkout
+              }
+            </button>
+          }
+
+          @if (showCheckoutForm()) {
+            <div class="checkout-form">
+              <h3>Tipo de Pedido</h3>
+              <div class="order-type-selector">
+                <button 
+                  [class.active]="orderType() === OrderType.EN_MESA"
+                  (click)="onOrderTypeChange(OrderType.EN_MESA)"
+                  class="order-type-btn"
+                  type="button">
+                  En Mesa
+                </button>
+                <button 
+                  [class.active]="orderType() === OrderType.DOMICILIO"
+                  (click)="onOrderTypeChange(OrderType.DOMICILIO)"
+                  class="order-type-btn"
+                  type="button">
+                  Domicilio
+                </button>
+              </div>
+
+              @if (orderType() === OrderType.EN_MESA) {
+                <div class="form-group">
+                  <label for="tableNumber">Número de Mesa *</label>
+                  <input 
+                    type="number" 
+                    id="tableNumber"
+                    [(ngModel)]="tableNumber"
+                    min="1"
+                    placeholder="Ej: 5"
+                    class="form-control">
+                </div>
+              }
+
+              @if (orderType() === OrderType.DOMICILIO) {
+                <div class="form-group">
+                  <label for="deliveryAddress">Dirección de Entrega *</label>
+                  <textarea 
+                    id="deliveryAddress"
+                    [(ngModel)]="deliveryAddress"
+                    placeholder="Ej: Calle 123 #45-67, Barrio Centro"
+                    class="form-control form-textarea"
+                    rows="2"
+                    required></textarea>
+                  <small class="form-hint">Dirección completa para la entrega</small>
+                </div>
+                <div class="form-group">
+                  <label for="deliveryPhone">Teléfono de Contacto *</label>
+                  <input 
+                    type="tel" 
+                    id="deliveryPhone"
+                    [(ngModel)]="deliveryPhone"
+                    placeholder="Ej: 3001234567"
+                    class="form-control"
+                    pattern="[0-9]{7,15}"
+                    required>
+                  <small class="form-hint">Solo números (7-15 dígitos)</small>
+                </div>
+              }
+
+              <!-- Método de pago solo para domicilios -->
+              @if (orderType() === OrderType.DOMICILIO) {
+                <div class="form-group">
+                  <label for="paymentMethod">Método de Pago *</label>
+                  <select 
+                    id="paymentMethod"
+                    [(ngModel)]="paymentMethod"
+                    (change)="onPaymentMethodChange($any($event.target).value)"
+                    class="form-control"
+                    required>
+                    <option [value]="PaymentMethod.CASH">Efectivo</option>
+                    <option [value]="PaymentMethod.NEQUI">Nequi</option>
+                    <option [value]="PaymentMethod.DAVIPLATA">Daviplata</option>
+                    <option [value]="PaymentMethod.BANK_TRANSFER">Transferencia Bancaria</option>
+                    <option [value]="PaymentMethod.CARD">Tarjeta</option>
+                  </select>
+                </div>
+
+                @if (paymentMethod() !== PaymentMethod.CASH) {
+                  <div class="form-group">
+                    <label for="paymentProof">Comprobante de Pago *</label>
+                    <input 
+                      type="file"
+                      id="paymentProof"
+                      accept="image/*"
+                      (change)="onPaymentProofFileChange($event)"
+                      class="form-control"
+                      required>
+                    <small class="form-hint">Imagen del comprobante (máx. 5MB)</small>
+                    
+                    @if (paymentProofPreview()) {
+                      <div class="proof-preview">
+                        <img [src]="paymentProofPreview()!" alt="Preview comprobante" class="proof-image">
+                        <button 
+                          type="button"
+                          class="btn-remove-proof"
+                          (click)="removePaymentProof()">
+                          ✕ Eliminar
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+              }
+
+              <button 
+                class="btn-place-order"
+                (click)="placeOrder()"
+                [disabled]="loading() || (orderType() === OrderType.DOMICILIO && paymentMethod() !== PaymentMethod.CASH && !paymentProofFile())"
+                type="button">
+                @if (loading()) {
+                  <span>Procesando...</span>
+                } @else {
+                  @if (orderType() === 'EN_MESA') {
+                    <span>Confirmar Pedido en Mesa</span>
+                  } @else {
+                    <span>Confirmar Domicilio</span>
+                  }
+                }
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+

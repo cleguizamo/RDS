@@ -1,9 +1,11 @@
-import { Component, OnInit, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators, FormsModule } from '@angular/forms';
+import { Subject, debounceTime, distinctUntilChanged, takeUntil } from 'rxjs';
 import { ExpenseService } from '../../../core/services/expense.service';
-import { ExpenseResponse, ExpenseRequest, EXPENSE_CATEGORIES, PAYMENT_METHODS } from '../../../core/models/expense.model';
+import { ExpenseResponse, ExpenseRequest, ExpenseSearchRequest, EXPENSE_CATEGORIES, PAYMENT_METHODS } from '../../../core/models/expense.model';
 import { FormatCurrencyPipe } from '../../../shared/pipes/format-currency.pipe';
+import { PageResponse } from '../../../core/models/page.model';
 
 @Component({
   selector: 'app-expense-management',
@@ -12,18 +14,36 @@ import { FormatCurrencyPipe } from '../../../shared/pipes/format-currency.pipe';
   templateUrl: './expense-management.component.html',
   styleUrl: './expense-management.component.css'
 })
-export class ExpenseManagementComponent implements OnInit {
+export class ExpenseManagementComponent implements OnInit, OnDestroy {
+  expensesPage = signal<PageResponse<ExpenseResponse> | null>(null);
   expenses = signal<ExpenseResponse[]>([]);
-  filteredExpenses = signal<ExpenseResponse[]>([]);
   loading = signal<boolean>(false);
   errorMessage = signal<string | null>(null);
   successMessage = signal<string | null>(null);
   showForm = signal<boolean>(false);
   editingExpense = signal<ExpenseResponse | null>(null);
+  
+  // Paginación
+  currentPage = signal<number>(0);
+  pageSize = signal<number>(20);
+  totalPages = signal<number>(0);
+  totalElements = signal<number>(0);
+  
+  // Búsqueda avanzada
+  showAdvancedSearch = signal<boolean>(false);
+  searchRequest = signal<ExpenseSearchRequest>({});
+  sortBy = signal<string>('expenseDate');
+  sortDirection = signal<string>('DESC');
+  
+  // Filtros simples
   searchTerm = signal<string>('');
   selectedCategory = signal<string>('');
   startDate = signal<string>('');
   endDate = signal<string>('');
+
+  // Debounce para búsqueda
+  private searchSubject = new Subject<string>();
+  private destroy$ = new Subject<void>();
 
   categories = EXPENSE_CATEGORIES;
   paymentMethods = PAYMENT_METHODS;
@@ -47,19 +67,45 @@ export class ExpenseManagementComponent implements OnInit {
 
   ngOnInit(): void {
     this.loadExpenses();
+    this.setupSearchDebounce();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
+  }
+
+  private setupSearchDebounce(): void {
+    // Debounce la búsqueda por 400ms después de que el usuario deje de escribir
+    this.searchSubject.pipe(
+      debounceTime(400),
+      distinctUntilChanged(),
+      takeUntil(this.destroy$)
+    ).subscribe(term => {
+      this.searchTerm.set(term);
+      this.currentPage.set(0);
+      this.loadExpenses();
+    });
   }
 
   loadExpenses(): void {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-    const startDate = this.startDate() || undefined;
-    const endDate = this.endDate() || undefined;
-
-    this.expenseService.getAllExpenses(startDate, endDate).subscribe({
-      next: (expenses) => {
-        this.expenses.set(expenses);
-        this.applyFilters();
+    const searchReq = this.buildSearchRequest();
+    
+    this.expenseService.searchExpenses(
+      searchReq,
+      this.currentPage(),
+      this.pageSize(),
+      this.sortBy(),
+      this.sortDirection()
+    ).subscribe({
+      next: (page) => {
+        this.expensesPage.set(page);
+        this.expenses.set(page.content);
+        this.totalPages.set(page.totalPages);
+        this.totalElements.set(page.totalElements);
         this.loading.set(false);
       },
       error: (error) => {
@@ -70,37 +116,148 @@ export class ExpenseManagementComponent implements OnInit {
     });
   }
 
-  applyFilters(): void {
-    let filtered = [...this.expenses()];
-    const term = this.searchTerm().toLowerCase();
-    const category = this.selectedCategory();
-
-    if (term) {
-      filtered = filtered.filter(e =>
-        e.description.toLowerCase().includes(term) ||
-        (e.notes && e.notes.toLowerCase().includes(term))
-      );
+  buildSearchRequest(): ExpenseSearchRequest {
+    const request: ExpenseSearchRequest = {};
+    
+    if (this.searchTerm()) {
+      request.description = this.searchTerm();
     }
-
-    if (category) {
-      filtered = filtered.filter(e => e.category === category);
+    
+    if (this.selectedCategory()) {
+      request.category = this.selectedCategory();
     }
-
-    this.filteredExpenses.set(filtered);
+    
+    if (this.startDate()) {
+      request.startDate = this.startDate();
+    }
+    
+    if (this.endDate()) {
+      request.endDate = this.endDate();
+    }
+    
+    // Copiar filtros avanzados
+    const advanced = this.searchRequest();
+    if (advanced.paymentMethod) request.paymentMethod = advanced.paymentMethod;
+    if (advanced.minAmount !== undefined) request.minAmount = advanced.minAmount;
+    if (advanced.maxAmount !== undefined) request.maxAmount = advanced.maxAmount;
+    if (advanced.sortBy) {
+      this.sortBy.set(advanced.sortBy);
+      request.sortBy = advanced.sortBy;
+    }
+    if (advanced.sortDirection) {
+      this.sortDirection.set(advanced.sortDirection);
+      request.sortDirection = advanced.sortDirection;
+    }
+    
+    return request;
   }
 
   onSearchChange(term: string): void {
-    this.searchTerm.set(term);
-    this.applyFilters();
+    // Usar debounce para búsqueda más dinámica
+    this.searchSubject.next(term);
   }
 
   onCategoryChange(category: string): void {
     this.selectedCategory.set(category);
-    this.applyFilters();
+    this.currentPage.set(0);
+    this.loadExpenses();
   }
 
   onDateRangeChange(): void {
+    this.currentPage.set(0);
     this.loadExpenses();
+  }
+
+  onAdvancedSearchChange(): void {
+    // Ya no se busca automáticamente, solo cuando se hace clic en "Aplicar"
+  }
+
+  clearFilters(): void {
+    this.searchTerm.set('');
+    this.selectedCategory.set('');
+    this.startDate.set('');
+    this.endDate.set('');
+    this.searchRequest.set({});
+    this.currentPage.set(0);
+    this.loadExpenses();
+  }
+
+  toggleAdvancedSearch(): void {
+    this.showAdvancedSearch.set(!this.showAdvancedSearch());
+  }
+
+  closeAdvancedSearch(): void {
+    this.showAdvancedSearch.set(false);
+  }
+
+  clearAdvancedFilters(): void {
+    this.searchRequest.set({});
+  }
+
+  applyAdvancedSearch(): void {
+    this.currentPage.set(0);
+    this.loadExpenses();
+    this.closeAdvancedSearch();
+  }
+
+  hasActiveFilters(): boolean {
+    const search = this.searchRequest();
+    return Object.keys(search).length > 0;
+  }
+
+  // Paginación
+  goToPage(page: number): void {
+    if (page >= 0 && page < this.totalPages()) {
+      this.currentPage.set(page);
+      this.loadExpenses();
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage() > 0) {
+      this.currentPage.set(this.currentPage() - 1);
+      this.loadExpenses();
+    }
+  }
+
+  nextPage(): void {
+    if (this.currentPage() < this.totalPages() - 1) {
+      this.currentPage.set(this.currentPage() + 1);
+      this.loadExpenses();
+    }
+  }
+
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(0);
+    this.loadExpenses();
+  }
+
+  // Exportación
+  exportToExcel(): void {
+    this.loading.set(true);
+    const searchReq = this.buildSearchRequest();
+    
+    this.expenseService.exportExpensesToExcel(searchReq).subscribe({
+      next: (blob) => {
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `gastos_${new Date().toISOString().split('T')[0]}.xlsx`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(url);
+        this.successMessage.set('Gastos exportados exitosamente');
+        this.loading.set(false);
+        setTimeout(() => this.successMessage.set(null), 3000);
+      },
+      error: (error) => {
+        console.error('Error exporting expenses:', error);
+        this.errorMessage.set('Error al exportar los gastos');
+        this.loading.set(false);
+      }
+    });
   }
 
   toggleForm(expense?: ExpenseResponse): void {
@@ -223,7 +380,18 @@ export class ExpenseManagementComponent implements OnInit {
   }
 
   getTotalExpenses(): number {
-    return this.filteredExpenses().reduce((sum, expense) => sum + expense.amount, 0);
+    return this.expenses().reduce((sum, expense) => sum + expense.amount, 0);
+  }
+
+  // Métodos auxiliares para actualizar searchRequest
+  updateSearchField(field: keyof ExpenseSearchRequest, value: any): void {
+    let processedValue: any = value;
+    
+    // Procesar valores numéricos
+    if (field === 'minAmount' || field === 'maxAmount') {
+      processedValue = value && value !== '' ? parseFloat(value) : undefined;
+    }
+    
+    this.searchRequest.update(r => ({ ...r, [field]: processedValue }));
   }
 }
-

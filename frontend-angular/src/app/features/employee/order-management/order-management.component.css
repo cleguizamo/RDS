@@ -1,5 +1,7 @@
 .order-management {
   padding: 2rem;
+  background: #f5e6d3;
+  color: #000000;
 }
 
 .header {
@@ -19,38 +21,16 @@
   gap: 1rem;
 }
 
-.btn-new-order,
-.btn-refresh {
-  padding: 0.75rem 1.5rem;
-  border: none;
-  border-radius: 8px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
 .btn-new-order {
-  background: #4caf50;
-  color: white;
-}
-
-.btn-new-order:hover {
-  background: #45a049;
-  transform: translateY(-1px);
+  background: #28a745 !important;
+  color: #ffffff !important;
+  /* Usa estilos base globales */
 }
 
 .btn-refresh {
-  background: var(--bar-gold);
-  color: var(--bar-dark);
-}
-
-.btn-refresh:hover:not(:disabled) {
-  background: #e5c449;
-}
-
-.btn-refresh:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
+  background: var(--bar-gold) !important;
+  color: #000000 !important;
+  /* Usa estilos base globales */
 }
 
 .order-form-container {
@@ -319,7 +299,7 @@
 
 .btn-complete {
   background: #4caf50;
-  color: white;
+  color: #ffffff;
 }
 
 .btn-complete:hover {
@@ -677,7 +657,7 @@
 
 .btn-remove:hover {
   background: #dc3545;
-  color: white;
+  color: #ffffff;
 }
 
 .cart-total {

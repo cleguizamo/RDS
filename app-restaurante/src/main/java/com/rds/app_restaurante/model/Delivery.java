@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,5 +44,24 @@ public class Delivery {
 
     @OneToMany(mappedBy = "delivery", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<DeliveryItem> items = new ArrayList<>();
+
+    // Campos para el sistema de pagos
+    @Column(name = "payment_status", nullable = false)
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+
+    @Column(name = "payment_method", nullable = true)
+    @Enumerated(EnumType.STRING)
+    private PaymentMethod paymentMethod;
+
+    @Column(name = "payment_proof_url", nullable = true, length = 1024)
+    private String paymentProofUrl;
+
+    @ManyToOne
+    @JoinColumn(name = "verified_by", nullable = true)
+    private Admin verifiedBy;
+
+    @Column(name = "verified_at", nullable = true)
+    private LocalDateTime verifiedAt;
 }
 

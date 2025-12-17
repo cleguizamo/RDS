@@ -1,8 +1,9 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-import { ProductRequest, ProductResponse } from '../models/product.model';
+import { ProductRequest, ProductResponse, ProductSearchRequest } from '../models/product.model';
+import { PageResponse } from '../models/page.model';
 
 @Injectable({
   providedIn: 'root'
@@ -55,6 +56,25 @@ export class ProductService {
     const formData = new FormData();
     formData.append('file', file);
     return this.http.post<{ imageUrl: string }>(`${this.apiUrl}/upload-image`, formData);
+  }
+
+  // Búsqueda avanzada con paginación
+  searchProducts(searchRequest: ProductSearchRequest, page: number = 0, size: number = 20, sortBy: string = 'id', sortDirection: string = 'ASC'): Observable<PageResponse<ProductResponse>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sortBy', sortBy)
+      .set('sortDirection', sortDirection);
+    
+    return this.http.post<PageResponse<ProductResponse>>(`${this.apiUrl}/search`, searchRequest, { params });
+  }
+
+  // Paginación simple
+  getAllProductsPaginated(page: number = 0, size: number = 20): Observable<PageResponse<ProductResponse>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString());
+    return this.http.get<PageResponse<ProductResponse>>(this.apiUrl, { params });
   }
 }
 

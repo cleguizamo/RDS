@@ -9,30 +9,130 @@
   }
 
   <div class="filters">
-    <button 
-      [class.active]="filterStatus() === 'all'"
-      (click)="filterStatus.set('all')"
-      class="filter-btn"
-    >
-      Todas
-    </button>
-    <button 
-      [class.active]="filterStatus() === 'pending'"
-      (click)="filterStatus.set('pending')"
-      class="filter-btn"
-    >
-      Pendientes
-    </button>
-    <button 
-      [class.active]="filterStatus() === 'confirmed'"
-      (click)="filterStatus.set('confirmed')"
-      class="filter-btn"
-    >
-      Confirmadas
-    </button>
+    <div class="basic-filters">
+      <input 
+        type="text" 
+        placeholder="Buscar por cliente, email o ID..." 
+        [value]="searchTerm()"
+        (input)="onSearchChange($any($event.target).value)"
+        class="search-input"
+      />
+      <button 
+        [class.active]="filterStatus() === 'all'"
+        (click)="filterStatus.set('all')"
+        class="filter-btn"
+      >
+        Todas
+      </button>
+      <button 
+        [class.active]="filterStatus() === 'pending'"
+        (click)="filterStatus.set('pending')"
+        class="filter-btn"
+      >
+        Pendientes
+      </button>
+      <button 
+        [class.active]="filterStatus() === 'confirmed'"
+        (click)="filterStatus.set('confirmed')"
+        class="filter-btn"
+      >
+        Confirmadas
+      </button>
+      <button (click)="toggleAdvancedSearch()" class="btn-toggle-search">
+        {{ showAdvancedSearch() ? 'Ocultar' : 'Mostrar' }} Búsqueda Avanzada
+      </button>
+      @if (searchTerm() || hasActiveFilters()) {
+        <button (click)="clearFilters()" class="btn-clear">Limpiar filtros</button>
+      }
+    </div>
+
+    @if (showAdvancedSearch()) {
+      <div class="modal-overlay" (click)="closeAdvancedSearch()">
+        <div class="advanced-search-modal" (click)="$event.stopPropagation()">
+          <div class="modal-header">
+            <h3>Búsqueda Avanzada</h3>
+            <button class="btn-close" (click)="closeAdvancedSearch()" aria-label="Cerrar">×</button>
+          </div>
+          <div class="modal-body">
+            <div class="search-grid">
+              <div class="search-field">
+                <label>Nombre del Cliente:</label>
+                <input 
+                  type="text" 
+                  [ngModel]="searchRequest().clientName"
+                  (ngModelChange)="updateSearchField('clientName', $event)"
+                  placeholder="Nombre del cliente"
+                />
+              </div>
+              <div class="search-field">
+                <label>Email del Cliente:</label>
+                <input 
+                  type="email" 
+                  [ngModel]="searchRequest().clientEmail"
+                  (ngModelChange)="updateSearchField('clientEmail', $event)"
+                  placeholder="email@ejemplo.com"
+                />
+              </div>
+              <div class="search-field">
+                <label>Estado:</label>
+                <select 
+                  [ngModel]="searchRequest().status"
+                  (ngModelChange)="updateSearchField('status', $event)"
+                >
+                  <option [value]="undefined">Todos</option>
+                  <option [value]="true">Confirmada</option>
+                  <option [value]="false">Pendiente</option>
+                </select>
+              </div>
+              <div class="search-field">
+                <label>Fecha Desde:</label>
+                <input 
+                  type="date" 
+                  [ngModel]="searchRequest().minDate"
+                  (ngModelChange)="updateSearchField('minDate', $event)"
+                />
+              </div>
+              <div class="search-field">
+                <label>Fecha Hasta:</label>
+                <input 
+                  type="date" 
+                  [ngModel]="searchRequest().maxDate"
+                  (ngModelChange)="updateSearchField('maxDate', $event)"
+                />
+              </div>
+              <div class="search-field">
+                <label>Personas Mínimo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().minPeople"
+                  (ngModelChange)="updateSearchField('minPeople', $event)"
+                  placeholder="1"
+                  min="1"
+                />
+              </div>
+              <div class="search-field">
+                <label>Personas Máximo:</label>
+                <input 
+                  type="number" 
+                  [ngModel]="searchRequest().maxPeople"
+                  (ngModelChange)="updateSearchField('maxPeople', $event)"
+                  placeholder="50"
+                  min="1"
+                />
+              </div>
+            </div>
+          </div>
+          <div class="modal-actions">
+            <button class="btn-clear-filters" (click)="clearAdvancedFilters()" type="button">Limpiar</button>
+            <button class="btn-cancel-search" (click)="closeAdvancedSearch()" type="button">Cancelar</button>
+            <button class="btn-apply-search" (click)="applyAdvancedSearch()" [disabled]="loading()" type="button">Aplicar Búsqueda</button>
+          </div>
+        </div>
+      </div>
+    }
   </div>
 
-  @if (loading() && reservations().length === 0) {
+  @if (loading() && allReservations().length === 0) {
     <div class="loading">Cargando reservas...</div>
   } @else {
     <div class="reservations-list">
@@ -61,7 +161,14 @@
             }
           </div>
           <div class="reservation-actions">
-            <button class="btn-delete" (click)="deleteReservation(reservation.id)">Eliminar</button>
+            @if (!reservation.status) {
+              <button class="btn-confirm" (click)="confirmReservation(reservation.id)" [disabled]="loading()">
+                Confirmar
+              </button>
+            }
+            <button class="btn-delete" (click)="deleteReservation(reservation.id)" [disabled]="loading()">
+              Eliminar
+            </button>
           </div>
         </div>
       }

@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notificación de Pago de Sueldo</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            background-color: #ffffff;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .header {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+            border-radius: 10px 10px 0 0;
+            margin: -30px -30px 30px -30px;
+        }
+        .header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .content {
+            margin: 20px 0;
+        }
+        .info-box {
+            background-color: #f9f9f9;
+            border-left: 4px solid #f5576c;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        .info-label {
+            font-weight: bold;
+            color: #666;
+        }
+        .info-value {
+            color: #000;
+        }
+        .amount {
+            font-size: 28px;
+            font-weight: bold;
+            color: #f5576c;
+            text-align: center;
+            margin: 30px 0;
+            padding: 20px;
+            background-color: #fff0f3;
+            border-radius: 8px;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
+            color: #666;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>💰 Pago de Sueldo Procesado</h1>
+        </div>
+        
+        <div class="content">
+            <p>Hola <strong th:text="${employeeName}">Empleado</strong>,</p>
+            <p>Te informamos que tu pago de sueldo ha sido procesado exitosamente.</p>
+            
+            <div class="info-box">
+                <div class="info-row">
+                    <span class="info-label">Período:</span>
+                    <span class="info-value" th:text="${period}">Enero 2024</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Fecha de Pago:</span>
+                    <span class="info-value" th:text="${paymentDate}">01/01/2024</span>
+                </div>
+            </div>
+            
+            <div class="amount">
+                Monto: $<span th:text="${#numbers.formatDecimal(amount, 0, 'COMMA', 2, 'POINT')}">0.00</span>
+            </div>
+            
+            <p>El pago ha sido descontado del sistema y registrado en tu historial.</p>
+            <p>Si tienes alguna consulta, por favor contacta con recursos humanos.</p>
+        </div>
+        
+        <div class="footer">
+            <p>Este es un email automático, por favor no respondas.</p>
+            <p>© 2024 Restaurante App. Todos los derechos reservados.</p>
+        </div>
+    </div>
+</body>
+</html>
+

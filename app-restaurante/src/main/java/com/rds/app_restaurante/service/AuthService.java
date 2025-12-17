@@ -11,6 +11,7 @@ import com.rds.app_restaurante.repository.EmployeeRepository;
 import com.rds.app_restaurante.repository.UserRepository;
 import com.rds.app_restaurante.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -18,6 +19,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AuthService {
     
     private final UserRepository userRepository;
@@ -30,19 +32,15 @@ public class AuthService {
         String email = loginRequest.getEmail();
         String password = loginRequest.getPassword();
         
-        System.out.println("=== Intentando autenticar ===");
-        System.out.println("Email recibido: " + email);
-        System.out.println("Password recibido: " + (password != null ? "***" : "null"));
+        log.debug("Attempting authentication for email: {}", email);
         
         // 1. Buscar en la tabla de usuarios (CLIENT)
         Optional<User> userOpt = userRepository.findByEmail(email);
         if (userOpt.isPresent()) {
             User user = userOpt.get();
-            System.out.println("Usuario encontrado en tabla USER");
             boolean passwordMatches = passwordEncoder.matches(password, user.getPassword());
-            System.out.println("Password matches: " + passwordMatches);
             if (passwordMatches) {
-                System.out.println("Autenticación exitosa como CLIENT");
+                log.info("Successful authentication as CLIENT for email: {}", email);
                 String token = jwtUtil.generateToken(user.getId(), user.getEmail(), Role.CLIENT);
                 return LoginResponse.builder()
                         .token(token)
@@ -54,22 +52,17 @@ public class AuthService {
                         .redirectTo("/dashboard")
                         .build();
             } else {
-                System.out.println("Password no coincide para USER");
+                log.warn("Failed authentication attempt for CLIENT email: {} - Invalid password", email);
             }
-        } else {
-            System.out.println("Usuario no encontrado en tabla USER");
         }
         
         // 2. Buscar en la tabla de administradores (ADMIN)
         Optional<Admin> adminOpt = adminRepository.findByEmail(email);
         if (adminOpt.isPresent()) {
             Admin admin = adminOpt.get();
-            System.out.println("Usuario encontrado en tabla ADMIN");
             boolean passwordMatches = passwordEncoder.matches(password, admin.getPassword());
-            System.out.println("Password matches: " + passwordMatches);
-            System.out.println("Password hash almacenado: " + admin.getPassword());
             if (passwordMatches) {
-                System.out.println("Autenticación exitosa como ADMIN");
+                log.info("Successful authentication as ADMIN for email: {}", email);
                 String token = jwtUtil.generateToken(admin.getId(), admin.getEmail(), Role.ADMIN);
                 return LoginResponse.builder()
                         .token(token)
@@ -81,21 +74,17 @@ public class AuthService {
                         .redirectTo("/admin")
                         .build();
             } else {
-                System.out.println("Password no coincide para ADMIN");
+                log.warn("Failed authentication attempt for ADMIN email: {} - Invalid password", email);
             }
-        } else {
-            System.out.println("Usuario no encontrado en tabla ADMIN");
         }
         
         // 3. Buscar en la tabla de empleados (EMPLOYEE)
         Optional<Employee> employeeOpt = employeeRepository.findByEmail(email);
         if (employeeOpt.isPresent()) {
             Employee employee = employeeOpt.get();
-            System.out.println("Usuario encontrado en tabla EMPLOYEE");
             boolean passwordMatches = passwordEncoder.matches(password, employee.getPassword());
-            System.out.println("Password matches: " + passwordMatches);
             if (passwordMatches) {
-                System.out.println("Autenticación exitosa como EMPLOYEE");
+                log.info("Successful authentication as EMPLOYEE for email: {}", email);
                 String token = jwtUtil.generateToken(employee.getId(), employee.getEmail(), Role.EMPLOYEE);
                 return LoginResponse.builder()
                         .token(token)
@@ -107,13 +96,11 @@ public class AuthService {
                         .redirectTo("/employee")
                         .build();
             } else {
-                System.out.println("Password no coincide para EMPLOYEE");
+                log.warn("Failed authentication attempt for EMPLOYEE email: {} - Invalid password", email);
             }
-        } else {
-            System.out.println("Usuario no encontrado en tabla EMPLOYEE");
         }
         
-        System.out.println("=== Autenticación fallida: Credenciales inválidas ===");
+        log.warn("Authentication failed for email: {} - Invalid credentials", email);
         throw new com.rds.app_restaurante.exception.AuthenticationException("Credenciales inválidas");
     }
 }

@@ -52,6 +52,10 @@ export class ReservationService {
     return this.http.get<Reservation[]>(`${this.apiUrl}/status/${status}`);
   }
 
+  confirmReservationAsAdmin(id: number): Observable<Reservation> {
+    return this.http.put<Reservation>(`${this.apiUrl}/${id}/confirm`, {});
+  }
+
   deleteReservation(id: number): Observable<any> {
     return this.http.delete(`${this.apiUrl}/${id}`);
   }

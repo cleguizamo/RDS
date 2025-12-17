@@ -1,0 +1,123 @@
+<div class="payment-history">
+  <div class="history-header">
+    <h2>Historial de Pagos Confirmados</h2>
+    <p>Lista de todos los pedidos con pagos verificados</p>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-container">
+      <p>Cargando historial de pagos...</p>
+    </div>
+  } @else if (verifiedOrders().length === 0) {
+    <div class="empty-state">
+      <p>No hay pagos confirmados aún</p>
+    </div>
+  } @else {
+    <div class="orders-grid">
+      @for (order of verifiedOrders(); track order.id) {
+        <div class="order-card">
+          <div class="card-header">
+            <div class="order-info">
+              <h3>Pedido #{{ order.id }}</h3>
+              <span class="order-date">{{ formatDate(order.date + 'T' + order.time) }}</span>
+            </div>
+            <div class="order-status verified">
+              ✓ Verificado
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="order-details">
+              <div class="detail-row">
+                <span class="label">Cliente:</span>
+                <span class="value">{{ order.userName }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Email:</span>
+                <span class="value">{{ order.userEmail }}</span>
+              </div>
+              @if (order.tableNumber) {
+                <div class="detail-row">
+                  <span class="label">Mesa:</span>
+                  <span class="value">#{{ order.tableNumber }}</span>
+                </div>
+              }
+              @if (order.deliveryAddress) {
+                <div class="detail-row">
+                  <span class="label">Dirección:</span>
+                  <span class="value">{{ order.deliveryAddress }}</span>
+                </div>
+              }
+              @if (order.deliveryPhone) {
+                <div class="detail-row">
+                  <span class="label">Teléfono:</span>
+                  <span class="value">{{ order.deliveryPhone }}</span>
+                </div>
+              }
+              <div class="detail-row">
+                <span class="label">Método de Pago:</span>
+                <span class="value">{{ getPaymentMethodLabel(order.paymentMethod) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Total:</span>
+                <span class="value total">{{ formatCurrency(order.totalPrice) }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Verificado por:</span>
+                <span class="value">{{ order.verifiedByName || 'N/A' }}</span>
+              </div>
+              <div class="detail-row">
+                <span class="label">Fecha de verificación:</span>
+                <span class="value">{{ formatDate(order.verifiedAt) }}</span>
+              </div>
+            </div>
+
+            <div class="order-items">
+              <h4>Productos:</h4>
+              <ul>
+                @for (item of order.items; track item.productId) {
+                  <li>
+                    <span class="item-name">{{ item.productName }}</span>
+                    <span class="item-quantity">x{{ item.quantity }}</span>
+                    <span class="item-price">{{ formatCurrency(item.subtotal) }}</span>
+                  </li>
+                }
+              </ul>
+            </div>
+
+            @if (order.paymentProofUrl) {
+              <div class="proof-section">
+                <button (click)="viewProof(order)" class="btn-view-proof">
+                  📎 Ver Comprobante
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+
+  <!-- Modal para ver comprobante -->
+  @if (showProofModal() && selectedOrder()) {
+    <div class="modal-overlay" (click)="closeModal()">
+      <div class="modal-content" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>Comprobante de Pago - Pedido #{{ selectedOrder()?.id }}</h3>
+          <button (click)="closeModal()" class="btn-close">✕</button>
+        </div>
+        <div class="modal-body">
+          @if (selectedOrder()?.paymentProofUrl) {
+            <img [src]="selectedOrder()?.paymentProofUrl" alt="Comprobante de pago" class="proof-image">
+            <div class="proof-info">
+              <p><strong>Método:</strong> {{ getPaymentMethodLabel(selectedOrder()?.paymentMethod) }}</p>
+              <p><strong>Monto:</strong> {{ formatCurrency(selectedOrder()?.totalPrice || 0) }}</p>
+              <p><strong>Verificado por:</strong> {{ selectedOrder()?.verifiedByName || 'N/A' }}</p>
+              <p><strong>Fecha:</strong> {{ formatDate(selectedOrder()?.verifiedAt) }}</p>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
