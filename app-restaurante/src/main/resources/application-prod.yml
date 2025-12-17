@@ -20,6 +20,9 @@ management:
   endpoint:
     health:
       show-details: when-authorized
+  health:
+    mail:
+      enabled: false  # Deshabilitar health check de email para evitar fallos en Railway
 
 logging:
   level:
