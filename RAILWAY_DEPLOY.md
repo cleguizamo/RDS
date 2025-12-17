@@ -47,7 +47,7 @@ DB_USERNAME=${MYSQLUSER}
 DB_PASSWORD=${MYSQLPASSWORD}
 
 # JWT Secret - Genera uno con: openssl rand -base64 64
-JWT_SECRET=VF1UclIlthxW35+eCePBzvwELjv03oRP5bZ//jr582Irjcm0SHsK4qD1T5xIhR/16J/ksPBfdWy5ctL7P0cH5w==
+JWT_SECRET=tu_jwt_secret_fuerte_aqui
 
 # SMTP (Gmail)
 SMTP_HOST=smtp.gmail.com
@@ -59,9 +59,9 @@ SMTP_PASSWORD=tu_app_password_de_gmail
 CORS_ALLOWED_ORIGINS=https://tu-frontend.vercel.app
 
 # Cloudinary
-CLOUDINARY_CLOUD_NAME=drp8os7tp
-CLOUDINARY_API_KEY=446264682988843
-CLOUDINARY_API_SECRET=eA6l0j6rJAofqFPBVevQLDrjwMY
+CLOUDINARY_CLOUD_NAME=tu_cloud_name
+CLOUDINARY_API_KEY=tu_api_key
+CLOUDINARY_API_SECRET=tu_api_secret
 CLOUDINARY_FOLDER=restaurante
 
 # Admin
