@@ -1,5 +1,6 @@
 package com.rds.app_restaurante.service;
 
+import com.rds.app_restaurante.Security.JwtUtil;
 import com.rds.app_restaurante.dto.LoginRequest;
 import com.rds.app_restaurante.dto.LoginResponse;
 import com.rds.app_restaurante.model.Admin;
@@ -9,7 +10,7 @@ import com.rds.app_restaurante.model.User;
 import com.rds.app_restaurante.repository.AdminRepository;
 import com.rds.app_restaurante.repository.EmployeeRepository;
 import com.rds.app_restaurante.repository.UserRepository;
-import com.rds.app_restaurante.util.JwtUtil;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;

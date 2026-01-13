@@ -1,28 +1,15 @@
-# Configuración específica para producción
-# Este archivo se activa cuando SPRING_PROFILES_ACTIVE=prod
-
-spring:
-  jpa:
-    hibernate:
-      ddl-auto: ${HIBERNATE_DDL_AUTO:validate}  # Usar variable de entorno, por defecto validate
-    properties:
-      hibernate:
-        format_sql: false
-        show_sql: false
-        use_sql_comments: false
-
 management:
   endpoints:
     web:
       exposure:
-        include: health,info  # Solo endpoints esenciales
+        include: health,info
       base-path: /actuator
   endpoint:
     health:
       show-details: when-authorized
   health:
     mail:
-      enabled: false  # Deshabilitar health check de email para evitar fallos en Railway
+      enabled: false  
 
 logging:
   level:

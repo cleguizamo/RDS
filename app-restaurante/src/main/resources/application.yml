@@ -1,3 +1,4 @@
+#Configuracion para Spring Boot, se definen las variables de entorno que estan almacenadas en Railway
 spring:
   application:
     name: app-restaurante
@@ -36,8 +37,6 @@ spring:
     host: ${SMTP_HOST:}
     port: ${SMTP_PORT:587}
     username: ${SMTP_USERNAME:}
-    # Para Gmail: usa una contraseña de aplicación (sin espacios) o ponla entre comillas si tiene espacios
-    # Genera una contraseña de aplicación en: https://myaccount.google.com/apppasswords
     password: ${SMTP_PASSWORD:}
     properties:
       mail:
@@ -55,7 +54,7 @@ spring:
     from-name: ${EMAIL_FROM_NAME:Restaurante App}
 
 server:
-  address: 0.0.0.0  # Escucha en todas las interfaces de red (permite acceso desde otras máquinas)
+  address: 0.0.0.0 
   port: ${PORT:8080}  # Railway usa PORT, localmente usa 8080
 
 
@@ -113,47 +112,3 @@ logging:
     name: ${LOG_FILE:logs/app-restaurante.log}
     max-size: ${LOG_MAX_SIZE:10MB}
     max-history: ${LOG_MAX_HISTORY:30}
-
----
-# Perfil de desarrollo
-spring:
-  config:
-    activate:
-      on-profile: dev
-  jpa:
-    properties:
-      hibernate:
-        format_sql: true
-        show_sql: true
-
-logging:
-  level:
-    com.rds.app_restaurante: DEBUG
-    org.springframework.web: DEBUG
-
----
-# Perfil de producción
-spring:
-  config:
-    activate:
-      on-profile: prod
-  jpa:
-    hibernate:
-      ddl-auto: ${HIBERNATE_DDL_AUTO:validate}  # Usar variable de entorno, por defecto validate
-    properties:
-      hibernate:
-        format_sql: false
-        show_sql: false
-
-management:
-  endpoints:
-    web:
-      exposure:
-        include: health,info  # Solo health e info en producción
-
-logging:
-  level:
-    root: WARN
-    com.rds.app_restaurante: INFO
-    org.springframework.security: WARN
-    org.hibernate: WARN

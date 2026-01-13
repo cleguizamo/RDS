@@ -1,6 +1,5 @@
-package com.rds.app_restaurante.filter;
+package com.rds.app_restaurante.Security;
 
-import com.rds.app_restaurante.util.JwtUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

@@ -10,5 +10,5 @@ import { ToastComponent } from './shared/toast/toast.component';
   styleUrl: './app.css'
 })
 export class App {
-  protected readonly title = signal('frontend-angular');
+  protected readonly title = signal('El rincon del sabor');
 }

@@ -1,4 +1,4 @@
-package com.rds.app_restaurante.util;
+package com.rds.app_restaurante.Security;
 
 import com.rds.app_restaurante.model.Role;
 import io.jsonwebtoken.Claims;

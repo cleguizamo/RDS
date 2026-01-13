@@ -1,6 +1,5 @@
-package com.rds.app_restaurante.config;
+package com.rds.app_restaurante.Security;
 
-import com.rds.app_restaurante.filter.JwtAuthenticationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -45,11 +44,9 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         
-        // Determinar si estamos en producción
         boolean isProduction = Arrays.asList(environment.getActiveProfiles()).contains("prod");
         
         if (isProduction && allowedOrigins != null && !allowedOrigins.trim().isEmpty()) {
-            // En producción: usar solo los orígenes específicos configurados
             List<String> origins = Arrays.asList(allowedOrigins.split(","));
             origins.forEach(origin -> {
                 origin = origin.trim();
@@ -58,13 +55,12 @@ public class SecurityConfig {
                 }
             });
         } else {
-            // En desarrollo: permitir localhost y redes locales
             configuration.setAllowedOriginPatterns(Arrays.asList(
                 "http://localhost:*",
                 "http://127.0.0.1:*",
-                "http://192.168.*.*:*",     // Redes privadas clase C
-                "http://10.*.*.*:*",        // Redes privadas clase A
-                "http://172.16.*.*:*",      // Redes privadas clase B
+                "http://192.168.*.*:*",     
+                "http://10.*.*.*:*",        
+                "http://172.16.*.*:*",      
                 "http://172.17.*.*:*",
                 "http://172.18.*.*:*",
                 "http://172.19.*.*:*",
@@ -101,8 +97,6 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-            // IMPORTANTE: Agregar el filtro JWT ANTES de UsernamePasswordAuthenticationFilter
-            // Esto asegura que el SecurityContext se establezca antes de la evaluación de autorización
             .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/", "/api", "/error").permitAll()
@@ -110,8 +104,6 @@ public class SecurityConfig {
                 .requestMatchers("/api/public/**").permitAll()
                 .requestMatchers("/actuator/**").permitAll()
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()
-                // Usar hasAnyRole para permitir que el método del controlador también verifique el rol
-                // Esto da doble protección: a nivel de SecurityFilterChain y a nivel de método
                 .requestMatchers("/api/admin/**").hasAnyRole("ADMIN")
                 .requestMatchers("/api/employee/**").hasAnyRole("EMPLOYEE")
                 .requestMatchers("/api/client/**").hasAnyRole("CLIENT")

@@ -1,9 +1,10 @@
 package com.rds.app_restaurante.controller;
 
+import com.rds.app_restaurante.Security.JwtUtil;
 import com.rds.app_restaurante.dto.ReservationRequest;
 import com.rds.app_restaurante.dto.ReservationResponse;
 import com.rds.app_restaurante.service.ReservationService;
-import com.rds.app_restaurante.util.JwtUtil;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

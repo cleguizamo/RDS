@@ -1,9 +1,10 @@
 package com.rds.app_restaurante.controller;
 
+import com.rds.app_restaurante.Security.JwtUtil;
 import com.rds.app_restaurante.dto.RedeemRewardRequest;
 import com.rds.app_restaurante.dto.RewardProductResponse;
 import com.rds.app_restaurante.service.RewardProductService;
-import com.rds.app_restaurante.util.JwtUtil;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
